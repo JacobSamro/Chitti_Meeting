@@ -1,6 +1,9 @@
+import 'package:chitti_meeting/modules/main_screen.dart';
+import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  setup();
   runApp(const MyApp());
 }
 
@@ -14,20 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Chitti Meeting"),
-      ),
+      home: const MainScreen(),
     );
   }
 }
