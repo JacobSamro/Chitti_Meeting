@@ -1,24 +1,28 @@
 import 'package:chitti_meeting/common/widgets/custom_bottom_navigation.dart';
+import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
+import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
 import 'package:chitti_meeting/modules/view_module/presentation/gallery_view.dart';
 import 'package:chitti_meeting/modules/view_module/presentation/speaker_view.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:dyte_core/dyte_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../view_module/presentation/standard_view.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   final DyteMobileClient client = locator<DyteMobileClient>();
   Widget currentScreen = const StandardView();
-
+  bool isFullScreen = false;
   @override
   void dispose() {
     super.dispose();
@@ -28,50 +32,59 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final DyteLocalUser localUser = client.localUser;
     return Scaffold(
       bottomNavigationBar: CustomBottomNavigation(
-        items: const [
+        items: [
           CustomBottomNavigationItem(
-            label: "Full Screen",
+            label: isFullScreen ? "Exit" : "Full Screen",
             iconPath: "assets/icons/full_screen.png",
           ),
           CustomBottomNavigationItem(
-            label: "Video On",
-            iconPath: "assets/icons/video.png",
+            label: client.localUser.videoEnabled ? "Video On" : "Video Off",
+            iconPath: client.localUser.videoEnabled
+                ? "assets/icons/video.png"
+                : "assets/icons/video_off.png",
           ),
-          CustomBottomNavigationItem(
-            label: "Mic On",
-            iconPath: "assets/icons/mic.png",
+          const CustomBottomNavigationItem(
+            label: "Mic Off",
+            iconPath: "assets/icons/mic_off.png",
           ),
-          CustomBottomNavigationItem(
+          const CustomBottomNavigationItem(
             label: "Chat",
             iconPath: "assets/icons/message.png",
           ),
-          CustomBottomNavigationItem(
+          const CustomBottomNavigationItem(
             label: "Switch View",
             iconPath: "assets/icons/view.png",
           ),
-          CustomBottomNavigationItem(
+          const CustomBottomNavigationItem(
             label: "Settings",
             iconPath: "assets/icons/settings.png",
           ),
-          CustomBottomNavigationItem(
+          const CustomBottomNavigationItem(
             label: "Leave",
             iconPath: "assets/icons/call_outline.png",
           ),
-          CustomBottomNavigationItem(
+          const CustomBottomNavigationItem(
             label: "Participants",
             iconPath: "assets/icons/people.png",
           ),
         ],
         onChanged: (value) async {
+          final DyteLocalUser localUser = client.localUser;
           switch (value) {
             case "Video On":
-              localUser.videoEnabled
-                  ? await localUser.disableVideo()
-                  : await localUser.enableVideo();
-              localUser.videoEnabled = !localUser.videoEnabled;
+              localUser.videoEnabled = false;
+              setState(() {});
+              await localUser.disableVideo();
+              // ref.read(cameraProvider.notifier).toggleVideo();
+              break;
+            case "Video Off":
+              setState(() {
+                localUser.videoEnabled = true;
+              });
+              await localUser.enableVideo();
+              // ref.read(cameraProvider.notifier).toggleVideo();
               break;
             case "Mic On":
               localUser.audioEnabled
@@ -138,15 +151,40 @@ class _MainScreenState extends State<MainScreen> {
                   });
               break;
             case "Chat":
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ChatScreen()));
               break;
             case "Settings":
               break;
             case "Participants":
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ParticipantsScreen()));
               break;
             case "Full Screen":
+              SystemChrome.setPreferredOrientations([
+                // DeviceOrientation.portraitUp,
+                DeviceOrientation.landscapeLeft,
+              ]);
+              setState(() {
+                currentScreen = const SpeakerView();
+                isFullScreen = true;
+              });
+              break;
+            case "Exit":
+              SystemChrome.setPreferredOrientations([
+                // DeviceOrientation.portraitUp,
+                DeviceOrientation.portraitUp,
+              ]);
+              setState(() {
+                currentScreen = const StandardView();
+                isFullScreen = false;
+              });
               break;
             case "Leave":
               client.leaveRoom();
+
               break;
             default:
               break;
