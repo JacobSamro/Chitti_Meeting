@@ -20,12 +20,12 @@ class _LocalUserState extends ConsumerState<LocalUser> {
   @override
   void initState() {
     super.initState();
-    controller =
-        CameraController(ref.read(cameraProvider)[1], ResolutionPreset.max);
-    init();
+    controller = ref.read(cameraProvider);
+    // init();
   }
 
   init() async {
+    await ref.read(cameraProvider.notifier).addCameras();
     await controller.initialize();
     controller.setZoomLevel(1);
     setState(() {});
@@ -33,7 +33,7 @@ class _LocalUserState extends ConsumerState<LocalUser> {
 
   @override
   void dispose() {
-    controller.dispose();
+    // controller.dispose();
     super.dispose();
   }
 

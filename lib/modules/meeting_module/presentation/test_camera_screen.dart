@@ -2,7 +2,6 @@ import 'package:camera/camera.dart';
 import 'package:chitti_meeting/common/widgets/custom_button.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
-import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
@@ -18,26 +17,27 @@ class TestCamera extends ConsumerStatefulWidget {
 class _TestCameraState extends ConsumerState<TestCamera> {
   late final CameraController controller;
   bool cameraPermission = false;
+  late final TextEditingController nameController;
+  bool isVideoOn = false;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
-    initCamera();
+    nameController = TextEditingController();
   }
 
   initCamera() async {
-    final cameras = ref.read(cameraProvider);
-    if (cameras.isNotEmpty) {
-      controller = CameraController(cameras[1], ResolutionPreset.medium);
-      await controller.initialize();
-      cameraPermission = true;
-      setState(() {});
-    }
-    return;
+    await ref.read(cameraProvider.notifier).addCameras();
+    controller = ref.read(cameraProvider);
+    await controller.initialize();
+    cameraPermission = true;
+    setState(() {});
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    // controller.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
@@ -46,7 +46,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final state = ref.watch(meetingStateProvider);
-    // controller.set
     return Scaffold(
       body: SafeArea(
         child: SizedBox(
@@ -74,6 +73,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                           child: GestureDetector(
                             onTap: () {
                               ref.read(cameraProvider.notifier).addCameras();
+                              isVideoOn = true;
                               initCamera();
                             },
                             child: CustomButton(
@@ -106,7 +106,11 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                               borderRadius: BorderRadius.circular(20),
                               child: SizedBox(
                                   width: double.infinity,
-                                  child: CameraPreview(controller)),
+                                  child: isVideoOn
+                                      ? CameraPreview(controller)
+                                      : Container(
+                                          color: Colors.black,
+                                        )),
                             ),
                             Positioned(
                               bottom: 4,
@@ -114,23 +118,43 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                               child: Row(
                                 children: [
                                   Container(
+                                    height: 40,
+                                    width: 40,
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: Colors.white38,
-                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.black.withOpacity(0.6),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(Icons.mic),
+                                    child: Image.asset(
+                                      "assets/icons/mic_off.png",
+                                      width: 20,
+                                      height: 20,
+                                    ),
                                   ),
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white38,
-                                      borderRadius: BorderRadius.circular(20),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      isVideoOn = !isVideoOn;
+                                      setState(() {});
+                                    },
+                                    child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.6),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Image.asset(
+                                        isVideoOn
+                                            ? "assets/icons/video.png"
+                                            : "assets/icons/video_off.png",
+                                        width: 20,
+                                        height: 20,
+                                      ),
                                     ),
-                                    child: const Icon(Icons.videocam),
                                   ),
                                 ],
                               ),
@@ -145,6 +169,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                   width: 300,
                   height: 52,
                   child: TextField(
+                      controller: nameController,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         hintText: "Enter your name",
@@ -177,13 +202,27 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    locator<MeetingRepositories>().addParticipant();
+                    if (nameController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Enter User Name")));
+                      return;
+                    }
+                    if (!cameraPermission) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Enable Camera")));
+                      return;
+                    }
+                    setState(() {
+                      isLoading = true;
+                    });
+                    locator<MeetingRepositories>()
+                        .addParticipant(nameController.text, isVideoOn);
+                    isLoading = false;
                   },
                   child: CustomButton(
                     height: 52,
                     child: Center(
-                      child: state.runtimeType == RouterInitial ||
-                              state.runtimeType == MeetingInitCompleted
+                      child: !isLoading
                           ? Text(
                               "Join the Workshop",
                               style: textTheme.titleSmall?.copyWith(
