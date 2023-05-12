@@ -3,17 +3,18 @@ import 'package:chitti_meeting/modules/view_module/widgets/local_user.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:dyte_core/dyte_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/page_number.dart';
 
-class StandardView extends StatefulWidget {
+class StandardView extends ConsumerStatefulWidget {
   const StandardView({super.key});
 
   @override
-  State<StandardView> createState() => _StandardViewState();
+  ConsumerState<StandardView> createState() => _StandardViewState();
 }
 
-class _StandardViewState extends State<StandardView> {
+class _StandardViewState extends ConsumerState<StandardView> {
   late final PageController _pageController;
   final DyteMobileClient client = locator<DyteMobileClient>();
   @override
@@ -31,6 +32,8 @@ class _StandardViewState extends State<StandardView> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    // ref.watch(cameraProvider);
+    // final isVideoOn = ref.read(cameraProvider.notifier).isVideoOn;
     return SafeArea(
       child: Column(
         children: [
@@ -63,22 +66,28 @@ class _StandardViewState extends State<StandardView> {
           ),
           Expanded(
             child: StreamBuilder(
-                stream: locator<DyteMobileClient>().activeStream,
+                stream: client.activeStream,
                 builder: (context, snap) {
-                  final List<List<dynamic>>participants = [];
+                  final List<List<dynamic>> participants = [];
+                  if (snap.hasError) {
+                    return Center(
+                      child: Text(snap.error.toString()),
+                    );
+                  }
                   if (snap.hasData) {
-                    final localUser = client.localUser;
+                    // final localUser = client.localUser;
                     if (snap.data!.length > 1) {
                       participants.add([
                         {
                           'isHost': true,
+                          "name": "host",
                           'src':
-                              "https://chitti-cloud-hls-server.canary.lmesacademy.net/c3778ac9-fae5-4f02-beec-1ddd63b6c2cb/master.m3u8"
+                              "https://chitti-cloud-hls-server.canary.lmesacademy.net/9d895280-eab9-404b-a77d-39338dcba2ba/master.m3u8"
                         },
                         {
                           'isHost': false,
+                          "name": snap.data![0].name,
                         },
-                        
                       ]);
                       snap.data!.removeAt(0);
                       for (int i = 0; i < snap.data!.length; i += 2) {
@@ -91,7 +100,14 @@ class _StandardViewState extends State<StandardView> {
                     } else {
                       participants.add([
                         {
+                          'isHost': true,
+                          "name": "host",
+                          'src':
+                              "https://chitti-cloud-hls-server.canary.lmesacademy.net/9d895280-eab9-404b-a77d-39338dcba2ba/master.m3u8"
+                        },
+                        {
                           'isHost': false,
+                          "name": snap.data![0].name,
                         },
                       ]);
                     }
@@ -102,53 +118,102 @@ class _StandardViewState extends State<StandardView> {
                       itemBuilder: (context, index) => Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: participants[index]
-                            .map(
-                              (e) => !e.runtimeType.toString().contains('Map')
-                                  ? Stack(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10),
-                                          child: SizedBox(
-                                              width: double.infinity,
-                                              height: 200,
-                                              child: e.videoEnabled
-                                                  ? VideoView(
-                                                      meetingParticipant: e,
-                                                    )
-                                                  : Center(
-                                                      child: Container(
-                                                      // padding: const EdgeInsets.all(15),
-                                                      width: 80,
-                                                      height: 80,
-                                                      decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      50)),
-                                                      child: Center(
-                                                        child: Text(
-                                                          '${e.name}'
-                                                              .substring(0, 1)
-                                                              .toUpperCase(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .black),
-                                                        ),
-                                                      ),
-                                                    ))),
+                            .map((e) => !e.runtimeType
+                                    .toString()
+                                    .contains('Map')
+                                ? Stack(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          height: 200,
+                                          child: e.videoEnabled
+                                              ? VideoView(
+                                                  meetingParticipant: e,
+                                                )
+                                              : const ParticipantWithoutVideo(),
                                         ),
-                                        Positioned(
-                                            bottom: 10,
-                                            right: 10,
-                                            child: Text(
-                                                '${e.name}(${e.isHost ? 'H' : 'P'})')),
-                                      ],
-                                    )
-                                  :e['isHost']?CustomVideoPlayer(src: e['src']):const LocalUser(),
-                            )
+                                      ),
+                                      Positioned(
+                                          bottom: 10,
+                                          left: 10,
+                                          child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white
+                                                      .withOpacity(0.05),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    '${e.name}',
+                                                    style: textTheme.labelSmall
+                                                        ?.copyWith(
+                                                            fontSize: 12),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Image.asset(
+                                                    'assets/icons/mic_off.png',
+                                                    width: 16,
+                                                    height: 16,
+                                                  )
+                                                ],
+                                              )))
+                                    ],
+                                  )
+                                : Stack(
+                                    children: [
+                                      e['isHost']
+                                          ? CustomVideoPlayer(src: e['src'])
+                                          : client.localUser.videoEnabled
+                                              ? const LocalUser()
+                                              : const ParticipantWithoutVideo(),
+                                      Positioned(
+                                          bottom: 10,
+                                          left: 10,
+                                          child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white
+                                                      .withOpacity(0.05),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    '${e['name']}',
+                                                    style: textTheme.labelSmall
+                                                        ?.copyWith(
+                                                            fontSize: 12),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 8,
+                                                  ),
+                                                  Image.asset(
+                                                    e['isHost']
+                                                        ? 'assets/icons/mic.png'
+                                                        : 'assets/icons/mic_off.png',
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: e['isHost']
+                                                        ? Colors.green
+                                                        : null,
+                                                  )
+                                                ],
+                                              )))
+                                    ],
+                                  ))
                             .toList(),
                       ),
                     );
@@ -200,5 +265,25 @@ class _StandardViewState extends State<StandardView> {
         ],
       ),
     );
+  }
+}
+
+class ParticipantWithoutVideo extends StatelessWidget {
+  const ParticipantWithoutVideo({
+    super.key,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        // padding: const EdgeInsets.all(15),
+        width: double.infinity,
+        height: 200,
+        color: Colors.white.withOpacity(0.06),
+        child: Center(
+            child: Image.asset(
+          'assets/icons/user_rounded.png',
+          width: 44,
+          height: 44,
+        )));
   }
 }

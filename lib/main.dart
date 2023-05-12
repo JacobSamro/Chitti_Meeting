@@ -1,5 +1,5 @@
-import 'package:camera/camera.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
+import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_ended_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
@@ -45,20 +45,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           onTap: () {}, child: const CircularProgressIndicator()),
     ),
     const MainScreen(),
-    const Center(
-      child: Text("Leave"),
-    )
+    const MeetingEndedScreen()
   ];
-  int pageIndex = 0;
   @override
   void initState() {
     super.initState();
     ref.read(cameraProvider.notifier).addCameras();
     initMeeting();
   }
+
   initMeeting() async {
-    // final String token = await locator<MeetingRepositories>().addParticipant();
-    // client.init(DyteMeetingInfoV2(authToken: token));
     client
         .addMeetingRoomEventsListener(ref.read(meetingStateProvider.notifier));
     client.addParticipantEventsListener(
@@ -72,24 +68,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(meetingStateProvider);
+    // ref.watch(meetingStateProvider);
+    final pageIndex = ref.watch(meetingPageProvider);
     ref.listen(meetingStateProvider, (previous, next) {
-      debugPrint("hello${next.runtimeType}");
+      debugPrint("Current State :: ${next.runtimeType}");
       switch (next.runtimeType) {
         case MeetingInitCompleted:
           client.joinRoom();
+          // checkMeetingState();
           break;
         case MeetingRoomJoinCompleted:
-          pageIndex = 2;
+          ref.read(meetingPageProvider.notifier).changePageIndex(2);
           break;
         case MeetingRoomLeaveCompleted:
-          pageIndex = 3;
+          ref.read(meetingPageProvider.notifier).changePageIndex(3);
           break;
         default:
-          pageIndex = 1;
+          ref.read(meetingPageProvider.notifier).changePageIndex(1);
           break;
       }
     });
     return pages[pageIndex];
   }
+
+  // checkMeetingState() {
+  //   Timer.periodic(const Duration(seconds: 1), (timer) {
+  //     if (client.meta.meetingTitle.isNotEmpty) {
+  //       ref
+  //           .read(meetingStateProvider.notifier)
+  //           .changeState(MeetingRoomJoinCompleted());
+  //     }
+  //     timer.cancel();
+  //   });
+  // }
 }
