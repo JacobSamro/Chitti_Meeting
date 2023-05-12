@@ -77,6 +77,15 @@ class ParticipantStateNotifier extends StateNotifier<String>
     // state = VideoUpdated(participantId, isVideoOn);
   }
   @override
+  void onParticipantJoin(DyteMeetingParticipant participant) {
+    super.onParticipantJoin(participant);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("${participant.name} joined the meeting"),
+      ),
+    );
+  }
+  @override
   void onParticipantLeave(DyteMeetingParticipant participant) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -84,16 +93,16 @@ class ParticipantStateNotifier extends StateNotifier<String>
       ),
     );
   }
-  
+
   @override
-  void onUpdate (DyteRoomParticipants participants) {
+  void onUpdate(DyteRoomParticipants participants) {
     // ScaffoldMessenger.of(context).showSnackBar(
     //   // SnackBar(
     //   //   content: Text("${participants.grid} joined the meeting"),
     //   // ),
     // );
     debugPrint("participants.grid ${participants.toMap()}");
-      state="";
+    state = "";
   }
 }
 
@@ -101,3 +110,14 @@ final participantStateProvider = StateNotifierProvider.family<
     ParticipantStateNotifier, String, BuildContext>(
   (ref, context) => ParticipantStateNotifier(context: context),
 );
+
+class MeetingPageNotifier extends StateNotifier<int> {
+  MeetingPageNotifier(super.state);
+
+  void changePageIndex(int index) {
+    state = index;
+  }
+}
+
+final StateNotifierProvider<MeetingPageNotifier, int> meetingPageProvider =
+    StateNotifierProvider<MeetingPageNotifier,int>((ref) => MeetingPageNotifier(0));
