@@ -3,17 +3,12 @@ import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_ended
 import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
-import 'package:chitti_meeting/services/locator.dart';
-import 'package:dyte_core/dyte_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'common/constants/app_theme_data.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 
 void main() {
-  setup();
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,10 +17,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Chitti Meeting',
-        theme: appThemeData,
-        home: const HomeScreen());
+      title: 'Chitti Meeting',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomeScreen(),
+    );
   }
 }
 
@@ -37,7 +34,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final client = locator<DyteMobileClient>();
   final pages = <Widget>[
     const TestCamera(),
     Center(
@@ -51,36 +47,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     ref.read(cameraProvider.notifier).addCameras();
-    initMeeting();
+    ref.read(meetingStateProvider.notifier).createListener();
+    ref.read(meetingStateProvider.notifier).listen(context);
   }
 
-  initMeeting() async {
-    client
-        .addMeetingRoomEventsListener(ref.read(meetingStateProvider.notifier));
-    client.addParticipantEventsListener(
-        ref.read(participantStateProvider(context).notifier));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // ref.read(responsiveProvider.notifier).deviceType(context);
   }
 
   @override
   void dispose() {
+    ref.read(meetingStateProvider.notifier).removeListener();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // ref.watch(meetingStateProvider);
     final pageIndex = ref.watch(meetingPageProvider);
     ref.listen(meetingStateProvider, (previous, next) {
       debugPrint("Current State :: ${next.runtimeType}");
       switch (next.runtimeType) {
-        case MeetingInitCompleted:
-          client.joinRoom();
-          // checkMeetingState();
+        case RouterInitial:
+          ref.read(meetingPageProvider.notifier).changePageIndex(0);
           break;
         case MeetingRoomJoinCompleted:
           ref.read(meetingPageProvider.notifier).changePageIndex(2);
           break;
-        case MeetingRoomLeaveCompleted:
+        case MeetingRoomDisconnected:
           ref.read(meetingPageProvider.notifier).changePageIndex(3);
           break;
         default:
@@ -90,15 +85,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
     return pages[pageIndex];
   }
-
-  // checkMeetingState() {
-  //   Timer.periodic(const Duration(seconds: 1), (timer) {
-  //     if (client.meta.meetingTitle.isNotEmpty) {
-  //       ref
-  //           .read(meetingStateProvider.notifier)
-  //           .changeState(MeetingRoomJoinCompleted());
-  //     }
-  //     timer.cancel();
-  //   });
-  // }
 }

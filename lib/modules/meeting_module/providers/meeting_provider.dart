@@ -1,123 +1,142 @@
-import 'package:dyte_core/dyte_core.dart';
+import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
+import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livekit_client/livekit_client.dart';
 
+import '../../../services/locator.dart';
 import '../states/meeting_states.dart';
 
-class MeetingStateNotifier extends StateNotifier<MeetingStates>
-    with DyteMeetingRoomEventsListener, DyteSelfEventsListener {
-  MeetingStateNotifier() : super(RouterInitial());
+class MeetingStateNotifier extends StateNotifier<MeetingStates> {
+  MeetingStateNotifier({this.ref}) : super(RouterInitial());
+  final Ref? ref;
+  late final EventsListener<RoomEvent> _listener;
+  EventsListener<RoomEvent> get listener => _listener;
+  // bool _videoOn = true;
 
-  @override
-  void onMeetingInitStarted() {
-    state = MeetingInitStarted();
+  void changeState(MeetingStates state) {
+    this.state = state;
   }
 
-  @override
-  void onMeetingInitCompleted() {
-    state = MeetingInitCompleted();
-    debugPrint(state.toString());
+  onTrackPublished() {
+    return () {};
   }
 
-  @override
-  void onMeetingInitFailed(Exception exception) {
-    state = MeetingInitFailed(exception);
+  void createListener() {
+    _listener = locator<Room>().createListener();
   }
 
-  @override
-  void onMeetingRoomJoinStarted() {
-    state = MeetingRoomJoinStarted();
+  void listen(BuildContext context) {
+    _listener.on<ParticipantConnectedEvent>((event) {
+      ref!
+          .read(participantProvider.notifier)
+          .addRemoteParticipantTrack(event.participant);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${event.participant.identity} connected')));
+    });
+
+    _listener.on<ParticipantDisconnectedEvent>((event) {
+      ref!
+          .read(participantProvider.notifier)
+          .removeRemoteParticipantTrack(event.participant);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${event.participant.identity} disconnected')));
+    });
+
+    _listener.on<TrackPublishedEvent>((event) {
+      state = MeetingRoomJoinCompleted();
+    });
+
+    _listener.on<TrackUnpublishedEvent>((event) {
+      // do something when a track is unpublished
+    });
+
+    _listener.on<TrackSubscribedEvent>((event) {});
+
+    _listener.on<TrackUnsubscribedEvent>((event) {
+      // do something when a track is unsubscribed from
+    });
+
+    _listener.on<TrackMutedEvent>((event) {
+      onTrackPublished();
+    });
+
+    _listener.on<TrackUnmutedEvent>((event) {
+      // do something when a track is unmuted
+    });
+
+    _listener.on<RoomDisconnectedEvent>((event) {
+      state = MeetingRoomDisconnected();
+    });
+
+    _listener.on<RoomReconnectingEvent>((event) {
+      state = MeetingRoomReconnecting();
+      // ref?.invalidate(participantProvider);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Reconnecting to room')));
+    });
+
+    _listener.on<RoomReconnectedEvent>((event) {
+      state = MeetingRoomJoinCompleted();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Reconnected to room')));
+    });
   }
 
-  @override
-  void onMeetingRoomJoinCompleted() {
-    state = MeetingRoomJoinCompleted();
-  }
-
-  @override
-  void onMeetingRoomJoinFailed(Exception exception) {
-    state = MeetingRoomJoinFailed(exception);
-  }
-
-  @override
-  void onMeetingRoomLeaveStarted() {
-    state = MeetingRoomLeaveStarted();
-  }
-
-  @override
-  void onMeetingRoomLeaveCompleted() {
-    state = MeetingRoomLeaveCompleted();
-  }
-
-  @override
-  void onMeetingRoomDisconnected() {
-    state = MeetingRoomDisconnected();
-  }
-
-  @override
-  void onWaitListStatusUpdate(DyteWaitListStatus waitListStatus) {
-    state = SelfWaitingRoomStatusUpdate(waitListStatus);
+  void removeListener() {
+    _listener.dispose();
   }
 }
 
 final meetingStateProvider =
     StateNotifierProvider<MeetingStateNotifier, MeetingStates>(
-  (ref) => MeetingStateNotifier(),
-);
-
-//participant_state_notifier
-
-class ParticipantStateNotifier extends StateNotifier<String>
-    with DyteParticipantEventsListener {
-  ParticipantStateNotifier({required this.context}) : super("");
-
-  final BuildContext context;
-
-  void videoUpdate(bool videoEnabled) {
-    // state = VideoUpdated(participantId, isVideoOn);
-  }
-  @override
-  void onParticipantJoin(DyteMeetingParticipant participant) {
-    super.onParticipantJoin(participant);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("${participant.name} joined the meeting"),
-      ),
-    );
-  }
-  @override
-  void onParticipantLeave(DyteMeetingParticipant participant) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("${participant.name} left the meeting"),
-      ),
-    );
-  }
-
-  @override
-  void onUpdate(DyteRoomParticipants participants) {
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   // SnackBar(
-    //   //   content: Text("${participants.grid} joined the meeting"),
-    //   // ),
-    // );
-    debugPrint("participants.grid ${participants.toMap()}");
-    state = "";
-  }
-}
-
-final participantStateProvider = StateNotifierProvider.family<
-    ParticipantStateNotifier, String, BuildContext>(
-  (ref, context) => ParticipantStateNotifier(context: context),
+  (ref) => MeetingStateNotifier(ref: ref),
 );
 
 class MeetingPageNotifier extends StateNotifier<int> {
   MeetingPageNotifier(super.state);
-
   void changePageIndex(int index) {
     state = index;
   }
 }
 
 final StateNotifierProvider<MeetingPageNotifier, int> meetingPageProvider =
-    StateNotifierProvider<MeetingPageNotifier,int>((ref) => MeetingPageNotifier(0));
+    StateNotifierProvider<MeetingPageNotifier, int>(
+        (ref) => MeetingPageNotifier(0));
+
+class ParticipantNotifier extends StateNotifier<List<dynamic>> {
+  ParticipantNotifier(super.state);
+
+  final Room room = locator<Room>();
+
+  Future<void> addLocalParticipantTrack() async {
+    List<dynamic> participants = [];
+    final HostModel host = await locator<MeetingRepositories>().getHostVideo();
+    participants = [
+      host,
+      // {"name": "sakthi", "message": "hello"}
+      room.localParticipant as Participant,
+    ];
+    for (var element in room.participants.values) {
+      participants.add(element);
+    }
+    state = [...state, ...participants];
+  }
+
+  void addRemoteParticipantTrack(Participant participant) {
+    state = [...state, participant];
+  }
+
+  void removeRemoteParticipantTrack(Participant participant) {
+    final List<dynamic> newState = state
+        .where((element) =>
+            element is HostModel ? true : element.sid != participant.sid)
+        .toList();
+    state = newState;
+  }
+}
+
+final StateNotifierProvider<ParticipantNotifier, List<dynamic>>
+    participantProvider =
+    StateNotifierProvider<ParticipantNotifier, List<dynamic>>(
+        (ref) => ParticipantNotifier([]));
