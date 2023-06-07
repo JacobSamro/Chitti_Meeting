@@ -1,11 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:chitti_meeting/common/widgets/custom_button.dart';
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:chitti_meeting/services/locator.dart';
+import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../repositories/meeting_respositories.dart';
 
 class TestCamera extends ConsumerStatefulWidget {
   const TestCamera({super.key});
@@ -27,11 +28,15 @@ class _TestCameraState extends ConsumerState<TestCamera> {
   }
 
   initCamera() async {
-    await ref.read(cameraProvider.notifier).addCameras();
-    controller = ref.read(cameraProvider);
-    await controller.initialize();
-    cameraPermission = true;
-    setState(() {});
+    try {
+      await ref.read(cameraProvider.notifier).addCameras();
+      controller = ref.read(cameraProvider);
+      await controller.initialize();
+      cameraPermission = true;
+      setState(() {});
+    } catch (error) {
+      throw Exception(error);
+    }
   }
 
   @override
@@ -45,7 +50,10 @@ class _TestCameraState extends ConsumerState<TestCamera> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final state = ref.watch(meetingStateProvider);
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(context);
+    // final ResponsiveDevice responsiveDevice = ref.read(responsiveProvider);
+    // final state = ref.watch(meetingStateProvider);
     return Scaffold(
       body: SafeArea(
         child: SizedBox(
@@ -56,8 +64,10 @@ class _TestCameraState extends ConsumerState<TestCamera> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 300,
-                  height: 168,
+                  width:
+                      responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
+                  height:
+                      responsiveDevice != ResponsiveDevice.mobile ? 270 : 168,
                   decoration: BoxDecoration(
                     image: const DecorationImage(
                         image: AssetImage('assets/images/background.png'),
@@ -166,8 +176,9 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                   height: 28,
                 ),
                 SizedBox(
-                  width: 300,
-                  height: 52,
+                  width:
+                      responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
+                  height: responsiveDevice != ResponsiveDevice.mobile ? 68 : 52,
                   child: TextField(
                       controller: nameController,
                       textAlign: TextAlign.center,
@@ -216,11 +227,15 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                       isLoading = true;
                     });
                     locator<MeetingRepositories>()
-                        .addParticipant(nameController.text, isVideoOn);
+                        .addParticipant(nameController.text, isVideoOn, ref);
+                    // locator<Room>().disconnect();
                     isLoading = false;
                   },
                   child: CustomButton(
-                    height: 52,
+                    height:
+                        responsiveDevice != ResponsiveDevice.mobile ? 68 : 52,
+                    width:
+                        responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
                     child: Center(
                       child: !isLoading
                           ? Text(
