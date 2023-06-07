@@ -1,14 +1,18 @@
+import 'package:chitti_meeting/common/constants/app_theme_data.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_ended_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
+import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'modules/meeting_module/states/meeting_states.dart';
 
 void main() {
-  runApp(const MyApp());
+  setup();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,9 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chitti Meeting',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: appThemeData,
       home: const HomeScreen(),
     );
   }
