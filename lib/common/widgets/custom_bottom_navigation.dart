@@ -7,20 +7,19 @@ class CustomBottomNavigation extends StatelessWidget {
   final Function(String) onChanged;
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
+    return Container(
       color: Colors.black,
-      child: SizedBox(
-        height: 56,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: items
-              .map((e) => GestureDetector(
-                  onTap: () {
-                    onChanged(e.label);
-                  },
-                  child: e))
-              .toList(),
-        ),
+      height: 76,
+      child: ListView(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        children: items
+            .map((e) => GestureDetector(
+                onTap: () {
+                  onChanged(e.label);
+                },
+                child: e))
+            .toList(),
       ),
     );
   }
@@ -34,22 +33,24 @@ class CustomBottomNavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return SizedBox(
-      width: 76,
-      height: 49,
-      child: Column(
-        children: [
-          Image.asset(
-            iconPath,
-            width: 20,
-            height: 20,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: textTheme.labelSmall?.copyWith(fontSize: 10),
-          )
-        ],
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        height: 49,
+        child: Column(
+          children: [
+            Image.asset(
+              iconPath,
+              width: 20,
+              height: 20,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: textTheme.labelSmall?.copyWith(fontSize: 10),
+            )
+          ],
+        ),
       ),
     );
   }
