@@ -1,5 +1,6 @@
 import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
+import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
@@ -12,15 +13,14 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
   final Ref? ref;
   late final EventsListener<RoomEvent> _listener;
   EventsListener<RoomEvent> get listener => _listener;
+  final Room room = locator<Room>();
   // bool _videoOn = true;
 
   void changeState(MeetingStates state) {
     this.state = state;
   }
 
-  onTrackPublished() {
-    return () {};
-  }
+  onTrackPublished() {}
 
   void createListener() {
     _listener = locator<Room>().createListener();
@@ -43,29 +43,17 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
           content: Text('${event.participant.identity} disconnected')));
     });
 
-    _listener.on<TrackPublishedEvent>((event) {
-      state = MeetingRoomJoinCompleted();
-    });
-
-    _listener.on<TrackUnpublishedEvent>((event) {
-      // do something when a track is unpublished
-    });
-
     _listener.on<TrackSubscribedEvent>((event) {});
 
     _listener.on<TrackUnsubscribedEvent>((event) {
       // do something when a track is unsubscribed from
     });
 
-    _listener.on<TrackMutedEvent>((event) {
-      onTrackPublished();
-    });
-
-    _listener.on<TrackUnmutedEvent>((event) {
-      // do something when a track is unmuted
-    });
-
-    _listener.on<RoomDisconnectedEvent>((event) {
+    _listener.on<RoomDisconnectedEvent>((event) async {
+      await room.localParticipant?.unpublishTrack(
+          room.localParticipant!.trackPublications.values.first.sid);
+      final cameraController = ref?.read(cameraProvider);
+      await cameraController?.stopVideoRecording();
       state = MeetingRoomDisconnected();
     });
 
@@ -80,6 +68,24 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       state = MeetingRoomJoinCompleted();
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Reconnected to room')));
+    });
+     _listener.on<TrackPublishedEvent>((event) {
+      // state == MeetingRoomJoinCompleted() ? callback() : null;
+      state = MeetingRoomJoinCompleted();
+    });
+
+  }
+
+  void listenTrack(VoidCallback callback) {
+   
+    _listener.on<TrackUnpublishedEvent>((event) {
+      // callback();
+    });
+    _listener.on<TrackMutedEvent>((event) {
+      callback();
+    });
+    _listener.on<TrackUnmutedEvent>((event) {
+      callback();
     });
   }
 

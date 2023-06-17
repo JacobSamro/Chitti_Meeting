@@ -12,7 +12,7 @@ class CameraNotifier extends StateNotifier<CameraController> {
       state = CameraController(cameras[1], ResolutionPreset.medium);
     } else {
       final cameras = await availableCameras();
-      state = CameraController(cameras[0], ResolutionPreset.medium);
+      state = CameraController(cameras.length>1?cameras[1]:cameras[0], ResolutionPreset.medium);
     }
   }
 
