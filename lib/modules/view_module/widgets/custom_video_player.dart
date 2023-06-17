@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class CustomVideoPlayer extends StatefulWidget {
-  const CustomVideoPlayer({super.key, required this.src, this.hieight = 200});
+  const CustomVideoPlayer({super.key, required this.src, this.height = 200});
   final String src;
-  final double hieight;
+  final double height;
   @override
   State<CustomVideoPlayer> createState() => _CustomVideoPlayerState();
 }
@@ -25,6 +25,7 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       );
       controller = locator<VideoPlayerController>();
       await controller.initialize();
+      controller.videoPlayerOptions?.allowBackgroundPlayback;
       controller.play();
       controller.setLooping(true);
       setState(() {});
@@ -42,12 +43,18 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      child: SizedBox(
-        height: widget.hieight,
-        width: double.infinity,
-        child: controller.value.isInitialized
-            ? VideoPlayer(controller)
-            : const Center(child: CircularProgressIndicator()),
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.fill,
+          // height: widget.height,
+          // width: double.infinity,
+          child: controller.value.isInitialized
+              ? SizedBox(
+                  width: controller.value.size.width,
+                  height: controller.value.size.height,
+                  child: VideoPlayer(controller))
+              : const Center(child: CircularProgressIndicator()),
+        ),
       ),
     );
   }
