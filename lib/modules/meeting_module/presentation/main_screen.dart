@@ -80,7 +80,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 alignment: Alignment.bottomCenter,
                 children: [
                   const CustomVideoPlayer(
-                      hieight: double.infinity,
+                      height: double.infinity,
                       src:
                           'https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8'),
                   Padding(
@@ -96,11 +96,26 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 }
 
-class NavigationBar extends ConsumerWidget {
+class NavigationBar extends ConsumerStatefulWidget {
   const NavigationBar({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NavigationBar> createState() => _NavigationBarState();
+}
+
+class _NavigationBarState extends ConsumerState<NavigationBar> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(meetingStateProvider.notifier).listenTrack(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final Room room = locator<Room>();
     final ViewType type = ref.watch(viewProvider);
@@ -147,18 +162,9 @@ class NavigationBar extends ConsumerWidget {
         switch (value) {
           case "Video On":
             await room.localParticipant?.setCameraEnabled(false);
-            // localUser.videoEnabled = false;
-            // setState(() {});
-            // await localUser.disableVideo();
-            // ref.read(cameraProvider.notifier).toggleVideo();
             break;
           case "Video Off":
             room.localParticipant?.setCameraEnabled(true);
-            // setState(() {
-            //   localUser.videoEnabled = true;
-            // });
-            // await localUser.enableVideo();
-            // ref.read(cameraProvider.notifier).toggleVideo();
             break;
           case "Mic Off":
             ScaffoldMessenger.of(context).showSnackBar(
@@ -237,22 +243,23 @@ class NavigationBar extends ConsumerWidget {
             break;
           case "Full Screen":
             SystemChrome.setPreferredOrientations([
-              // DeviceOrientation.portraitUp,
               DeviceOrientation.landscapeLeft,
             ]);
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
             break;
           case "Exit":
             SystemChrome.setPreferredOrientations([
-              // DeviceOrientation.portraitUp,
               DeviceOrientation.portraitUp,
             ]);
             ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
 
             break;
           case "Leave":
-            room.disconnect();
+            await room.localParticipant?.unpublishAllTracks();
+            await room.localParticipant?.dispose();
+            await room.disconnect();
             ref.invalidate(participantProvider);
+            // room.dispose();
             locator<VideoPlayerController>().dispose();
             locator.unregister<VideoPlayerController>();
             break;

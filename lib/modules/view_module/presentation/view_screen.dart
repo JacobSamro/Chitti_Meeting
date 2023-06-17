@@ -74,9 +74,10 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: participantsTrack
-                                    .map((dynamic participant) =>
-                                        ParticipantWidget(
-                                            participant: participant))
+                                    .map((dynamic participant) => Expanded(
+                                          child: ParticipantWidget(
+                                              participant: participant),
+                                        ))
                                     .toList(),
                               );
                   },
