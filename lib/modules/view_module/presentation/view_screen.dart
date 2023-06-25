@@ -3,10 +3,10 @@ import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respo
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/widgets/participant_widget.dart';
 import 'package:chitti_meeting/services/locator.dart';
+import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
-
 import '../providers/view_provider.dart';
 import '../widgets/page_number.dart';
 
@@ -36,97 +36,80 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(context);
     ref.watch(participantProvider);
     final ViewType viewType = ref.watch(viewProvider);
-    final List<dynamic> participants =
-        meetingRepositories.sortParticipant(viewType, ref);
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        participants.isNotEmpty
-            ? Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: participants.length,
-                  itemBuilder: (context, index) {
-                    final participantsTrack = viewType != ViewType.speaker
-                        ? participants[index] as List<dynamic>
-                        : participants;
-                    return viewType == ViewType.speaker
-                        ? ParticipantWidget(participant: participantsTrack)
-                        : viewType != ViewType.standard
-                            ? Center(
-                                child: GridView.builder(
-                                  shrinkWrap: true,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          crossAxisSpacing: 20,
-                                          mainAxisSpacing: 20),
-                                  itemBuilder: (context, index) =>
-                                      ParticipantWidget(
-                                          participant:
-                                              participantsTrack[index]),
-                                  itemCount: participantsTrack.length,
-                                ),
-                              )
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: participantsTrack
-                                    .map((dynamic participant) => Expanded(
-                                          child: ParticipantWidget(
-                                              participant: participant),
-                                        ))
-                                    .toList(),
-                              );
-                  },
-                ),
-              )
-            : const Expanded(child: CircularProgressIndicator()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            height: 40,
-            width: double.infinity,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    _pageController.previousPage(
-                        duration: const Duration(milliseconds: 1),
-                        curve: Curves.ease);
-                  },
-                  child: Image.asset(
-                    'assets/icons/arrow_left.png',
-                    width: 24,
-                    height: 24,
-                  ),
-                ),
-                PageNumber(pageController: _pageController),
-                GestureDetector(
-                  onTap: () {
-                    _pageController.nextPage(
-                        duration: const Duration(milliseconds: 1),
-                        curve: Curves.ease);
-                  },
-                  child: Image.asset(
-                    'assets/icons/arrow_right.png',
-                    width: 24,
-                    height: 24,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 40,
-        )
-      ],
-    );
+    final List<dynamic> participants = meetingRepositories.sortParticipant(
+        responsiveDevice == ResponsiveDevice.desktop &&
+                viewType == ViewType.standard
+            ? ViewType.speaker
+            : viewType,
+        ref);
+    return responsiveDevice != ResponsiveDevice.desktop ||
+            viewType != ViewType.standard
+        ? PageView.builder(
+            padEnds: false,
+            controller: _pageController,
+            itemCount: participants.length,
+            itemBuilder: (context, index) {
+              final participantTracks = viewType != ViewType.speaker
+                  ? participants[index] as List<dynamic>
+                  : participants;
+              return viewType == ViewType.standard
+                  ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                      children: participantTracks.map((e) {
+                        return SizedBox(
+                          height: 200,
+                          child: ParticipantWidget(
+                            participant: e,
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  : viewType == ViewType.gallery
+                      ? Center(
+                          child: GridView.builder(
+                            gridDelegate:
+                                 SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              mainAxisExtent:MediaQuery.of(context).size.height/2.5,
+                            ),
+                            itemCount:participantTracks.length,
+                            itemBuilder: (context, index) {
+                              return SizedBox(
+                                  height: 200,
+                                  child: ParticipantWidget(
+                                    participant: participantTracks[index],
+                                  ),);
+                            },
+                          ),)
+                      : ParticipantWidget(
+                          participant: participants[index],
+                        );
+            })
+        : Row(children: [
+            Expanded(
+                flex: 2,
+                child: ParticipantWidget(
+                  participant: participants[0],
+                )),
+            Container(
+                width: 250,
+                padding: EdgeInsets.all(10),
+                child: ListView(
+                  children: participants.sublist(1).map((e) {
+                    return SizedBox(
+                        height: 200,
+                        child: ParticipantWidget(
+                          participant: e,
+                        ));
+                  }).toList(),
+                ))
+          ]);
   }
 }
 

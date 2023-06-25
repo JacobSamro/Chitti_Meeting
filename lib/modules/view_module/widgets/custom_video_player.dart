@@ -44,17 +44,12 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.fill,
-          // height: widget.height,
-          // width: double.infinity,
-          child: controller.value.isInitialized
-              ? SizedBox(
-                  width: controller.value.size.width,
-                  height: controller.value.size.height,
-                  child: VideoPlayer(controller))
-              : const Center(child: CircularProgressIndicator()),
-        ),
+        child: controller.value.isInitialized
+            ? SizedBox(
+                width: controller.value.size.width,
+                height: controller.value.size.height,
+                child: VideoPlayer(controller))
+            : const Center(child: CircularProgressIndicator()),
       ),
     );
   }
