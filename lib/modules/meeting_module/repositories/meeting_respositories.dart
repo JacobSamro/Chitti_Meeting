@@ -15,7 +15,7 @@ class MeetingRepositories {
       String participantName, bool isVideo, WidgetRef ref) async {
     final int id = Random().nextInt(100);
     final Response response = await dio.post(ApiConstants.addParticipantUrl,
-        data: {"userName": "$participantName$id", "roomName": "demo"});
+        data: {"participantName": "$participantName$id", "roomName": "demo"});
 
     await room.connect(ApiConstants.livekitUrl, response.data['token'],
         roomOptions: const RoomOptions(

@@ -7,7 +7,6 @@ import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dar
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'modules/meeting_module/states/meeting_states.dart';
 
 void main() {
@@ -21,7 +20,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Chitti Meeting',
+      title: 'Chitti Meet',
+      debugShowCheckedModeBanner: false,
       theme: appThemeData,
       home: const HomeScreen(),
     );
