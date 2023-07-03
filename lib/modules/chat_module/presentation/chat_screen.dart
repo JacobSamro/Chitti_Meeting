@@ -1,34 +1,59 @@
+import 'package:chitti_meeting/modules/chat_module/models/message_model.dart';
+import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
+  late final TextEditingController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+      ref.read(chatProvider.notifier).listenMessage('96017f1b-fcf4-441c-9f4c-56eb28496ece');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final chat = ref.watch(chatProvider);
     final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.black,
-        actions: [TextButton(onPressed: () {}, child: const Text('X'))],
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('X'))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(children: [
           Expanded(
               child: ListView.builder(
-                  itemCount: 8,
+                  itemCount: chat.length,
                   itemBuilder: (context, index) {
+                    final MessageModel message = chat[index];
                     return Padding(
                       padding: const EdgeInsets.all(7.0),
                       child: Row(
-                        mainAxisAlignment: index % 2 != 0
+                        mainAxisAlignment: message.by != MessageBy.host
                             ? MainAxisAlignment.end
                             : MainAxisAlignment.start,
                         children: [
@@ -37,16 +62,16 @@ class _ChatScreenState extends State<ChatScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 10),
                               decoration: BoxDecoration(
-                                  color: index % 2 != 0
+                                  color: message.by != MessageBy.host
                                       ? Colors.white
                                       : Colors.white.withOpacity(0.05),
                                   borderRadius: BorderRadius.only(
                                     topLeft: const Radius.circular(10),
                                     topRight: const Radius.circular(10),
-                                    bottomRight: index % 2 == 0
+                                    bottomRight: message.by != MessageBy.host
                                         ? const Radius.circular(10)
                                         : Radius.zero,
-                                    bottomLeft: index % 2 != 0
+                                    bottomLeft: message.by != MessageBy.host
                                         ? const Radius.circular(10)
                                         : Radius.zero,
                                   )),
@@ -58,10 +83,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "Participant",
+                                        "${message.by == MessageBy.local ? 'You' : "Host"}",
                                         style: textTheme.displaySmall?.copyWith(
                                             fontSize: 10,
-                                            color: index % 2 != 0
+                                            color: message.by != MessageBy.host
                                                 ? Colors.black.withOpacity(0.6)
                                                 : Colors.white
                                                     .withOpacity(0.6)),
@@ -70,10 +95,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                         width: 20,
                                       ),
                                       Text(
-                                        "4:30 PM",
+                                        message.time,
                                         style: textTheme.displaySmall?.copyWith(
                                             fontSize: 10,
-                                            color: index % 2 != 0
+                                            color: message.by != MessageBy.host
                                                 ? Colors.black.withOpacity(0.6)
                                                 : Colors.white
                                                     .withOpacity(0.6)),
@@ -83,12 +108,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                   const SizedBox(
                                     height: 4,
                                   ),
-                                  Text(
-                                    "Hello",
-                                    style: index % 2 == 0
-                                        ? textTheme.labelSmall
-                                        : textTheme.labelSmall
-                                            ?.copyWith(color: Colors.black),
+                                  SizedBox(
+                                    width:220,
+                                    child: Text(
+                                      message.message,
+                                      maxLines: 5,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: message.by == MessageBy.host
+                                          ? textTheme.labelSmall
+                                          : textTheme.labelSmall
+                                              ?.copyWith(color: Colors.black),
+                                    ),
                                   ),
                                 ],
                               )),
@@ -104,21 +134,31 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(14)),
             child: TextField(
+              controller: _controller,
               decoration: InputDecoration(
                   hintText: "Type anything...",
                   hintStyle: textTheme.labelSmall
                       ?.copyWith(color: Colors.white.withOpacity(0.4)),
-                  suffixIcon: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: const Icon(
-                        Icons.send,
-                        color: Colors.white,
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      if (_controller.text.isNotEmpty)
+                     {   ref
+                            .read(chatProvider.notifier)
+                            .addLocalMessage(_controller.text);
+                      _controller.clear();}
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(
+                          Icons.send,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
