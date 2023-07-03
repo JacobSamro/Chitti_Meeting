@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:chitti_meeting/common/widgets/custom_bottom_navigation.dart';
 import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
+import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
@@ -10,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../view_module/presentation/view_screen.dart';
 import '../providers/meeting_provider.dart';
 
@@ -23,9 +25,12 @@ class MainScreen extends ConsumerStatefulWidget {
 
 class _MainScreenState extends ConsumerState<MainScreen> {
   final Room room = locator<Room>();
+  late Stopwatch _stopwatch;
   @override
   void initState() {
     super.initState();
+
+    _stopwatch = Stopwatch();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(participantProvider.notifier).addLocalParticipantTrack();
     });
@@ -38,37 +43,27 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final textTheme = Theme.of(context).textTheme;
+    final textTheme = Theme.of(context).textTheme;
     final ViewType viewType = ref.watch(viewProvider);
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Padding(
-      //     padding: const EdgeInsets.all(16),
-      //     child: Row(
-      //       crossAxisAlignment: CrossAxisAlignment.start,
-      //       children: [
-      //         Text(
-      //           room.name.toString(),
-      //           style: textTheme.bodySmall,
-      //         ),
-      //         const SizedBox(
-      //           width: 6,
-      //         ),
-      //         Container(
-      //           padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-      //           decoration: BoxDecoration(
-      //             color: Colors.white.withOpacity(0.1),
-      //             borderRadius: BorderRadius.circular(50),
-      //           ),
-      //           child: Text(
-      //             'time',
-      //             style: textTheme.displaySmall?.copyWith(fontSize: 10),
-      //           ),
-      //         )
-      //       ],
-      //     ),
-      //   ),
-      // ),
+      appBar: AppBar(
+        title: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                room.name.toString(),
+                style: textTheme.bodySmall,
+              ),
+              const SizedBox(
+                width: 6,
+              ),
+              CustomTimer(stopwatch: _stopwatch)
+            ],
+          ),
+        ),
+      ),
       body: viewType != ViewType.fullScreen
           ? const Column(
               children: [Expanded(child: ViewScreen()), NavigationBar()],
@@ -92,6 +87,53 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class CustomTimer extends StatefulWidget {
+  const CustomTimer({
+    super.key,
+    required this.stopwatch,
+  });
+  final Stopwatch stopwatch;
+  @override
+  State<CustomTimer> createState() => _CustomTimerState();
+}
+
+class _CustomTimerState extends State<CustomTimer> {
+  late Timer timer;
+  @override
+  void initState() {
+    super.initState();
+    startTimer();
+  }
+
+  void startTimer() {
+    widget.stopwatch.start();
+    timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+    if(mounted){  setState(() {});}
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final duration =
+        Duration(milliseconds: widget.stopwatch.elapsedMilliseconds);
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Text(
+        '$twoDigitMinutes:$twoDigitSeconds time',
+        style: textTheme.displaySmall?.copyWith(fontSize: 10),
+      ),
     );
   }
 }
@@ -255,13 +297,28 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
 
             break;
           case "Leave":
-            await room.localParticipant?.unpublishAllTracks();
-            await room.localParticipant?.dispose();
-            await room.disconnect();
-            ref.invalidate(participantProvider);
-            // room.dispose();
-            locator<VideoPlayerController>().dispose();
-            locator.unregister<VideoPlayerController>();
+            showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: const Text("Are You Sure !"),
+                      content: const Text('Do you wnat to exit ?'),
+                      actions: [
+                        TextButton(
+                            onPressed: () async {
+                              ref.invalidate(participantProvider);
+                              await room.disconnect();
+                              // locator<VideoPlayerController>().dispose();
+                              // locator.unregister<VideoPlayerController>();
+                              Navigator.pop(context);
+                            },
+                            child: const Text("Yes")),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('No'))
+                      ],
+                    ));
             break;
           default:
             break;
