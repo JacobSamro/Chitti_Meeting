@@ -26,8 +26,8 @@ class MeetingRepositories {
           ),
         ),
         fastConnectOptions: FastConnectOptions(
-          microphone: const TrackOption(enabled: true),
-          camera: const TrackOption(enabled: true),
+          microphone: const TrackOption(enabled: false),
+          camera: const TrackOption(enabled: false),
         ));
 
     try {

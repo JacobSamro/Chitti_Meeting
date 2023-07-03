@@ -1,6 +1,5 @@
 import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
-import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
@@ -50,10 +49,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     });
 
     _listener.on<RoomDisconnectedEvent>((event) async {
-      await room.localParticipant?.unpublishTrack(
-          room.localParticipant!.trackPublications.values.first.sid);
-      final cameraController = ref?.read(cameraProvider);
-      await cameraController?.stopVideoRecording();
       state = MeetingRoomDisconnected();
     });
 

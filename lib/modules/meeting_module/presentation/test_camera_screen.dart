@@ -212,23 +212,17 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                   height: 16,
                 ),
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     if (nameController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Enter User Name")));
                       return;
                     }
-                    if (!cameraPermission) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Enable Camera")));
-                      return;
-                    }
                     setState(() {
                       isLoading = true;
                     });
-                    locator<MeetingRepositories>()
+                    await locator<MeetingRepositories>()
                         .addParticipant(nameController.text, isVideoOn, ref);
-                    // locator<Room>().disconnect();
                     isLoading = false;
                   },
                   child: CustomButton(
