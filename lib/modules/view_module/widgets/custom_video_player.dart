@@ -1,8 +1,7 @@
-import 'package:chitti_meeting/modules/view_module/video_controllers/mobile_controller.dart';
-import 'package:chitti_meeting/modules/view_module/video_controllers/web_controller.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import '../../../services/locator.dart';
+// import 'dart:html' as html;
 
 class CustomVideoPlayer extends StatefulWidget {
   const CustomVideoPlayer({super.key, required this.src, this.height = 200});
@@ -21,12 +20,19 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   }
 
   initVideo() async {
-    if (kIsWeb) {
-      controller = await WebVideoController().intiVideoController(widget.src);
+    if (!locator.isRegistered<VideoPlayerController>()) {
+      locator.registerLazySingleton<VideoPlayerController>(
+        () => VideoPlayerController.networkUrl(Uri.parse(widget.src)),
+      );
+      controller = locator<VideoPlayerController>();
+      await controller.initialize();
+      controller.videoPlayerOptions?.allowBackgroundPlayback;
+      controller.play();
+      // html.document.onContextMenu.listen((event) => event.preventDefault());
       setState(() {});
       return;
     }
-    controller = await MobileVideoController().intiVideoController(widget.src);
+    controller = locator<VideoPlayerController>();
     setState(() {});
   }
 
