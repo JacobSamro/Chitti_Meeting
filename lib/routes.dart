@@ -1,3 +1,4 @@
+import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uni_links/uni_links.dart';
@@ -6,7 +7,7 @@ import 'main.dart';
 final GoRouter router = GoRouter(routes: [
   GoRoute(
     path: "/",
-    builder: (context, state) => const Text("Welcome"),
+    builder: (context, state) => const OnBoradScreen(),
   ),
   GoRoute(
     path: "/meeting/:hashId",
