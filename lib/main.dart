@@ -4,9 +4,11 @@ import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_ended
 import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
+import 'package:chitti_meeting/routes.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'modules/chat_module/providers/chat_provider.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 
 void main() {
@@ -19,38 +21,42 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Chitti Meet',
       debugShowCheckedModeBanner: false,
       theme: appThemeData,
-      home: const HomeScreen(),
+      routerConfig: router,
     );
   }
 }
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.hashId});
+  final String hashId;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final pages = <Widget>[
-    const TestCamera(),
-    Center(
-      child: GestureDetector(
-          onTap: () {}, child: const CircularProgressIndicator()),
-    ),
-    const MainScreen(),
-    const MeetingEndedScreen()
-  ];
+  List<Widget> pages = [];
   @override
   void initState() {
     super.initState();
+    debugPrint("Hash Id :: ${widget.hashId}");
+    pages = <Widget>[
+      TestCamera(hashId: widget.hashId),
+      Center(
+        child: GestureDetector(
+            onTap: () {}, child: const CircularProgressIndicator()),
+      ),
+      const MainScreen(),
+      const MeetingEndedScreen()
+    ];
     ref.read(cameraProvider.notifier).addCameras();
     ref.read(meetingStateProvider.notifier).createListener();
     ref.read(meetingStateProvider.notifier).listen(context);
+    ref.read(chatProvider.notifier).listenMessage(widget.hashId);
   }
 
   @override
@@ -62,6 +68,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     ref.read(meetingStateProvider.notifier).removeListener();
+    ref.read(cameraProvider).value.isInitialized
+        ? ref.read(cameraProvider).dispose()
+        : null;
     super.dispose();
   }
 
