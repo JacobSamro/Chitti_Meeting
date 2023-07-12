@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:chitti_meeting/common/widgets/custom_bottom_navigation.dart';
 import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
-import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
@@ -12,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
-import 'package:video_player/video_player.dart';
 import '../../view_module/presentation/view_screen.dart';
 import '../providers/meeting_provider.dart';
 
@@ -181,6 +178,7 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
         ),
         const CustomBottomNavigationItem(
           label: "Chat",
+          badge: true,
           iconPath: "assets/icons/message.png",
         ),
         const CustomBottomNavigationItem(

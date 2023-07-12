@@ -14,9 +14,14 @@ class ParticipantsScreen extends ConsumerWidget {
           title: const Text('Participants'),
           automaticallyImplyLeading: false,
           backgroundColor: Colors.black,
-          actions: [TextButton(onPressed: () {
-            Navigator.pop(context);
-          }, child: const Text('X'))],
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Image.asset('assets/icons/video.png'),
+            )
+          ],
         ),
         body: ListView.builder(
             itemCount: participants.length,

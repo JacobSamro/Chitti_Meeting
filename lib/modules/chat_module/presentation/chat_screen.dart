@@ -16,7 +16,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-      ref.read(chatProvider.notifier).listenMessage('96017f1b-fcf4-441c-9f4c-56eb28496ece');
   }
 
   @override
@@ -35,11 +34,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.black,
         actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('X'))
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Image.asset('assets/icons/video.png'),
+          )
         ],
       ),
       body: Padding(
@@ -109,7 +109,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     height: 4,
                                   ),
                                   SizedBox(
-                                    width:220,
+                                    width: 220,
                                     child: Text(
                                       message.message,
                                       maxLines: 5,
@@ -141,11 +141,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ?.copyWith(color: Colors.white.withOpacity(0.4)),
                   suffixIcon: GestureDetector(
                     onTap: () {
-                      if (_controller.text.isNotEmpty)
-                     {   ref
+                      if (_controller.text.isNotEmpty) {
+                        ref
                             .read(chatProvider.notifier)
                             .addLocalMessage(_controller.text);
-                      _controller.clear();}
+                        _controller.clear();
+                      }
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
