@@ -27,9 +27,11 @@ class CustomBottomNavigation extends StatelessWidget {
 
 class CustomBottomNavigationItem extends StatelessWidget {
   const CustomBottomNavigationItem(
-      {super.key, required this.iconPath, required this.label});
+      {super.key, required this.iconPath, required this.label,this.badge=false ,this.badgeType=BadgeType.dot});
   final String iconPath;
   final String label;
+  final bool badge;
+  final BadgeType badgeType;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -39,10 +41,20 @@ class CustomBottomNavigationItem extends StatelessWidget {
         height: 49,
         child: Column(
           children: [
-            Image.asset(
+           !badge?Image.asset(
               iconPath,
               width: 20,
               height: 20,
+            ):Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Image.asset(
+              iconPath,
+              width: 20,
+              height: 20,
+            ),
+            FloatingActionButton(onPressed: (){},child: Text("data"),)
+              ],
             ),
             const SizedBox(height: 4),
             Text(
@@ -55,3 +67,5 @@ class CustomBottomNavigationItem extends StatelessWidget {
     );
   }
 }
+
+enum BadgeType { dot, number }

@@ -5,18 +5,17 @@ import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../repositories/meeting_respositories.dart';
 
 class TestCamera extends ConsumerStatefulWidget {
-  const TestCamera({super.key});
-
+  const TestCamera({super.key, required this.hashId});
+  final String hashId;
   @override
   ConsumerState<TestCamera> createState() => _TestCameraState();
 }
 
 class _TestCameraState extends ConsumerState<TestCamera> {
-  late final CameraController controller;
+  late CameraController controller;
   bool cameraPermission = false;
   late final TextEditingController nameController;
   bool isVideoOn = false;
@@ -43,6 +42,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
   void dispose() {
     // controller.dispose();
     nameController.dispose();
+    isVideoOn ? controller.dispose() : null;
     super.dispose();
   }
 
@@ -63,6 +63,10 @@ class _TestCameraState extends ConsumerState<TestCamera> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text(
+                  widget.hashId.toString(),
+                  style: TextStyle(color: Colors.white),
+                ),
                 Container(
                   width:
                       responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
@@ -146,6 +150,9 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                                   ),
                                   GestureDetector(
                                     onTap: () async {
+                                      isVideoOn
+                                          ? await controller.dispose()
+                                          : await initCamera();
                                       isVideoOn = !isVideoOn;
                                       setState(() {});
                                     },
