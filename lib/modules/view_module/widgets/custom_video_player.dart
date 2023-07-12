@@ -1,4 +1,6 @@
-import 'package:chitti_meeting/services/locator.dart';
+import 'package:chitti_meeting/modules/view_module/video_controllers/mobile_controller.dart';
+import 'package:chitti_meeting/modules/view_module/video_controllers/web_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -19,19 +21,13 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   }
 
   initVideo() async {
-    if (!locator.isRegistered<VideoPlayerController>()) {
-      locator.registerLazySingleton<VideoPlayerController>(
-        () => VideoPlayerController.network(widget.src),
-      );
-      controller = locator<VideoPlayerController>();
-      await controller.initialize();
-      controller.videoPlayerOptions?.allowBackgroundPlayback;
-      controller.play();
-      controller.setLooping(true);
+    if (kIsWeb) {
+      controller = await WebVideoController().intiVideoController(widget.src);
       setState(() {});
       return;
     }
-    controller = locator<VideoPlayerController>();
+    controller = await MobileVideoController().intiVideoController(widget.src);
+    setState(() {});
   }
 
   @override
