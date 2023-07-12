@@ -1,4 +1,4 @@
-package com.example.chitti_meeting
+package app.chitti.meet
 
 import io.flutter.embedding.android.FlutterActivity
 
