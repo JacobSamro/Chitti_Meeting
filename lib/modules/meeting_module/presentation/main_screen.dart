@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:chitti_meeting/common/widgets/custom_bottom_navigation.dart';
+import 'package:chitti_meeting/common/widgets/custom_button.dart';
+import 'package:chitti_meeting/common/widgets/custom_card.dart';
 import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
@@ -43,24 +45,26 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final textTheme = Theme.of(context).textTheme;
     final ViewType viewType = ref.watch(viewProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                room.name.toString(),
-                style: textTheme.bodySmall,
+      appBar: viewType != ViewType.fullScreen
+          ? AppBar(
+              title: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      room.name.toString(),
+                      style: textTheme.bodySmall,
+                    ),
+                    const SizedBox(
+                      width: 6,
+                    ),
+                    CustomTimer(stopwatch: _stopwatch)
+                  ],
+                ),
               ),
-              const SizedBox(
-                width: 6,
-              ),
-              CustomTimer(stopwatch: _stopwatch)
-            ],
-          ),
-        ),
-      ),
+            )
+          : null,
       body: viewType != ViewType.fullScreen
           ? const Column(
               children: [Expanded(child: ViewScreen()), NavigationBar()],
@@ -109,7 +113,9 @@ class _CustomTimerState extends State<CustomTimer> {
   void startTimer() {
     widget.stopwatch.start();
     timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-    if(mounted){  setState(() {});}
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -296,26 +302,50 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
             break;
           case "Leave":
             showDialog(
+                barrierColor: Colors.black,
                 context: context,
                 builder: (context) => AlertDialog(
-                      title: const Text("Are You Sure !"),
-                      content: const Text('Do you wnat to exit ?'),
-                      actions: [
-                        TextButton(
-                            onPressed: () async {
+                      backgroundColor: Colors.black,
+                      content: CustomCard(
+                        content: "Are you sure to leave?",
+                        iconPath: 'assets/icons/cross_mark.png',
+                        actions: [
+                          GestureDetector(
+                            onTap: () async {
                               ref.invalidate(participantProvider);
                               await room.disconnect();
-                              // locator<VideoPlayerController>().dispose();
-                              // locator.unregister<VideoPlayerController>();
+                            },
+                            child: CustomButton(
+                              child: Center(
+                                child: Text(
+                                  "Yes",
+                                  style: textTheme.labelMedium
+                                      ?.copyWith(color: Colors.black),
+                                ),
+                              ),
+                              width: 85,
+                              height: 45,
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          GestureDetector(
+                            onTap: () {
                               Navigator.pop(context);
                             },
-                            child: const Text("Yes")),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('No'))
-                      ],
+                            child: CustomButton(
+                              child: Center(
+                                child: Text(
+                                  "No",
+                                  style: textTheme.labelMedium
+                                      ?.copyWith(color: Colors.black),
+                                ),
+                              ),
+                              width: 85,
+                              height: 45,
+                            ),
+                          ),
+                        ],
+                      ),
                     ));
             break;
           default:

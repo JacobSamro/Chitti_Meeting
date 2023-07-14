@@ -30,21 +30,35 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // final ResponsiveDevice responsiveDevice =
-    //     Responsive().getDeviceType(context);
+    final textTheme = Theme.of(context).textTheme;
     return widget.participant is HostModel
-        // ? const SizedBox(
-        //     height: 200,
-        //   )
         ? CustomVideoPlayer(src: widget.participant.src,)
         : widget.participant is Participant
             ? widget.participant.isCameraEnabled() &&
                     widget.participant.videoTracks.first.track != null
                 ? SizedBox(
                     height: 200,
-                    child: VideoTrackRenderer(
-                      widget.participant.videoTracks.first.track as VideoTrack,
-                      fit: rtc.RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    child: Stack(
+                      children: [
+                        VideoTrackRenderer(
+                          widget.participant.videoTracks.first.track as VideoTrack,
+                          fit: rtc.RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                        ),
+                         Positioned(bottom: 10, right: 10, child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+        color: Colors.black.withOpacity(0.6),
+        ),
+              child: Row(
+                children: [
+                  Text(widget.participant.identity,style: textTheme.labelSmall?.copyWith(fontSize: 12),),
+                  const SizedBox(width: 8,),
+                  Image.asset('assets/icons/mic_off.png',width: 16,height: 16,)
+                ],
+              ),
+            ))
+                      ],
                     ),
                   )
                 : ParticipantWithoutVideo(

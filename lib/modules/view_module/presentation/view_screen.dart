@@ -58,7 +58,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                   : participants;
               return viewType == ViewType.standard
                   ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: participantTracks.map((e) {
                         return SizedBox(
                           height: 200,
@@ -72,21 +72,24 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                       ? Center(
                           child: GridView.builder(
                             gridDelegate:
-                                 SliverGridDelegateWithFixedCrossAxisCount(
+                                SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               crossAxisSpacing: 10,
                               mainAxisSpacing: 10,
-                              mainAxisExtent:MediaQuery.of(context).size.height/2.5,
+                              mainAxisExtent:
+                                  MediaQuery.of(context).size.height / 2.5,
                             ),
-                            itemCount:participantTracks.length,
+                            itemCount: participantTracks.length,
                             itemBuilder: (context, index) {
                               return SizedBox(
-                                  height: 200,
-                                  child: ParticipantWidget(
-                                    participant: participantTracks[index],
-                                  ),);
+                                height: 200,
+                                child: ParticipantWidget(
+                                  participant: participantTracks[index],
+                                ),
+                              );
                             },
-                          ),)
+                          ),
+                        )
                       : ParticipantWidget(
                           participant: participants[index],
                         );
@@ -99,7 +102,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                 )),
             Container(
                 width: 250,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: ListView(
                   children: participants.sublist(1).map((e) {
                     return SizedBox(
@@ -121,11 +124,12 @@ class ParticipantWithoutVideo extends StatelessWidget {
   final String participantName;
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Container(
         // padding: const EdgeInsets.all(15),
         width: double.infinity,
         height: 200,
-        color: Colors.white.withOpacity(0.06),
+        color: Colors.white.withOpacity(0.04),
         child: Stack(
           children: [
             Center(
@@ -134,7 +138,33 @@ class ParticipantWithoutVideo extends StatelessWidget {
               width: 44,
               height: 44,
             )),
-            Positioned(bottom: 10, right: 10, child: Text(participantName))
+            Positioned(
+                bottom: 10,
+                right: 10,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        participantName,
+                        style: textTheme.labelSmall?.copyWith(fontSize: 12),
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Image.asset(
+                        'assets/icons/mic_off.png',
+                        width: 16,
+                        height: 16,
+                      )
+                    ],
+                  ),
+                ))
           ],
         ));
   }
