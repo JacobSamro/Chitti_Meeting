@@ -37,8 +37,8 @@ class CustomCard extends StatelessWidget {
           content,
           style: textTheme.titleLarge,
         ),
-        const SizedBox(
-          height: 40,
+        SizedBox(
+          height: actions.isNotEmpty ? 40 : 0,
         ),
         actions.isNotEmpty
             ? Row(

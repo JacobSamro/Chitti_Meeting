@@ -19,7 +19,14 @@ class ParticipantsScreen extends ConsumerWidget {
               onTap: () {
                 Navigator.pop(context);
               },
-              child: Image.asset('assets/icons/video.png'),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Image.asset(
+                  'assets/icons/cancel.png',
+                  width: 12,
+                  height: 12,
+                ),
+              ),
             )
           ],
         ),
@@ -32,13 +39,14 @@ class ParticipantsScreen extends ConsumerWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(50)),
-                    ),
+                    CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white.withOpacity(0.08),
+                        child: Image.asset(
+                          'assets/icons/user.png',
+                          width: 20,
+                          height: 20,
+                        )),
                     const SizedBox(
                       width: 8,
                     ),

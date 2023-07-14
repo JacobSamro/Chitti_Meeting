@@ -38,7 +38,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             onTap: () {
               Navigator.pop(context);
             },
-            child: Image.asset('assets/icons/video.png'),
+            child: Padding(
+              padding: const EdgeInsets.only(right:16.0),
+              child: Image.asset('assets/icons/cancel.png',width:12,height: 12,),
+            ),
           )
         ],
       ),
