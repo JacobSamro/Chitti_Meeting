@@ -7,7 +7,9 @@ import 'main.dart';
 final GoRouter router = GoRouter(routes: [
   GoRoute(
     path: "/",
-    builder: (context, state) => const OnBoradScreen(),
+    builder: (context, state) => HomeScreen(
+      hashId: ''.toString(),
+    ),
   ),
   GoRoute(
     path: "/meeting/:hashId",

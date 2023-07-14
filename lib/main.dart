@@ -1,6 +1,7 @@
 import 'package:chitti_meeting/common/constants/app_theme_data.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_ended_screen.dart';
+import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
@@ -8,7 +9,6 @@ import 'package:chitti_meeting/routes.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'modules/chat_module/providers/chat_provider.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 
 void main() {
@@ -43,9 +43,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    ref.read(meetingStateProvider.notifier).createListener();
     debugPrint("Hash Id :: ${widget.hashId}");
     pages = <Widget>[
-      TestCamera(hashId: widget.hashId),
+      widget.hashId.isNotEmpty
+          ? TestCamera(hashId: widget.hashId)
+          : const OnBoradScreen(),
       Center(
         child: GestureDetector(
             onTap: () {}, child: const CircularProgressIndicator()),
@@ -54,15 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       const MeetingEndedScreen()
     ];
     ref.read(cameraProvider.notifier).addCameras();
-    ref.read(meetingStateProvider.notifier).createListener();
     ref.read(meetingStateProvider.notifier).listen(context);
-    ref.read(chatProvider.notifier).listenMessage(widget.hashId);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // ref.read(responsiveProvider.notifier).deviceType(context);
   }
 
   @override
