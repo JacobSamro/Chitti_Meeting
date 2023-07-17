@@ -22,12 +22,18 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   initVideo() async {
     if (!locator.isRegistered<VideoPlayerController>()) {
       locator.registerLazySingleton<VideoPlayerController>(
-        () => VideoPlayerController.networkUrl(Uri.parse(widget.src)),
+        () => VideoPlayerController.networkUrl(Uri.parse(widget.src),
+            videoPlayerOptions: VideoPlayerOptions(
+                mixWithOthers: true, allowBackgroundPlayback: true)),
       );
       controller = locator<VideoPlayerController>();
       await controller.initialize();
-      controller.videoPlayerOptions?.allowBackgroundPlayback;
       controller.play();
+      controller.addListener(() {
+        if (!controller.value.isPlaying) {
+          controller.play();
+        }
+      });
       // html.document.onContextMenu.listen((event) => event.preventDefault());
       setState(() {});
       return;
@@ -37,21 +43,12 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      child: SizedBox.expand(
-          child: controller.value.isInitialized
-              ? SizedBox(
-                  width: controller.value.size.width,
-                  height: controller.value.size.height,
-                  child: VideoPlayer(controller))
-              : const Center(child: CircularProgressIndicator())),
+      child: controller.value.isInitialized
+          ? VideoPlayer(controller)
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 }

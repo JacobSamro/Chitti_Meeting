@@ -46,73 +46,83 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
             ? ViewType.speaker
             : viewType,
         ref);
-    return responsiveDevice != ResponsiveDevice.desktop ||
-            viewType != ViewType.standard
-        ? PageView.builder(
-            padEnds: false,
-            controller: _pageController,
-            itemCount: participants.length,
-            itemBuilder: (context, index) {
-              final participantTracks = viewType != ViewType.speaker
-                  ? participants[index] as List<dynamic>
-                  : participants;
-              return viewType == ViewType.standard
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: participantTracks.map((e) {
-                        return SizedBox(
-                          height: 200,
-                          child: ParticipantWidget(
-                            participant: e,
-                          ),
-                        );
-                      }).toList(),
-                    )
-                  : viewType == ViewType.gallery
-                      ? Center(
-                          child: GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              mainAxisExtent:
-                                  MediaQuery.of(context).size.height / 2.5,
-                            ),
-                            itemCount: participantTracks.length,
-                            itemBuilder: (context, index) {
-                              return SizedBox(
-                                height: 200,
-                                child: ParticipantWidget(
-                                  participant: participantTracks[index],
-                                ),
-                              );
-                            },
-                          ),
+    return participants.isNotEmpty
+        ? responsiveDevice != ResponsiveDevice.desktop ||
+                viewType != ViewType.standard
+            ? PageView.builder(
+                padEnds: false,
+                controller: _pageController,
+                itemCount: participants.length,
+                itemBuilder: (context, index) {
+                  final participantTracks = viewType != ViewType.speaker
+                      ? participants[index] as List<dynamic>
+                      : participants;
+                  return viewType == ViewType.standard
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: participantTracks.map((e) {
+                            return SizedBox(
+                              height: 200,
+                              child: ParticipantWidget(
+                                participant: e,
+                              ),
+                            );
+                          }).toList(),
                         )
-                      : ParticipantWidget(
-                          participant: participants[index],
-                        );
-            })
-        : Row(children: [
-            Expanded(
-                flex: 2,
-                child: ParticipantWidget(
-                  participant: participants[0],
-                )),
-            Container(
-                width: 250,
-                padding: const EdgeInsets.all(10),
-                child: ListView(
-                  children: participants.sublist(1).map((e) {
-                    return SizedBox(
-                        height: 200,
-                        child: ParticipantWidget(
-                          participant: e,
-                        ));
-                  }).toList(),
-                ))
-          ]);
+                      : viewType == ViewType.gallery
+                          ? Center(
+                              child: GridView.builder(
+                                gridDelegate:
+                                     SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                  mainAxisExtent:responsiveDevice!=ResponsiveDevice.mobile?
+                                      MediaQuery.of(context).size.height / 2.5:null,
+                                ),
+                                itemCount: participantTracks.length,
+                                itemBuilder: (context, index) {
+                                  return SizedBox(
+                                    height: 200,
+                                    child: ParticipantWidget(
+                                      participant: participantTracks[index],
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ParticipantWidget(
+                                  participant: participants[index],
+                                ),
+                              ],
+                            );
+                })
+            : Row(children: [
+                Expanded(
+                    flex: 2,
+                    child: ParticipantWidget(
+                      participant: participants[0],
+                    )),
+                Container(
+                    width: 250,
+                    padding: const EdgeInsets.all(10),
+                    child: ListView(
+                      children: participants.sublist(1).map((e) {
+                        return SizedBox(
+                            height: 200,
+                            child: ParticipantWidget(
+                              participant: e,
+                            ));
+                      }).toList(),
+                    ))
+              ])
+        : const Center(
+            child: CircularProgressIndicator(
+            color: Colors.white,
+          ));
   }
 }
 
