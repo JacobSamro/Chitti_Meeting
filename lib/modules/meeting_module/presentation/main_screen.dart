@@ -3,6 +3,7 @@ import 'package:chitti_meeting/common/widgets/custom_bottom_navigation.dart';
 import 'package:chitti_meeting/common/widgets/custom_button.dart';
 import 'package:chitti_meeting/common/widgets/custom_card.dart';
 import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
+import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
@@ -30,8 +31,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.initState();
 
     _stopwatch = Stopwatch();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(participantProvider.notifier).addLocalParticipantTrack();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(participantProvider.notifier).addLocalParticipantTrack();
+      ref
+          .read(chatProvider.notifier)
+          .listenMessage('96017f1b-fcf4-441c-9f4c-56eb28496ece');
     });
   }
 
@@ -238,9 +242,12 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                                 .changeViewType(ViewType.standard);
                             Navigator.pop(context);
                           },
-                          child: Text(
-                            "Standard View",
-                            style: textTheme.labelSmall,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              "Standard View",
+                              style: textTheme.labelSmall,
+                            ),
                           ),
                         ),
                         Padding(
@@ -252,9 +259,12 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                                   .changeViewType(ViewType.gallery);
                               Navigator.pop(context);
                             },
-                            child: Text(
-                              "Gallery View",
-                              style: textTheme.labelSmall,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                "Gallery View",
+                                style: textTheme.labelSmall,
+                              ),
                             ),
                           ),
                         ),
@@ -265,9 +275,12 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                                 .changeViewType(ViewType.speaker);
                             Navigator.pop(context);
                           },
-                          child: Text(
-                            "Speaker View",
-                            style: textTheme.labelSmall,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              "Speaker View",
+                              style: textTheme.labelSmall,
+                            ),
                           ),
                         ),
                       ],
@@ -313,9 +326,14 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                           GestureDetector(
                             onTap: () async {
                               ref.invalidate(participantProvider);
+                              ref.invalidate(viewProvider);
                               await room.disconnect();
+                              await locator.reset();
+                              Navigator.pop(context);
                             },
                             child: CustomButton(
+                              width: 85,
+                              height: 45,
                               child: Center(
                                 child: Text(
                                   "Yes",
@@ -323,16 +341,16 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                                       ?.copyWith(color: Colors.black),
                                 ),
                               ),
-                              width: 85,
-                              height: 45,
                             ),
                           ),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           GestureDetector(
                             onTap: () {
                               Navigator.pop(context);
                             },
                             child: CustomButton(
+                              width: 85,
+                              height: 45,
                               child: Center(
                                 child: Text(
                                   "No",
@@ -340,8 +358,6 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                                       ?.copyWith(color: Colors.black),
                                 ),
                               ),
-                              width: 85,
-                              height: 45,
                             ),
                           ),
                         ],
