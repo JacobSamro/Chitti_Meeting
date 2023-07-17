@@ -7,7 +7,6 @@ import 'package:livekit_client/livekit_client.dart';
 final locator = GetIt.instance;
 
 void setup() {
-  // locator.registerLazySingleton<DyteMobileClient>(() => DyteMobileClient());
   locator.registerLazySingleton<Room>(() => Room());
   locator.registerLazySingleton<Dio>(() => Dio());
   locator.registerLazySingleton<MeetingStateNotifier>(

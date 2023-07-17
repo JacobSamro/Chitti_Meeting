@@ -13,7 +13,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
   late final EventsListener<RoomEvent> _listener;
   EventsListener<RoomEvent> get listener => _listener;
   final Room room = locator<Room>();
-  // bool _videoOn = true;
 
   void changeState(MeetingStates state) {
     this.state = state;
@@ -45,7 +44,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackSubscribedEvent>((event) {});
 
     _listener.on<TrackUnsubscribedEvent>((event) {
-      // do something when a track is unsubscribed from
     });
 
     _listener.on<RoomDisconnectedEvent>((event) async {
@@ -54,28 +52,28 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
 
     _listener.on<RoomReconnectingEvent>((event) {
       state = MeetingRoomReconnecting();
-      // ref?.invalidate(participantProvider);
+      ref?.invalidate(participantProvider);
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Reconnecting to room')));
     });
-
     _listener.on<RoomReconnectedEvent>((event) {
       state = MeetingRoomJoinCompleted();
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Reconnected to room')));
     });
-     _listener.on<TrackPublishedEvent>((event) {
-      // state == MeetingRoomJoinCompleted() ? callback() : null;
+    _listener.on<TrackPublishedEvent>((event) {
       state = MeetingRoomJoinCompleted();
     });
-
   }
 
   void listenTrack(VoidCallback callback) {
-   
     _listener.on<TrackUnpublishedEvent>((event) {
-      // callback();
+      callback();
     });
+    _listener.on<TrackPublishedEvent>((event) {
+      state == MeetingRoomJoinCompleted() ? callback() : null;
+    });
+
     _listener.on<TrackMutedEvent>((event) {
       callback();
     });
