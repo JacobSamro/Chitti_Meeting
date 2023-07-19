@@ -1,3 +1,8 @@
+def keystorePropertiesFile = rootProject.file('key.properties')
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -55,7 +60,7 @@ android {
       signingConfigs {
         release {
             keyAlias 'key'
-            keyPassword 'chittimeet'
+            keyPassword 'chitti'
             storeFile file('key.jks') 
             storePassword 'chitti'
         }
