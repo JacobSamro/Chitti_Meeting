@@ -1,6 +1,10 @@
+import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
+import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
+import 'package:chitti_meeting/modules/view_module/models/view_state.dart';
+import 'package:chitti_meeting/modules/view_module/widgets/custom_video_player.dart';
 import 'package:chitti_meeting/modules/view_module/widgets/participant_widget.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
@@ -39,7 +43,8 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
     ref.watch(participantProvider);
-    final ViewType viewType = ref.watch(viewProvider);
+    final ViewState viewState = ref.watch(viewProvider);
+    final ViewType viewType =viewState.viewType;
     final List<dynamic> participants = meetingRepositories.sortParticipant(
         responsiveDevice == ResponsiveDevice.desktop &&
                 viewType == ViewType.standard
@@ -49,36 +54,47 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
     return participants.isNotEmpty
         ? responsiveDevice != ResponsiveDevice.desktop ||
                 viewType != ViewType.standard
-            ? PageView.builder(
-                padEnds: false,
-                controller: _pageController,
-                itemCount: participants.length,
-                itemBuilder: (context, index) {
-                  final participantTracks = viewType != ViewType.speaker
-                      ? participants[index] as List<dynamic>
-                      : participants;
-                  return viewType == ViewType.standard
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: participantTracks.map((e) {
-                            return SizedBox(
-                              height: 200,
-                              child: ParticipantWidget(
-                                participant: e,
-                              ),
-                            );
-                          }).toList(),
-                        )
-                      : viewType == ViewType.gallery
-                          ? Center(
+            ? viewType == ViewType.speaker
+                ? SizedBox(
+                    height: 200,
+                    width: MediaQuery.of(context).size.width,
+                    child: const CustomVideoPlayer(
+                        src:
+                            "https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8"),
+                  )
+                : PageView.builder(
+                    padEnds: false,
+                    controller: _pageController,
+                    itemCount: participants.length,
+                    itemBuilder: (context, index) {
+                      final participantTracks = viewType != ViewType.speaker
+                          ? participants[index] as List<dynamic>
+                          : participants;
+                      return viewType == ViewType.standard
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: participantTracks.map((e) {
+                                return Expanded(
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: ParticipantWidget(
+                                      participant: e,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            )
+                          : Center(
                               child: GridView.builder(
                                 gridDelegate:
-                                     SliverGridDelegateWithFixedCrossAxisCount(
+                                    SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   crossAxisSpacing: 10,
                                   mainAxisSpacing: 10,
-                                  mainAxisExtent:responsiveDevice!=ResponsiveDevice.mobile?
-                                      MediaQuery.of(context).size.height / 2.5:null,
+                                  mainAxisExtent: responsiveDevice !=
+                                          ResponsiveDevice.mobile
+                                      ? MediaQuery.of(context).size.height / 2.5
+                                      : null,
                                 ),
                                 itemCount: participantTracks.length,
                                 itemBuilder: (context, index) {
@@ -90,16 +106,8 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                                   );
                                 },
                               ),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ParticipantWidget(
-                                  participant: participants[index],
-                                ),
-                              ],
                             );
-                })
+                    })
             : Row(children: [
                 Expanded(
                     flex: 2,
@@ -107,17 +115,21 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                       participant: participants[0],
                     )),
                 Container(
-                    width: 250,
-                    padding: const EdgeInsets.all(10),
-                    child: ListView(
-                      children: participants.sublist(1).map((e) {
-                        return SizedBox(
-                            height: 200,
-                            child: ParticipantWidget(
-                              participant: e,
-                            ));
-                      }).toList(),
-                    ))
+                  width:viewState.chat||viewState.participants?450:250,
+                  padding: const EdgeInsets.all(10),
+                  child:viewState.chat?const ChatScreen():viewState.participants?const ParticipantsScreen(): ListView(
+                    children: participants.sublist(1).map((e) {
+                      return Container(
+                          height: 200,
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8)),
+                          child: ParticipantWidget(
+                            participant: e,
+                          ));
+                    }).toList(),
+                  ),
+                )
               ])
         : const Center(
             child: CircularProgressIndicator(
@@ -136,10 +148,12 @@ class ParticipantWithoutVideo extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-        // padding: const EdgeInsets.all(15),
         width: double.infinity,
         height: 200,
-        color: Colors.white.withOpacity(0.04),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white.withOpacity(0.06),
+            ),
         child: Stack(
           children: [
             Center(

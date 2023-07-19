@@ -1,5 +1,7 @@
 import 'package:chitti_meeting/modules/chat_module/models/message_model.dart';
 import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
+import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
+import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,6 +30,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final chat = ref.watch(chatProvider);
     final textTheme = Theme.of(context).textTheme;
+    final ResponsiveDevice responsiveDevice = Responsive().getDeviceType(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
@@ -36,7 +39,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+             responsiveDevice==ResponsiveDevice.desktop?ref.read(viewProvider.notifier).openChatInDesktop(false):Navigator.pop(context);
             },
             child: Padding(
               padding: const EdgeInsets.only(right:16.0),
