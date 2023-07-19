@@ -44,7 +44,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
         Responsive().getDeviceType(context);
     ref.watch(participantProvider);
     final ViewState viewState = ref.watch(viewProvider);
-    final ViewType viewType =viewState.viewType;
+    final ViewType viewType = viewState.viewType;
     final List<dynamic> participants = meetingRepositories.sortParticipant(
         responsiveDevice == ResponsiveDevice.desktop &&
                 viewType == ViewType.standard
@@ -52,8 +52,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
             : viewType,
         ref);
     return participants.isNotEmpty
-        ? responsiveDevice != ResponsiveDevice.desktop ||
-                viewType != ViewType.standard
+        ? viewType != ViewType.standard
             ? viewType == ViewType.speaker
                 ? SizedBox(
                     height: 200,
@@ -84,28 +83,54 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                                 );
                               }).toList(),
                             )
-                          : Center(
-                              child: GridView.builder(
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                  mainAxisExtent: responsiveDevice !=
-                                          ResponsiveDevice.mobile
-                                      ? MediaQuery.of(context).size.height / 2.5
-                                      : null,
-                                ),
-                                itemCount: participantTracks.length,
-                                itemBuilder: (context, index) {
-                                  return SizedBox(
-                                    height: 200,
-                                    child: ParticipantWidget(
-                                      participant: participantTracks[index],
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: GridView.builder(
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10,
+                                      mainAxisExtent: responsiveDevice !=
+                                              ResponsiveDevice.mobile
+                                          ? MediaQuery.of(context).size.height /
+                                              2.5
+                                          : null,
                                     ),
-                                  );
-                                },
-                              ),
+                                    itemCount: participantTracks.length,
+                                    itemBuilder: (context, index) {
+                                      return SizedBox(
+                                        height: 200,
+                                        child: ParticipantWidget(
+                                          participant: participantTracks[index],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                responsiveDevice == ResponsiveDevice.desktop &&
+                                            viewState.chat ||
+                                        viewState.participants
+                                    ? Container(
+                                        width: 450,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            border: Border.all(
+                                                color: Colors.white
+                                                    .withOpacity(0.1),
+                                                style: BorderStyle.solid,
+                                                width: 1)),
+                                        child: viewState.chat
+                                            ? const ChatScreen()
+                                            : viewState.participants
+                                                ? const ParticipantsScreen()
+                                                : const SizedBox())
+                                    : const SizedBox(),
+                              ],
                             );
                     })
             : Row(children: [
@@ -114,20 +139,35 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                     child: ParticipantWidget(
                       participant: participants[0],
                     )),
-                Container(
-                  width:viewState.chat||viewState.participants?450:250,
-                  padding: const EdgeInsets.all(10),
-                  child:viewState.chat?const ChatScreen():viewState.participants?const ParticipantsScreen(): ListView(
-                    children: participants.sublist(1).map((e) {
-                      return Container(
-                          height: 200,
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8)),
-                          child: ParticipantWidget(
-                            participant: e,
-                          ));
-                    }).toList(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Container(
+                    width: viewState.chat || viewState.participants ? 450 : 250,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: Colors.white.withOpacity(0.1),
+                            style: BorderStyle.solid,
+                            width: 1)),
+                    child: viewState.chat
+                        ? const ChatScreen()
+                        : viewState.participants
+                            ? const ParticipantsScreen()
+                            : ListView(
+                                children: participants.sublist(1).map((e) {
+                                  return Container(
+                                      height: 200,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      child: ParticipantWidget(
+                                        participant: e,
+                                      ));
+                                }).toList(),
+                              ),
                   ),
                 )
               ])
@@ -151,9 +191,9 @@ class ParticipantWithoutVideo extends StatelessWidget {
         width: double.infinity,
         height: 200,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white.withOpacity(0.06),
-            ),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white.withOpacity(0.06),
+        ),
         child: Stack(
           children: [
             Center(

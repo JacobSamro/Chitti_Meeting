@@ -61,7 +61,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               title: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       room.name.toString(),
@@ -141,7 +141,7 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final double width=MediaQuery.of(context).size.width;
+    final double width = MediaQuery.of(context).size.width;
     final Room room = locator<Room>();
     final ViewState viewState = ref.watch(viewProvider);
     final ViewType type = viewState.viewType;
@@ -175,10 +175,6 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
           iconPath: "assets/icons/view.png",
         ),
         const CustomBottomNavigationItem(
-          label: "Settings",
-          iconPath: "assets/icons/settings.png",
-        ),
-        const CustomBottomNavigationItem(
           label: "Leave",
           iconPath: "assets/icons/call_outline.png",
         ),
@@ -203,7 +199,8 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
             showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.black,
-                constraints: BoxConstraints(maxWidth:width>800?300:double.infinity),
+                constraints: BoxConstraints(
+                    maxWidth: width > 800 ? 300 : double.infinity),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
@@ -278,10 +275,12 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
               );
               return;
             }
+            if (viewState.viewType == ViewType.fullScreen) {
+              ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
+              ref.read(viewProvider.notifier).openChatInDesktop(true);
+              return;
+            }
             ref.read(viewProvider.notifier).openChatInDesktop(!viewState.chat);
-            break;
-
-          case "Settings":
             break;
           case "Participants":
             if (responsiveDevice != ResponsiveDevice.desktop) {
@@ -293,10 +292,14 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
               );
               return;
             }
+            if (viewState.viewType == ViewType.fullScreen) {
+              ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
+              ref.read(viewProvider.notifier).openParticipantsInDesktop(true);
+              return;
+            }
             ref
                 .read(viewProvider.notifier)
                 .openParticipantsInDesktop(!viewState.participants);
-
             break;
           case "Full Screen":
             SystemChrome.setPreferredOrientations([
