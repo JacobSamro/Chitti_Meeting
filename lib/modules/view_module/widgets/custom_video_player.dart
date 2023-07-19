@@ -29,17 +29,22 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       controller = locator<VideoPlayerController>();
       await controller.initialize();
       controller.play();
+      controller.setLooping(true);
       controller.addListener(() {
-        if (!controller.value.isPlaying) {
+        if (controller.value.hasError) {
+          debugPrint(controller.value.errorDescription);
           controller.play();
         }
       });
-      // html.document.onContextMenu.listen((event) => event.preventDefault());
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
       return;
     }
     controller = locator<VideoPlayerController>();
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -47,7 +52,17 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: controller.value.isInitialized
-          ? VideoPlayer(controller)
+          ? AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: SizedBox(
+                width: controller.value.size.width,
+                height: controller.value.size.height,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: VideoPlayer(controller),
+                ),
+              ),
+            )
           : const Center(child: CircularProgressIndicator()),
     );
   }

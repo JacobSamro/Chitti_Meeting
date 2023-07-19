@@ -3,6 +3,7 @@ import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respo
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../services/locator.dart';
 import '../states/meeting_states.dart';
@@ -43,16 +44,19 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
 
     _listener.on<TrackSubscribedEvent>((event) {});
 
-    _listener.on<TrackUnsubscribedEvent>((event) {
-    });
+    _listener.on<TrackUnsubscribedEvent>((event) {});
 
     _listener.on<RoomDisconnectedEvent>((event) async {
+      await locator<VideoPlayerController>().dispose();
+      await locator.unregister<VideoPlayerController>();
       state = MeetingRoomDisconnected();
     });
 
-    _listener.on<RoomReconnectingEvent>((event) {
+    _listener.on<RoomReconnectingEvent>((event) async {
       state = MeetingRoomReconnecting();
       ref?.invalidate(participantProvider);
+      await locator<VideoPlayerController>().dispose();
+      await locator.unregister<VideoPlayerController>();
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Reconnecting to room')));
     });
