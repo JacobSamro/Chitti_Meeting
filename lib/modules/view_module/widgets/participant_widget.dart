@@ -31,39 +31,62 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return widget.participant is HostModel
-        ? CustomVideoPlayer(src: widget.participant.src,)
-        : widget.participant is Participant
-            ? widget.participant.isCameraEnabled() &&
-                    widget.participant.videoTracks.first.track != null
-                ? SizedBox(
-                    height: 200,
-                    child: Stack(
-                      children: [
-                        VideoTrackRenderer(
-                          widget.participant.videoTracks.first.track as VideoTrack,
-                          fit: rtc.RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: widget.participant is HostModel
+            ? CustomVideoPlayer(
+                src: widget.participant.src,
+              )
+            : widget.participant is Participant
+                ? widget.participant.isCameraEnabled() &&
+                        widget.participant.videoTracks.first.track != null
+                    ? SizedBox(
+                        height: 200,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Stack(
+                            children: [
+                              VideoTrackRenderer(
+                                widget.participant.videoTracks.first.track
+                                    as VideoTrack,
+                                fit: rtc.RTCVideoViewObjectFit
+                                    .RTCVideoViewObjectFitCover,
+                              ),
+                              Positioned(
+                                  bottom: 10,
+                                  right: 10,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.black.withOpacity(0.6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          widget.participant.identity,
+                                          style: textTheme.labelSmall
+                                              ?.copyWith(fontSize: 12),
+                                        ),
+                                        const SizedBox(
+                                          width: 8,
+                                        ),
+                                        Image.asset(
+                                          'assets/icons/mic_off.png',
+                                          width: 16,
+                                          height: 16,
+                                        )
+                                      ],
+                                    ),
+                                  ))
+                            ],
+                          ),
                         ),
-                         Positioned(bottom: 10, right: 10, child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-        color: Colors.black.withOpacity(0.6),
-        ),
-              child: Row(
-                children: [
-                  Text(widget.participant.identity,style: textTheme.labelSmall?.copyWith(fontSize: 12),),
-                  const SizedBox(width: 8,),
-                  Image.asset('assets/icons/mic_off.png',width: 16,height: 16,)
-                ],
-              ),
-            ))
-                      ],
-                    ),
-                  )
-                : ParticipantWithoutVideo(
-                    participantName: widget.participant.identity,
-                  )
-            : const LocalUser();
+                      )
+                    : ParticipantWithoutVideo(
+                        participantName: widget.participant.identity,
+                      )
+                : const LocalUser());
   }
 }
