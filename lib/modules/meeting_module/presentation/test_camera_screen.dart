@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:chitti_meeting/common/widgets/custom_button.dart';
+import 'package:chitti_meeting/common/widgets/custom_inputfield.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
@@ -63,10 +64,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  widget.hashId.toString(),
-                  style: TextStyle(color: Colors.white),
-                ),
                 Container(
                   width:
                       responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
@@ -182,39 +179,8 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                 const SizedBox(
                   height: 28,
                 ),
-                SizedBox(
-                  width:
-                      responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
-                  height: responsiveDevice != ResponsiveDevice.mobile ? 68 : 52,
-                  child: TextField(
-                      controller: nameController,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: "Enter your name",
-                        hintStyle: textTheme.labelSmall?.copyWith(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                      )),
-                ),
+                CustomInputField(
+                    controller: nameController, label: "Enter your name"),
                 const SizedBox(
                   height: 16,
                 ),

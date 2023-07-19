@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:chitti_meeting/common/widgets/custom_bottom_navigation.dart';
 import 'package:chitti_meeting/common/widgets/custom_button.dart';
 import 'package:chitti_meeting/common/widgets/custom_card.dart';
@@ -13,6 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:video_player/video_player.dart';
+import '../../../common/widgets/custom_timer.dart';
+import '../../../services/responsive.dart';
+import '../../view_module/models/view_state.dart';
 import '../../view_module/presentation/view_screen.dart';
 import '../providers/meeting_provider.dart';
 
@@ -41,13 +44,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   void dispose() {
+    locator.unregister<VideoPlayerController>();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final ViewType viewType = ref.watch(viewProvider);
+    final ViewState viewState = ref.watch(viewProvider);
+    final ViewType viewType = viewState.viewType;
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(context);
     return Scaffold(
       appBar: viewType != ViewType.fullScreen
           ? AppBar(
@@ -71,83 +78,51 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           : null,
       body: viewType != ViewType.fullScreen
           ? const Column(
-              children: [Expanded(child: ViewScreen()), NavigationBar()],
+              children: [
+                Expanded(flex: 1, child: ViewScreen()),
+                NavigationBar()
+              ],
             )
           : SizedBox(
               height: double.infinity,
               width: double.infinity,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  const CustomVideoPlayer(
-                      height: double.infinity,
-                      src:
-                          'https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8'),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 30.0),
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: const NavigationBar()),
-                  ),
-                ],
-              ),
+              child: responsiveDevice != ResponsiveDevice.desktop
+                  ? Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const CustomVideoPlayer(
+                            height: double.infinity,
+                            src:
+                                'https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8'),
+                        Positioned(
+                          bottom: 0,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 30.0),
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: const NavigationBar()),
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Column(
+                      children: [
+                        Expanded(
+                          child: CustomVideoPlayer(
+                              height: double.infinity,
+                              src:
+                                  'https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8'),
+                        ),
+                        NavigationBar()
+                      ],
+                    ),
             ),
-    );
-  }
-}
-
-class CustomTimer extends StatefulWidget {
-  const CustomTimer({
-    super.key,
-    required this.stopwatch,
-  });
-  final Stopwatch stopwatch;
-  @override
-  State<CustomTimer> createState() => _CustomTimerState();
-}
-
-class _CustomTimerState extends State<CustomTimer> {
-  late Timer timer;
-  @override
-  void initState() {
-    super.initState();
-    startTimer();
-  }
-
-  void startTimer() {
-    widget.stopwatch.start();
-    timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final duration =
-        Duration(milliseconds: widget.stopwatch.elapsedMilliseconds);
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(50),
-      ),
-      child: Text(
-        '$twoDigitMinutes:$twoDigitSeconds time',
-        style: textTheme.displaySmall?.copyWith(fontSize: 10),
-      ),
     );
   }
 }
 
 class NavigationBar extends ConsumerStatefulWidget {
   const NavigationBar({super.key});
-
   @override
   ConsumerState<NavigationBar> createState() => _NavigationBarState();
 }
@@ -166,8 +141,12 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final double width=MediaQuery.of(context).size.width;
     final Room room = locator<Room>();
-    final ViewType type = ref.watch(viewProvider);
+    final ViewState viewState = ref.watch(viewProvider);
+    final ViewType type = viewState.viewType;
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(context);
     return CustomBottomNavigation(
       items: [
         CustomBottomNavigationItem(
@@ -224,6 +203,7 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
             showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.black,
+                constraints: BoxConstraints(maxWidth:width>800?300:double.infinity),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
@@ -289,16 +269,34 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                 });
             break;
           case "Chat":
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const ChatScreen()));
+            if (responsiveDevice != ResponsiveDevice.desktop) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChatScreen(),
+                ),
+              );
+              return;
+            }
+            ref.read(viewProvider.notifier).openChatInDesktop(!viewState.chat);
             break;
+
           case "Settings":
             break;
           case "Participants":
-            Navigator.push(
+            if (responsiveDevice != ResponsiveDevice.desktop) {
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const ParticipantsScreen()));
+                  builder: (context) => const ParticipantsScreen(),
+                ),
+              );
+              return;
+            }
+            ref
+                .read(viewProvider.notifier)
+                .openParticipantsInDesktop(!viewState.participants);
+
             break;
           case "Full Screen":
             SystemChrome.setPreferredOrientations([
@@ -328,7 +326,6 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                               ref.invalidate(participantProvider);
                               ref.invalidate(viewProvider);
                               await room.disconnect();
-                              await locator.reset();
                               Navigator.pop(context);
                             },
                             child: CustomButton(

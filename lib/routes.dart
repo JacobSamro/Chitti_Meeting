@@ -1,4 +1,3 @@
-import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uni_links/uni_links.dart';

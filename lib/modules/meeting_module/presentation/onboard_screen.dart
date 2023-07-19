@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../common/widgets/custom_button.dart';
+import '../../../common/widgets/custom_inputfield.dart';
 import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
 import '../../view_module/providers/camera_provider.dart';
@@ -180,77 +181,17 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                 const SizedBox(
                   height: 28,
                 ),
-                SizedBox(
-                  width:
-                      responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
-                  height: responsiveDevice != ResponsiveDevice.mobile ? 68 : 52,
-                  child: TextField(
-                      controller: nameController,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: "Enter your name",
-                        hintStyle: textTheme.labelSmall?.copyWith(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                      )),
+                CustomInputField(
+                    controller: nameController, label: "Enter your name"),
+                const SizedBox(
+                  height: 10,
+                ),
+                CustomInputField(
+                  controller: hashId,
+                  label: "Enter your meeting ID",
                 ),
                 const SizedBox(
-                  height: 16,
-                ),
-                SizedBox(
-                  width:
-                      responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
-                  height: responsiveDevice != ResponsiveDevice.mobile ? 68 : 52,
-                  child: TextField(
-                      controller: hashId,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: "Enter your meeting ID",
-                        hintStyle: textTheme.labelSmall?.copyWith(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                      )),
-                ),
-                const SizedBox(
-                  height: 16,
+                  height: 24,
                 ),
                 !isLoading
                     ? GestureDetector(
@@ -275,9 +216,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                           isLoading = false;
                         },
                         child: CustomButton(
-                          height: responsiveDevice != ResponsiveDevice.mobile
-                              ? 68
-                              : 52,
+                          height: 52,
                           width: responsiveDevice != ResponsiveDevice.mobile
                               ? 480
                               : 300,

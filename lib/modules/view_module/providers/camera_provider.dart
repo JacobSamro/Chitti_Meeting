@@ -12,7 +12,8 @@ class CameraNotifier extends StateNotifier<CameraController> {
       state = CameraController(cameras[1], ResolutionPreset.medium);
     } else {
       final cameras = await availableCameras();
-      state = CameraController(cameras.length>1?cameras[1]:cameras[0], ResolutionPreset.medium);
+      state = CameraController(cameras.length > 1 ? cameras[1] : cameras[0],
+          ResolutionPreset.medium);
     }
   }
 
@@ -27,7 +28,7 @@ final StateNotifierProvider<CameraNotifier, CameraController> cameraProvider =
     CameraController(
         const CameraDescription(
             name: "name",
-            lensDirection: CameraLensDirection.front,
+            lensDirection: CameraLensDirection.back,
             sensorOrientation: 0),
         ResolutionPreset.medium),
   ),
