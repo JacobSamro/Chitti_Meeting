@@ -37,58 +37,68 @@ class ParticipantsScreen extends ConsumerWidget {
               ),
             )
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(2.0),
+            child: Container(
+              color: Colors.white.withOpacity(0.1),
+              height: 1.0,
+            ),
+          ),
         ),
-        body: ListView.builder(
-            itemCount: participants.length,
-            itemBuilder: (context, index) {
-              // final participant = participants[index] as Participant;
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.white.withOpacity(0.08),
-                            child: Image.asset(
-                              'assets/icons/user.png',
-                              width: 20,
-                              height: 20,
-                            )),
-                        const SizedBox(
-                          width: 8,
-                        ),
-                        Text(
-                          participants[index].name == '' ||
-                                  participants[index].name == null
-                              ? participants[index].identity
-                              : participants[index].name,
-                          style: textTheme.labelSmall
-                              ?.copyWith(color: Colors.white.withOpacity(0.75)),
-                        ),
-                      ],
-                    ),
-                    participants[index].name == 'Host'
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Text(
-                              'Host',
-                              style: textTheme.bodySmall
-                                  ?.copyWith(color: Colors.white, fontSize: 10),
-                            ),
-                          )
-                        : const SizedBox()
-                  ],
-                ),
-              );
-            }));
+        body: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: ListView.builder(
+              itemCount: participants.length,
+              itemBuilder: (context, index) {
+                // final participant = participants[index] as Participant;
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.white.withOpacity(0.08),
+                              child: Image.asset(
+                                'assets/icons/user.png',
+                                width: 20,
+                                height: 20,
+                              )),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            participants[index].name == '' ||
+                                    participants[index].name == null
+                                ? participants[index].identity
+                                : participants[index].name,
+                            style: textTheme.labelSmall?.copyWith(
+                                color: Colors.white.withOpacity(0.75)),
+                          ),
+                        ],
+                      ),
+                      participants[index].name == 'Host'
+                          ? Container(
+                              padding:  EdgeInsets.symmetric(
+                                  vertical:responsiveDevice!=ResponsiveDevice.desktop? 4:6, horizontal:8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Text(
+                                'Host',
+                                style: textTheme.bodySmall?.copyWith(
+                                    color: Colors.white, fontSize:responsiveDevice!=ResponsiveDevice.desktop?10:12),
+                              ),
+                            )
+                          : const SizedBox()
+                    ],
+                  ),
+                );
+              }),
+        ));
   }
 }

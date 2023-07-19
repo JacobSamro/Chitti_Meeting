@@ -30,7 +30,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final chat = ref.watch(chatProvider);
     final textTheme = Theme.of(context).textTheme;
-    final ResponsiveDevice responsiveDevice = Responsive().getDeviceType(context);
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
@@ -39,14 +40,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           GestureDetector(
             onTap: () {
-             responsiveDevice==ResponsiveDevice.desktop?ref.read(viewProvider.notifier).openChatInDesktop(false):Navigator.pop(context);
+              responsiveDevice == ResponsiveDevice.desktop
+                  ? ref.read(viewProvider.notifier).openChatInDesktop(false)
+                  : Navigator.pop(context);
             },
             child: Padding(
-              padding: const EdgeInsets.only(right:16.0),
-              child: Image.asset('assets/icons/cancel.png',width:12,height: 12,),
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Image.asset(
+                'assets/icons/cancel.png',
+                width: 12,
+                height: 12,
+              ),
             ),
           )
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2.0),
+          child: Container(
+            color: Colors.white.withOpacity(0.1),
+            height: 1.0,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -157,13 +171,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Container(
-                        height: 40,
-                        width: 40,
+                        height: 35,
+                        width: 35,
                         decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10)),
                         child: const Icon(
                           Icons.send,
+                          size: 20,
                           color: Colors.white,
                         ),
                       ),
