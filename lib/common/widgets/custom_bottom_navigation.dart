@@ -39,23 +39,26 @@ class CustomBottomNavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        height: 49,
-        child: Column(
-          children: [
-            Image.asset(
-              iconPath,
-              width: 20,
-              height: 20,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: textTheme.labelSmall?.copyWith(fontSize: 10),
-            )
-          ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          height: 49,
+          child: Column(
+            children: [
+              Image.asset(
+                iconPath,
+                width: 20,
+                height: 20,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: textTheme.labelSmall?.copyWith(fontSize: 10),
+              )
+            ],
+          ),
         ),
       ),
     );
