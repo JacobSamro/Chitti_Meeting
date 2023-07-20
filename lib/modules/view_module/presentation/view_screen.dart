@@ -52,16 +52,16 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
             : viewType,
         ref);
     return participants.isNotEmpty
-        ? viewType != ViewType.standard
-            ? viewType == ViewType.speaker
-                ? SizedBox(
-                    height: 200,
-                    width: MediaQuery.of(context).size.width,
-                    child: const CustomVideoPlayer(
-                        src:
-                            "https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8"),
-                  )
-                : PageView.builder(
+        ? viewType == ViewType.speaker
+            ? SizedBox(
+                height: 200,
+                width: MediaQuery.of(context).size.width,
+                child: const CustomVideoPlayer(
+                    src:
+                        "https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8"),
+              )
+            : responsiveDevice != ResponsiveDevice.desktop
+                ? PageView.builder(
                     padEnds: false,
                     controller: _pageController,
                     itemCount: participants.length,
@@ -133,44 +133,46 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                               ],
                             );
                     })
-            : Row(children: [
-                Expanded(
-                    flex: 2,
-                    child: ParticipantWidget(
-                      participant: participants[0],
-                    )),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Container(
-                    width: viewState.chat || viewState.participants ? 450 : 250,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
-                            style: BorderStyle.solid,
-                            width: 1)),
-                    child: viewState.chat
-                        ? const ChatScreen()
-                        : viewState.participants
-                            ? const ParticipantsScreen()
-                            : ListView(
-                                children: participants.sublist(1).map((e) {
-                                  return Container(
-                                      height: 200,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5),
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      child: ParticipantWidget(
-                                        participant: e,
-                                      ));
-                                }).toList(),
-                              ),
-                  ),
-                )
-              ])
+                : Row(children: [
+                    Expanded(
+                        flex: 2,
+                        child: ParticipantWidget(
+                          participant: participants[0],
+                        )),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Container(
+                        width: viewState.chat || viewState.participants
+                            ? 450
+                            : 250,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
+                                style: BorderStyle.solid,
+                                width: 1)),
+                        child: viewState.chat
+                            ? const ChatScreen()
+                            : viewState.participants
+                                ? const ParticipantsScreen()
+                                : ListView(
+                                    children: participants.sublist(1).map((e) {
+                                      return Container(
+                                          height: 200,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5),
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                          child: ParticipantWidget(
+                                            participant: e,
+                                          ));
+                                    }).toList(),
+                                  ),
+                      ),
+                    )
+                  ])
         : const Center(
             child: CircularProgressIndicator(
             color: Colors.white,
