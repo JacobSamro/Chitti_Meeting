@@ -1,17 +1,20 @@
+import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
+import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import '../../../services/locator.dart';
 // import 'dart:html' as html;
 
-class CustomVideoPlayer extends StatefulWidget {
+class CustomVideoPlayer extends ConsumerStatefulWidget {
   const CustomVideoPlayer({super.key, required this.src, this.height = 200});
   final String src;
   final double height;
   @override
-  State<CustomVideoPlayer> createState() => _CustomVideoPlayerState();
+  ConsumerState<CustomVideoPlayer> createState() => _CustomVideoPlayerState();
 }
 
-class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
+class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
   late VideoPlayerController controller;
   @override
   void initState() {
@@ -34,6 +37,9 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
         if (controller.value.hasError) {
           debugPrint(controller.value.errorDescription);
           controller.play();
+        }
+        if(controller.value.position == controller.value.duration){
+          ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
         }
       });
       if (mounted) {
