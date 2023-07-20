@@ -1,4 +1,5 @@
 import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
+import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,16 +109,16 @@ final StateNotifierProvider<MeetingPageNotifier, int> meetingPageProvider =
         (ref) => MeetingPageNotifier(0));
 
 class ParticipantNotifier extends StateNotifier<List<dynamic>> {
-  ParticipantNotifier(super.state);
-
+  ParticipantNotifier(this.ref) : super([]);
+  final Ref ref;
   final Room room = locator<Room>();
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
-    final HostModel host = await locator<MeetingRepositories>().getHostVideo();
+    final Workshop workshop=ref.read(workshopDetailsProvider);
+    final HostModel host =HostModel(name: "Host", src: workshop.sourceUrl!) ;
     participants = [
       host,
-      // {"name": "sakthi", "message": "hello"}
       room.localParticipant as Participant,
     ];
     for (var element in room.participants.values) {
@@ -142,4 +143,24 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
 final StateNotifierProvider<ParticipantNotifier, List<dynamic>>
     participantProvider =
     StateNotifierProvider<ParticipantNotifier, List<dynamic>>(
-        (ref) => ParticipantNotifier([]));
+        (ref) => ParticipantNotifier(ref));
+
+
+class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
+  WorkshopDetialsNotifier(this.ref):super(Workshop());
+  final Ref ref;
+  Future<void> getWorkshopDetials(String id) async {
+    final Workshop workshop= await locator<MeetingRepositories>().getWorkshop(id);
+    if(workshop.meetingStatus=='ended'){
+      ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
+      return;
+    }
+    if(workshop.meetingStatus=='notstarted'){
+      ref.read(meetingStateProvider.notifier).changeState(WaitingRoom());
+      // return;
+    }
+    state=workshop;
+  }
+}
+
+final workshopDetailsProvider=StateNotifierProvider<WorkshopDetialsNotifier,Workshop>((ref) => WorkshopDetialsNotifier(ref));

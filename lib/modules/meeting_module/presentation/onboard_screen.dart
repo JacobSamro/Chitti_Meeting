@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
+import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../common/widgets/custom_button.dart';
 import '../../../common/widgets/custom_inputfield.dart';
 import '../../../services/locator.dart';
@@ -211,8 +211,9 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                           setState(() {
                             isLoading = true;
                           });
+                          await ref.read(workshopDetailsProvider.notifier).getWorkshopDetials(hashId.text);
                           await locator<MeetingRepositories>().addParticipant(
-                              nameController.text, isVideoOn, ref);
+                              nameController.text,ref.read(workshopDetailsProvider).meetingId!, isVideoOn, ref);
                           isLoading = false;
                         },
                         child: CustomButton(
