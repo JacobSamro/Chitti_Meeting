@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:video_player/video_player.dart';
 import '../../../common/widgets/custom_timer.dart';
+import '../../../common/widgets/switch_view_item.dart';
 import '../../../services/responsive.dart';
 import '../../view_module/models/view_state.dart';
 import '../../view_module/presentation/view_screen.dart';
@@ -212,54 +213,26 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            ref
-                                .read(viewProvider.notifier)
-                                .changeViewType(ViewType.standard);
-                            Navigator.pop(context);
-                          },
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              "Standard View",
-                              style: textTheme.labelSmall,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 30),
-                          child: GestureDetector(
+                        SwitchViewItem(
+                            label: "Standard View",
                             onTap: () {
                               ref
                                   .read(viewProvider.notifier)
+                                  .changeViewType(ViewType.standard);
+                              Navigator.pop(context);
+                            }),
+                        SwitchViewItem(label: "Gallery View", onTap: (){
+                          ref
+                                  .read(viewProvider.notifier)
                                   .changeViewType(ViewType.gallery);
                               Navigator.pop(context);
-                            },
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                "Gallery View",
-                                style: textTheme.labelSmall,
-                              ),
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            ref
-                                .read(viewProvider.notifier)
-                                .changeViewType(ViewType.speaker);
-                            Navigator.pop(context);
-                          },
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              "Speaker View",
-                              style: textTheme.labelSmall,
-                            ),
-                          ),
-                        ),
+                        }),
+                       SwitchViewItem(label: "Speaker View", onTap: (){
+                          ref
+                                  .read(viewProvider.notifier)
+                                  .changeViewType(ViewType.speaker);
+                              Navigator.pop(context);
+                       })
                       ],
                     ),
                   );
@@ -320,6 +293,8 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                 context: context,
                 builder: (context) => AlertDialog(
                       backgroundColor: Colors.black,
+                      contentPadding: const EdgeInsets.all(0),
+                      insetPadding: EdgeInsets.all(0),
                       content: CustomCard(
                         content: "Are you sure to leave?",
                         iconPath: 'assets/icons/cross_mark.png',
@@ -343,7 +318,6 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 5),
                           GestureDetector(
                             onTap: () {
                               Navigator.pop(context);

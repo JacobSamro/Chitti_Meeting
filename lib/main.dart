@@ -1,8 +1,9 @@
 import 'package:chitti_meeting/common/constants/app_theme_data.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_ended_screen.dart';
+import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_dialogues.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
+import 'package:chitti_meeting/modules/meeting_module/presentation/waiting_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:chitti_meeting/routes.dart';
@@ -54,7 +55,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onTap: () {}, child: const CircularProgressIndicator()),
       ),
       const MainScreen(),
-      const MeetingEndedScreen()
+      const MeetingDialogue(),
+      const WaitingScreen()
     ];
     ref.read(cameraProvider.notifier).addCameras();
     ref.read(meetingStateProvider.notifier).listen(context);
@@ -83,6 +85,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
         case MeetingRoomDisconnected:
           ref.read(meetingPageProvider.notifier).changePageIndex(3);
+          break;
+        case MeetingEnded:
+          ref.read(meetingPageProvider.notifier).changePageIndex(3);
+          break;
+        case WaitingRoom:
+          ref.read(meetingPageProvider.notifier).changePageIndex(4);
           break;
         default:
           ref.read(meetingPageProvider.notifier).changePageIndex(1);
