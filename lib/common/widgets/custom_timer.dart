@@ -48,6 +48,7 @@ class _CustomTimerState extends State<CustomTimer> {
       child: Text(
         '$twoDigitMinutes:$twoDigitSeconds',
         style: textTheme.displaySmall?.copyWith(
+            color: Colors.white,
             fontSize: responsiveDevice != ResponsiveDevice.mobile ? 12 : 10),
       ),
     );
