@@ -1,5 +1,6 @@
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/constants/constants.dart';
@@ -11,16 +12,21 @@ class MeetingRepositories {
   final Dio dio;
   final Room room;
 
+  Future<String> getDateTime()async{
+    final Response<dynamic> response = await dio.get(ApiConstants.dateTimeUrl);
+    return response.data['dateTime'];
+  }
+
   Future<void> addParticipant(String participantName, String meetingId,
       bool isVideo, WidgetRef ref) async {
     // final int id = Random().nextInt(100);
     final Response response = await dio.post(ApiConstants.addParticipantUrl,
         data: {
-          "meetingId": meetingId,
+          "roomId": meetingId,
           "participantName": participantName,
           "isVideo": isVideo
         });
-
+    debugPrint(response.data['token'].toString());
     await room.connect(ApiConstants.livekitUrl, response.data['token'],
         roomOptions: const RoomOptions(
           adaptiveStream: true,

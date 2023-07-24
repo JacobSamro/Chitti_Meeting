@@ -29,17 +29,14 @@ class MainScreen extends ConsumerStatefulWidget {
 
 class _MainScreenState extends ConsumerState<MainScreen> {
   final Room room = locator<Room>();
-  late Stopwatch _stopwatch;
   @override
   void initState() {
     super.initState();
 
-    _stopwatch = Stopwatch();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(participantProvider.notifier).addLocalParticipantTrack();
-      ref
-          .read(chatProvider.notifier)
-          .listenMessage('96017f1b-fcf4-441c-9f4c-56eb28496ece');
+      ref.read(chatProvider.notifier).listenMessage(
+          ref.read(workshopDetailsProvider).meetingId.toString());
     });
   }
 
@@ -63,15 +60,19 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      room.name.toString(),
-                      style: textTheme.bodySmall,
+                    Flexible(
+                      child: Text(
+                        room.name.toString(),
+                        style: textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(
                       width: 6,
                     ),
-                    CustomTimer(stopwatch: _stopwatch)
+                    const CustomTimer()
                   ],
                 ),
               ),
@@ -199,41 +200,51 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
           case "Switch View":
             showModalBottomSheet(
                 context: context,
-                backgroundColor: Colors.black,
+                barrierColor: Colors.white.withOpacity(0),
+                backgroundColor: Colors.white.withOpacity(0),
                 constraints: BoxConstraints(
                     maxWidth: width > 800 ? 300 : double.infinity),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                        width: 1, color: Colors.white.withOpacity(0.1))),
                 builder: (context) {
                   return Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SwitchViewItem(
-                            label: "Standard View",
-                            onTap: () {
-                              ref
-                                  .read(viewProvider.notifier)
-                                  .changeViewType(ViewType.standard);
-                              Navigator.pop(context);
-                            }),
-                        SwitchViewItem(label: "Gallery View", onTap: (){
-                          ref
-                                  .read(viewProvider.notifier)
-                                  .changeViewType(ViewType.gallery);
-                              Navigator.pop(context);
-                        }),
-                       SwitchViewItem(label: "Speaker View", onTap: (){
-                          ref
-                                  .read(viewProvider.notifier)
-                                  .changeViewType(ViewType.speaker);
-                              Navigator.pop(context);
-                       })
-                      ],
+                    padding: EdgeInsets.only(bottom: width > 800 ? 70 : 0),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.black,
+                        border: Border.all(
+                            width: 1, color: Colors.white.withOpacity(0.1)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SwitchViewItem(
+                              label: "Standard View",
+                              onTap: () {
+                                ref
+                                    .read(viewProvider.notifier)
+                                    .changeViewType(ViewType.standard);
+                                Navigator.pop(context);
+                              }),
+                          SwitchViewItem(
+                              label: "Gallery View",
+                              onTap: () {
+                                ref
+                                    .read(viewProvider.notifier)
+                                    .changeViewType(ViewType.gallery);
+                                Navigator.pop(context);
+                              }),
+                          SwitchViewItem(
+                              label: "Speaker View",
+                              onTap: () {
+                                ref
+                                    .read(viewProvider.notifier)
+                                    .changeViewType(ViewType.speaker);
+                                Navigator.pop(context);
+                              })
+                        ],
+                      ),
                     ),
                   );
                 });

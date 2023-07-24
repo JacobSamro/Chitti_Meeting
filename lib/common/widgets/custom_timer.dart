@@ -1,30 +1,39 @@
 import 'dart:async';
+import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
+import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
+import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomTimer extends StatefulWidget {
+class CustomTimer extends ConsumerStatefulWidget {
   const CustomTimer({
     super.key,
-    required this.stopwatch,
   });
-  final Stopwatch stopwatch;
   @override
-  State<CustomTimer> createState() => _CustomTimerState();
+  ConsumerState<CustomTimer> createState() => _CustomTimerState();
 }
 
-class _CustomTimerState extends State<CustomTimer> {
+class _CustomTimerState extends ConsumerState<CustomTimer> {
   late Timer timer;
+  Duration duration = const Duration();
   @override
   void initState() {
     super.initState();
     startTimer();
   }
 
-  void startTimer() {
-    widget.stopwatch.start();
+  void startTimer() async {
+    final currentTime = await locator<MeetingRepositories>().getDateTime();
+    final meetingTime = ref.read(workshopDetailsProvider).scheduledAt;
+    final difference =
+        DateTime.parse(currentTime).difference(DateTime.parse(meetingTime!));
+    duration = Duration(seconds: difference.inSeconds);
     timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       if (mounted) {
-        setState(() {});
+        setState(() {
+          duration += const Duration(milliseconds: 30);
+        });
       }
     });
   }
@@ -34,8 +43,6 @@ class _CustomTimerState extends State<CustomTimer> {
     final textTheme = Theme.of(context).textTheme;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
-    final duration =
-        Duration(milliseconds: widget.stopwatch.elapsedMilliseconds);
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
