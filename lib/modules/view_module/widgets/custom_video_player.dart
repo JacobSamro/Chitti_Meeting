@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import '../../../services/locator.dart';
-// import 'dart:html' as html;
+import 'package:universal_html/html.dart' as html;
 
+  
 class CustomVideoPlayer extends ConsumerStatefulWidget {
   const CustomVideoPlayer({super.key, required this.src, this.height = 200});
   final String src;
@@ -31,6 +32,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
       );
       controller = locator<VideoPlayerController>();
       await controller.initialize();
+      html.document.onContextMenu.listen((event) => event.preventDefault());
       controller.play();
       controller.setLooping(true);
       controller.addListener(() {
