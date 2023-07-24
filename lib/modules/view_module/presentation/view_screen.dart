@@ -60,7 +60,8 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                     src:
                         "https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8"),
               )
-            : responsiveDevice != ResponsiveDevice.desktop
+            : responsiveDevice != ResponsiveDevice.desktop ||
+                    viewType == ViewType.gallery
                 ? PageView.builder(
                     padEnds: false,
                     controller: _pageController,
@@ -73,12 +74,10 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: participantTracks.map((e) {
-                                return Expanded(
-                                  child: SizedBox(
-                                    width: MediaQuery.of(context).size.width,
-                                    child: ParticipantWidget(
-                                      participant: e,
-                                    ),
+                                return SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: ParticipantWidget(
+                                    participant: e,
                                   ),
                                 );
                               }).toList(),
