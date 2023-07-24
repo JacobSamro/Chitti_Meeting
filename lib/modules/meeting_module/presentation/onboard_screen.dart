@@ -211,9 +211,20 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                           setState(() {
                             isLoading = true;
                           });
-                          await ref.read(workshopDetailsProvider.notifier).getWorkshopDetials(hashId.text);
-                          await locator<MeetingRepositories>().addParticipant(
-                              nameController.text,ref.read(workshopDetailsProvider).meetingId!, isVideoOn, ref);
+                          final bool canConnect = await ref
+                              .read(workshopDetailsProvider.notifier)
+                              .getWorkshopDetials(hashId.text);
+                          canConnect
+                              ? await locator<MeetingRepositories>()
+                                  .addParticipant(
+                                      nameController.text,
+                                      ref
+                                          .read(workshopDetailsProvider)
+                                          .meetingId
+                                          .toString(),
+                                      isVideoOn,
+                                      ref)
+                              : null;
                           isLoading = false;
                         },
                         child: CustomButton(

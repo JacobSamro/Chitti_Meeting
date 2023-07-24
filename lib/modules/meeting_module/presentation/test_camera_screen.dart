@@ -64,7 +64,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
     final Workshop workshop = ref.watch(workshopDetailsProvider);
     return Scaffold(
       body: SafeArea(
-        child: workshop.meetingId!.isNotEmpty
+        child: workshop.meetingId != null && workshop.meetingId!.isNotEmpty
             ? SizedBox(
                 width: double.infinity,
                 height: double.infinity,

@@ -21,6 +21,7 @@ class CustomInputField extends StatelessWidget {
       child: TextField(
           controller: controller,
           textAlign: TextAlign.center,
+          style: textTheme.labelSmall?.copyWith(color: Colors.white),
           decoration: InputDecoration(
             hintText: label,
             hintStyle: textTheme.labelSmall

@@ -115,8 +115,8 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
-    final Workshop workshop=ref.read(workshopDetailsProvider);
-    final HostModel host =HostModel(name: "Host", src: workshop.sourceUrl!) ;
+    final Workshop workshop = ref.read(workshopDetailsProvider);
+    final HostModel host = HostModel(name: "Host", src: workshop.sourceUrl!);
     participants = [
       host,
       room.localParticipant as Participant,
@@ -145,22 +145,25 @@ final StateNotifierProvider<ParticipantNotifier, List<dynamic>>
     StateNotifierProvider<ParticipantNotifier, List<dynamic>>(
         (ref) => ParticipantNotifier(ref));
 
-
 class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
-  WorkshopDetialsNotifier(this.ref):super(Workshop());
+  WorkshopDetialsNotifier(this.ref) : super(Workshop());
   final Ref ref;
-  Future<void> getWorkshopDetials(String id) async {
-    final Workshop workshop= await locator<MeetingRepositories>().getWorkshop(id);
-    if(workshop.meetingStatus=='ended'){
+  Future<bool> getWorkshopDetials(String id) async {
+    final Workshop workshop =
+        await locator<MeetingRepositories>().getWorkshop(id);
+    if (workshop.meetingStatus == 'ended') {
       ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
-      return;
+      return false;
     }
-    if(workshop.meetingStatus=='notstarted'){
+    if (workshop.meetingStatus == 'notstarted') {
       ref.read(meetingStateProvider.notifier).changeState(WaitingRoom());
-      // return;
+      return false;
     }
-    state=workshop;
+    state = workshop;
+    return true;
   }
 }
 
-final workshopDetailsProvider=StateNotifierProvider<WorkshopDetialsNotifier,Workshop>((ref) => WorkshopDetialsNotifier(ref));
+final workshopDetailsProvider =
+    StateNotifierProvider<WorkshopDetialsNotifier, Workshop>(
+        (ref) => WorkshopDetialsNotifier(ref));
