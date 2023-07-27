@@ -10,6 +10,7 @@ class CustomBottomNavigation extends StatelessWidget {
     return Container(
       color: Colors.black,
       height: 76,
+      padding: const EdgeInsets.all(20),
       child: ListView(
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
@@ -31,11 +32,11 @@ class CustomBottomNavigationItem extends StatelessWidget {
       required this.iconPath,
       required this.label,
       this.badge = false,
-      this.badgeType = BadgeType.dot});
+      this.badgeValue = 0});
   final String iconPath;
   final String label;
   final bool badge;
-  final BadgeType badgeType;
+  final int badgeValue;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -43,26 +44,61 @@ class CustomBottomNavigationItem extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: 49,
-          child: Column(
-            children: [
-              Image.asset(
-                iconPath,
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: textTheme.labelSmall?.copyWith(fontSize: 10),
-              )
-            ],
-          ),
-        ),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            height: 49,
+            child: !badge
+                ? Column(
+                    children: [
+                      Image.asset(
+                        iconPath,
+                        width: 20,
+                        height: 20,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        label,
+                        style: textTheme.labelSmall?.copyWith(fontSize: 10),
+                      )
+                    ],
+                  )
+                : Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Column(
+                        children: [
+                          Image.asset(
+                            iconPath,
+                            width: 20,
+                            height: 20,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            label,
+                            style: textTheme.labelSmall?.copyWith(fontSize: 10),
+                          )
+                        ],
+                      ),
+                      badgeValue != 0
+                          ? Positioned(
+                              top: -15,
+                              right: 0,
+                              child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    badgeValue.toString(),
+                                    style: textTheme.bodySmall
+                                        ?.copyWith(fontSize: 10),
+                                  )),
+                            )
+                          : const SizedBox()
+                    ],
+                  )),
       ),
     );
   }
 }
-
-enum BadgeType { dot, number }

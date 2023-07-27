@@ -3,6 +3,7 @@ import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart'
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
 import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -18,11 +19,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    Future.microtask(
+        () => ref.read(unReadMessageProvider.notifier).markAsRead());
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    // Future.microtask(
+    //     () => ref.read(unReadMessageProvider.notifier).markAsRead());
     super.dispose();
   }
 
@@ -147,44 +152,60 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     );
                   })),
           Container(
-            width: double.infinity,
-            height: 48,
             padding: const EdgeInsets.only(left: 16, right: 4),
             decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(14)),
-            child: TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                  hintText: "Type anything...",
-                  hintStyle: textTheme.labelSmall
-                      ?.copyWith(color: Colors.white.withOpacity(0.4)),
-                  suffixIcon: GestureDetector(
-                    onTap: () {
-                      if (_controller.text.isNotEmpty) {
-                        ref
-                            .read(chatProvider.notifier)
-                            .addLocalMessage(_controller.text);
-                        _controller.clear();
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: RawKeyboardListener(
+                    focusNode: FocusNode(),
+                    onKey: (RawKeyEvent event) {
+                      if (event.data.logicalKey == LogicalKeyboardKey.enter) {
+                        if (_controller.text.isNotEmpty) {
+                          ref
+                              .read(chatProvider.notifier)
+                              .addLocalMessage(_controller.text);
+                          _controller.clear();
+                        }
                       }
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Container(
-                        height: 35,
-                        width: 35,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(
-                          Icons.send,
-                          size: 20,
-                          color: Colors.white,
-                        ),
-                      ),
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                          hintText: "Type anything...",
+                          hintStyle: textTheme.labelSmall
+                              ?.copyWith(color: Colors.white.withOpacity(0.4)),
+                          border: InputBorder.none),
                     ),
                   ),
-                  border: InputBorder.none),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (_controller.text.isNotEmpty) {
+                      ref
+                          .read(chatProvider.notifier)
+                          .addLocalMessage(_controller.text);
+                      _controller.clear();
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Image.asset('assets/icons/send.png',
+                          width: 20, height: 20),
+                    ),
+                  ),
+                ),
+              ],
             ),
           )
         ]),
