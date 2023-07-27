@@ -5,7 +5,6 @@ import '../models/view_state.dart';
 
 class ViewNotifier extends StateNotifier<ViewState> {
   ViewNotifier(super.state);
-   bool chat=false;
  void changeViewType(ViewType type) {
     state = ViewState(viewType: type, chat: state.chat,participants: state.participants);
   }

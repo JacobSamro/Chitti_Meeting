@@ -6,7 +6,6 @@ import 'package:video_player/video_player.dart';
 import '../../../services/locator.dart';
 import 'package:universal_html/html.dart' as html;
 
-  
 class CustomVideoPlayer extends ConsumerStatefulWidget {
   const CustomVideoPlayer({super.key, required this.src, this.height = 200});
   final String src;
@@ -34,13 +33,12 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
       await controller.initialize();
       html.document.onContextMenu.listen((event) => event.preventDefault());
       controller.play();
-      controller.setLooping(true);
       controller.addListener(() {
         if (controller.value.hasError) {
           debugPrint(controller.value.errorDescription);
           controller.play();
         }
-        if(controller.value.position == controller.value.duration){
+        if (controller.value.position == controller.value.duration) {
           ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
         }
       });
@@ -62,13 +60,9 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
       child: controller.value.isInitialized
           ? AspectRatio(
               aspectRatio: controller.value.aspectRatio,
-              child: SizedBox(
-                width: controller.value.size.width,
-                height: controller.value.size.height,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: VideoPlayer(controller),
-                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: VideoPlayer(controller),
               ),
             )
           : const Center(child: CircularProgressIndicator()),

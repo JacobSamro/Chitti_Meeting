@@ -50,9 +50,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       widget.hashId.isNotEmpty
           ? TestCamera(hashId: widget.hashId)
           : const OnBoradScreen(),
-      Center(
-        child: GestureDetector(
-            onTap: () {}, child: const CircularProgressIndicator()),
+      const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
       const MainScreen(),
       const MeetingDialogue(),
