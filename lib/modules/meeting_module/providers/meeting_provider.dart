@@ -1,3 +1,4 @@
+import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
@@ -7,20 +8,18 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../services/locator.dart';
+import '../../view_module/providers/view_provider.dart';
 import '../states/meeting_states.dart';
 
 class MeetingStateNotifier extends StateNotifier<MeetingStates> {
   MeetingStateNotifier({this.ref}) : super(RouterInitial());
   final Ref? ref;
-  late final EventsListener<RoomEvent> _listener;
+  late EventsListener<RoomEvent> _listener;
   EventsListener<RoomEvent> get listener => _listener;
-  final Room room = locator<Room>();
 
   void changeState(MeetingStates state) {
     this.state = state;
   }
-
-  onTrackPublished() {}
 
   void createListener() {
     _listener = locator<Room>().createListener();
@@ -48,14 +47,20 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackUnsubscribedEvent>((event) {});
 
     _listener.on<RoomDisconnectedEvent>((event) async {
+      ref!.read(participantProvider.notifier).reset();
       await locator<VideoPlayerController>().dispose();
       await locator.unregister<VideoPlayerController>();
+      ref!.invalidate(workshopDetailsProvider);
+      ref!.invalidate(viewProvider);
+      ref!.invalidate(chatProvider);
+      ref!.invalidate(unReadMessageProvider);
+      ref!.read(meetingStateProvider.notifier).removeListener();
       state = MeetingRoomDisconnected();
     });
 
     _listener.on<RoomReconnectingEvent>((event) async {
       state = MeetingRoomReconnecting();
-      ref?.invalidate(participantProvider);
+      ref!.read(participantProvider.notifier).reset();
       await locator<VideoPlayerController>().dispose();
       await locator.unregister<VideoPlayerController>();
       ScaffoldMessenger.of(context)
@@ -124,7 +129,7 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
     for (var element in room.participants.values) {
       participants.add(element);
     }
-    state = [...state, ...participants];
+    state = [...participants];
   }
 
   void addRemoteParticipantTrack(Participant participant) {
@@ -138,6 +143,10 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
         .toList();
     state = newState;
   }
+
+  void reset() {
+    state = [];
+  }
 }
 
 final StateNotifierProvider<ParticipantNotifier, List<dynamic>>
@@ -148,7 +157,9 @@ final StateNotifierProvider<ParticipantNotifier, List<dynamic>>
 class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
   WorkshopDetialsNotifier(this.ref) : super(Workshop());
   final Ref ref;
+  String hashId = '';
   Future<bool> getWorkshopDetials(String id) async {
+    hashId = id;
     final Workshop workshop =
         await locator<MeetingRepositories>().getWorkshop(id);
     if (workshop.meetingStatus == 'ended') {

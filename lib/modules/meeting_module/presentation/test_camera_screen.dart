@@ -7,6 +7,7 @@ import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livekit_client/livekit_client.dart';
 import '../providers/meeting_provider.dart';
 import '../repositories/meeting_respositories.dart';
 
@@ -28,6 +29,13 @@ class _TestCameraState extends ConsumerState<TestCamera> {
     super.initState();
     nameController = TextEditingController();
     getWorkshop();
+    if (!locator.isRegistered<Room>()) {
+      locator.registerLazySingleton<Room>(() => Room());
+    }
+    if (ref.read(meetingStateProvider.notifier).listener.isDisposed) {
+      ref.read(meetingStateProvider.notifier).createListener();
+      ref.read(meetingStateProvider.notifier).listen(context);
+    }
   }
 
   void getWorkshop() async {
@@ -214,10 +222,12 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                           });
                           await locator<MeetingRepositories>().addParticipant(
                               nameController.text,
+                              locator<Room>(),
                               workshop.meetingId!,
                               isVideoOn,
                               ref);
                           isLoading = false;
+                          isVideoOn = false;
                         },
                         child: !isLoading
                             ? CustomButton(

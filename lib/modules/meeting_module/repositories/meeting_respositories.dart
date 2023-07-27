@@ -1,4 +1,5 @@
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
+import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,17 +9,17 @@ import '../models/workshop_model.dart';
 import '../states/meeting_states.dart';
 
 class MeetingRepositories {
-  const MeetingRepositories({required this.room, required this.dio});
+  const MeetingRepositories({required this.dio});
   final Dio dio;
-  final Room room;
 
-  Future<String> getDateTime()async{
+  Future<String> getDateTime() async {
     final Response<dynamic> response = await dio.get(ApiConstants.dateTimeUrl);
     return response.data['dateTime'];
   }
 
-  Future<void> addParticipant(String participantName, String meetingId,
-      bool isVideo, WidgetRef ref) async {
+  Future<void> addParticipant(String participantName, Room room1,
+      String meetingId, bool isVideo, WidgetRef ref) async {
+    final Room room = locator<Room>();
     // final int id = Random().nextInt(100);
     final Response response = await dio.post(ApiConstants.addParticipantUrl,
         data: {
@@ -37,7 +38,7 @@ class MeetingRepositories {
         ),
         fastConnectOptions: FastConnectOptions(
           microphone: const TrackOption(enabled: false),
-          camera: const TrackOption(enabled: true),
+          camera: TrackOption(enabled: isVideo),
         ));
 
     try {

@@ -12,7 +12,7 @@ void setup() {
   locator.registerLazySingleton<MeetingStateNotifier>(
       () => MeetingStateNotifier());
   locator.registerLazySingleton<MeetingRepositories>(
-      () => MeetingRepositories(dio: locator<Dio>(), room: locator<Room>()));
+      () => MeetingRepositories(dio: locator<Dio>()));
   locator.registerLazySingleton<EventsListener>(
       () => locator<Room>().createListener());
 }

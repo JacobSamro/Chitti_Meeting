@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livekit_client/livekit_client.dart';
 import '../../../common/widgets/custom_button.dart';
 import '../../../common/widgets/custom_inputfield.dart';
 import '../../../services/locator.dart';
@@ -28,6 +29,13 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
     super.initState();
     nameController = TextEditingController();
     hashId = TextEditingController();
+    if (!locator.isRegistered<Room>()) {
+      locator.registerLazySingleton<Room>(() => Room());
+    }
+    if (ref.read(meetingStateProvider.notifier).listener.isDisposed) {
+      ref.read(meetingStateProvider.notifier).createListener();
+      ref.read(meetingStateProvider.notifier).listen(context);
+    }
   }
 
   initCamera() async {
@@ -211,6 +219,8 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                           setState(() {
                             isLoading = true;
                           });
+                          final data = locator<Room>().localParticipant;
+                          debugPrint("Data :: ${data?.identity.toString()}_");
                           final bool canConnect = await ref
                               .read(workshopDetailsProvider.notifier)
                               .getWorkshopDetials(hashId.text);
@@ -218,6 +228,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                               ? await locator<MeetingRepositories>()
                                   .addParticipant(
                                       nameController.text,
+                                      locator<Room>(),
                                       ref
                                           .read(workshopDetailsProvider)
                                           .meetingId
@@ -226,6 +237,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                       ref)
                               : null;
                           isLoading = false;
+                          isVideoOn = false;
                         },
                         child: CustomButton(
                           height: 52,

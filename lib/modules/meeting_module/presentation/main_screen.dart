@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
-import 'package:video_player/video_player.dart';
 import '../../../common/widgets/custom_timer.dart';
 import '../../../common/widgets/switch_view_item.dart';
 import '../../../services/responsive.dart';
@@ -35,15 +34,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(participantProvider.notifier).addLocalParticipantTrack();
-      ref.read(chatProvider.notifier).listenMessage(
-          ref.read(workshopDetailsProvider).meetingId.toString());
+      ref
+          .read(chatProvider.notifier)
+          .listenMessage(ref.read(workshopDetailsProvider.notifier).hashId);
     });
   }
 
   @override
   void dispose() {
-    locator.unregister<VideoPlayerController>();
     super.dispose();
+    ref.invalidate(participantProvider);
+    room.dispose();
+    locator.unregister<Room>();
   }
 
   @override
@@ -65,7 +67,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     Flexible(
                       child: Text(
                         room.name.toString(),
-                        style: textTheme.bodySmall,
+                        style:
+                            textTheme.bodySmall?.copyWith(color: Colors.white),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -92,10 +95,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   ? Stack(
                       alignment: Alignment.center,
                       children: [
-                        const CustomVideoPlayer(
-                            height: double.infinity,
-                            src:
-                                'https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8'),
+                        SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: CustomVideoPlayer(
+                              height: double.infinity,
+                              src:
+                                  ref.read(workshopDetailsProvider).sourceUrl!),
+                        ),
                         Positioned(
                           bottom: 0,
                           child: Padding(
@@ -107,15 +114,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         ),
                       ],
                     )
-                  : const Column(
+                  : Column(
                       children: [
                         Expanded(
                           child: CustomVideoPlayer(
                               height: double.infinity,
                               src:
-                                  'https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8'),
+                                  ref.read(workshopDetailsProvider).sourceUrl!),
                         ),
-                        NavigationBar()
+                        const NavigationBar()
                       ],
                     ),
             ),
@@ -167,11 +174,7 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
           label: "Mic Off",
           iconPath: "assets/icons/mic_off.png",
         ),
-        const CustomBottomNavigationItem(
-          label: "Chat",
-          badge: true,
-          iconPath: "assets/icons/message.png",
-        ),
+        chatNavigationItem(ref),
         const CustomBottomNavigationItem(
           label: "Switch View",
           iconPath: "assets/icons/view.png",
@@ -180,10 +183,7 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
           label: "Leave",
           iconPath: "assets/icons/call_outline.png",
         ),
-        const CustomBottomNavigationItem(
-          label: "Participants",
-          iconPath: "assets/icons/people.png",
-        ),
+        participantNavigationItem(ref)
       ],
       onChanged: (value) async {
         switch (value) {
@@ -305,15 +305,13 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                 builder: (context) => AlertDialog(
                       backgroundColor: Colors.black,
                       contentPadding: const EdgeInsets.all(0),
-                      insetPadding: EdgeInsets.all(0),
+                      insetPadding: const EdgeInsets.all(0),
                       content: CustomCard(
                         content: "Are you sure to leave?",
                         iconPath: 'assets/icons/cross_mark.png',
                         actions: [
                           GestureDetector(
                             onTap: () async {
-                              ref.invalidate(participantProvider);
-                              ref.invalidate(viewProvider);
                               await room.disconnect();
                               Navigator.pop(context);
                             },
@@ -355,4 +353,24 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
       },
     );
   }
+}
+
+CustomBottomNavigationItem chatNavigationItem(WidgetRef ref) {
+  ref.watch(chatProvider);
+  final msgCount = ref.watch(unReadMessageProvider);
+  return CustomBottomNavigationItem(
+    label: "Chat",
+    badge: true,
+    iconPath: "assets/icons/message.png",
+    badgeValue: msgCount,
+  );
+}
+
+CustomBottomNavigationItem participantNavigationItem(WidgetRef ref) {
+  final participantCount = ref.watch(participantProvider);
+  return CustomBottomNavigationItem(
+      label: "Participants",
+      iconPath: "assets/icons/people.png",
+      badge: true,
+      badgeValue: participantCount.length);
 }
