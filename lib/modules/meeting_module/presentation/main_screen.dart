@@ -92,27 +92,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               height: double.infinity,
               width: double.infinity,
               child: responsiveDevice != ResponsiveDevice.desktop
-                  ? Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: CustomVideoPlayer(
-                              height: double.infinity,
-                              src:
-                                  ref.read(workshopDetailsProvider).sourceUrl!),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 30.0),
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: const NavigationBar()),
-                          ),
-                        ),
-                      ],
+                  ? GestureDetector(
+                      onTap: () {
+                        openFloatingNavigationBar(context);
+                      },
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: CustomVideoPlayer(
+                            height: double.infinity,
+                            src: ref.read(workshopDetailsProvider).sourceUrl!),
+                      ),
                     )
                   : Column(
                       children: [
@@ -290,11 +280,15 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
               DeviceOrientation.landscapeLeft,
             ]);
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
+            openFloatingNavigationBar(context);
             break;
           case "Exit":
             SystemChrome.setPreferredOrientations([
               DeviceOrientation.portraitUp,
             ]);
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
             ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
 
             break;
@@ -373,4 +367,25 @@ CustomBottomNavigationItem participantNavigationItem(WidgetRef ref) {
       iconPath: "assets/icons/people.png",
       badge: true,
       badgeValue: participantCount.length);
+}
+
+void openFloatingNavigationBar(context) async {
+  showModalBottomSheet(
+      barrierColor: Colors.white.withOpacity(0),
+      backgroundColor: Colors.white.withOpacity(0),
+      // isDismissible: false,
+      constraints: const BoxConstraints(maxWidth: 600),
+      context: context,
+      builder: (context) => Padding(
+            padding: const EdgeInsets.only(bottom: 30),
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: const NavigationBar()),
+          ));
+  // await Future.delayed(const Duration(seconds: 2), () {
+  //   // if (Navigator.canPop(context)) {
+  //   //   Navigator.pop(context);
+  //   // }
+  //   print("object");
+  // });
 }
