@@ -61,10 +61,10 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<RoomReconnectingEvent>((event) async {
       state = MeetingRoomReconnecting();
       ref!.read(participantProvider.notifier).reset();
-      await locator<VideoPlayerController>().dispose();
-      await locator.unregister<VideoPlayerController>();
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Reconnecting to room')));
+      await locator<VideoPlayerController>().dispose();
+      await locator.unregister<VideoPlayerController>();
     });
     _listener.on<RoomReconnectedEvent>((event) {
       state = MeetingRoomJoinCompleted();

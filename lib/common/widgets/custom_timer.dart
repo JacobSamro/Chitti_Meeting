@@ -44,6 +44,7 @@ class _CustomTimerState extends ConsumerState<CustomTimer> {
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
     String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitHours = twoDigits(duration.inHours.remainder(60));
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return Container(
@@ -53,7 +54,7 @@ class _CustomTimerState extends ConsumerState<CustomTimer> {
         borderRadius: BorderRadius.circular(50),
       ),
       child: Text(
-        '$twoDigitMinutes:$twoDigitSeconds',
+        '${twoDigitHours == '00' ? '' : twoDigitHours} $twoDigitMinutes:$twoDigitSeconds',
         style: textTheme.displaySmall?.copyWith(
             color: Colors.white,
             fontSize: responsiveDevice != ResponsiveDevice.mobile ? 12 : 10),

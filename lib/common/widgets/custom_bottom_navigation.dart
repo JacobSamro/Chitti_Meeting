@@ -9,8 +9,7 @@ class CustomBottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black,
-      height: 76,
-      padding: const EdgeInsets.all(20),
+      height: 70,
       child: ListView(
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
@@ -44,10 +43,11 @@ class CustomBottomNavigationItem extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: Center(
         child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             height: 49,
             child: !badge
                 ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
                         iconPath,
@@ -64,24 +64,10 @@ class CustomBottomNavigationItem extends StatelessWidget {
                 : Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      Column(
-                        children: [
-                          Image.asset(
-                            iconPath,
-                            width: 20,
-                            height: 20,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            label,
-                            style: textTheme.labelSmall?.copyWith(fontSize: 10),
-                          )
-                        ],
-                      ),
                       badgeValue != 0
                           ? Positioned(
-                              top: -15,
-                              right: 0,
+                              top: -10,
+                              right: -6,
                               child: Container(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 5, horizontal: 8),
@@ -95,7 +81,22 @@ class CustomBottomNavigationItem extends StatelessWidget {
                                         ?.copyWith(fontSize: 10),
                                   )),
                             )
-                          : const SizedBox()
+                          : const SizedBox(),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            iconPath,
+                            width: 20,
+                            height: 20,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            label,
+                            style: textTheme.labelSmall?.copyWith(fontSize: 10),
+                          )
+                        ],
+                      )
                     ],
                   )),
       ),
