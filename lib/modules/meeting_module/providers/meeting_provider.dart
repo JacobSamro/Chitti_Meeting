@@ -80,6 +80,9 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackUnpublishedEvent>((event) {
       callback();
     });
+    _listener.on<LocalTrackPublishedEvent>((event) {
+      callback();
+    });
     _listener.on<TrackPublishedEvent>((event) {
       state == MeetingRoomJoinCompleted() ? callback() : null;
     });
