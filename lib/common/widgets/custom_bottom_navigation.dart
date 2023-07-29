@@ -31,75 +31,81 @@ class CustomBottomNavigationItem extends StatelessWidget {
       required this.iconPath,
       required this.label,
       this.badge = false,
+      this.visible = true,
       this.badgeValue = 0});
   final String iconPath;
   final String label;
   final bool badge;
+  final bool visible;
   final int badgeValue;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: Center(
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            height: 49,
-            child: !badge
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        iconPath,
-                        width: 20,
-                        height: 20,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        label,
-                        style: textTheme.labelSmall?.copyWith(fontSize: 10),
-                      )
-                    ],
-                  )
-                : Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      badgeValue != 0
-                          ? Positioned(
-                              top: -10,
-                              right: -6,
-                              child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    badgeValue.toString(),
-                                    style: textTheme.bodySmall
-                                        ?.copyWith(fontSize: 10),
-                                  )),
+    return visible
+        ? MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Center(
+              child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  height: 49,
+                  child: !badge
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              iconPath,
+                              width: 20,
+                              height: 20,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              label,
+                              style:
+                                  textTheme.labelSmall?.copyWith(fontSize: 10),
                             )
-                          : const SizedBox(),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            iconPath,
-                            width: 20,
-                            height: 20,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            label,
-                            style: textTheme.labelSmall?.copyWith(fontSize: 10),
-                          )
-                        ],
-                      )
-                    ],
-                  )),
-      ),
-    );
+                          ],
+                        )
+                      : Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            badgeValue != 0
+                                ? Positioned(
+                                    top: -10,
+                                    right: -6,
+                                    child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5, horizontal: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          badgeValue.toString(),
+                                          style: textTheme.bodySmall
+                                              ?.copyWith(fontSize: 10),
+                                        )),
+                                  )
+                                : const SizedBox(),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  iconPath,
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  label,
+                                  style: textTheme.labelSmall
+                                      ?.copyWith(fontSize: 10),
+                                )
+                              ],
+                            )
+                          ],
+                        )),
+            ),
+          )
+        : const SizedBox();
   }
 }

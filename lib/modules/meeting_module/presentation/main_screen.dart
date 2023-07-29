@@ -121,7 +121,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 }
 
 class NavigationBar extends ConsumerStatefulWidget {
-  const NavigationBar({super.key});
+  const NavigationBar({super.key, this.isFloating = false});
+  final bool isFloating;
   @override
   ConsumerState<NavigationBar> createState() => _NavigationBarState();
 }
@@ -165,9 +166,10 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
           iconPath: "assets/icons/mic_off.png",
         ),
         chatNavigationItem(ref),
-        const CustomBottomNavigationItem(
+        CustomBottomNavigationItem(
           label: "Switch View",
           iconPath: "assets/icons/view.png",
+          visible: type == ViewType.fullScreen ? false : true,
         ),
         const CustomBottomNavigationItem(
           label: "Leave",
@@ -241,6 +243,11 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
             break;
           case "Chat":
             if (responsiveDevice != ResponsiveDevice.desktop) {
+              if (type == ViewType.fullScreen) {
+                SystemChrome.setPreferredOrientations([
+                  DeviceOrientation.portraitUp,
+                ]);
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -258,6 +265,11 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
             break;
           case "Participants":
             if (responsiveDevice != ResponsiveDevice.desktop) {
+              if (type == ViewType.fullScreen) {
+                SystemChrome.setPreferredOrientations([
+                  DeviceOrientation.portraitUp,
+                ]);
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(

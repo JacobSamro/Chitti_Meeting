@@ -1,5 +1,6 @@
 import 'package:chitti_meeting/modules/chat_module/models/message_model.dart';
 import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
+import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
 import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final textTheme = Theme.of(context).textTheme;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
+    final viewType = ref.read(viewProvider).viewType;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
@@ -45,9 +47,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           GestureDetector(
             onTap: () {
-              responsiveDevice == ResponsiveDevice.desktop
-                  ? ref.read(viewProvider.notifier).openChatInDesktop(false)
-                  : Navigator.pop(context);
+              if (responsiveDevice == ResponsiveDevice.desktop) {
+                ref.read(viewProvider.notifier).openChatInDesktop(false);
+                return;
+              }
+              viewType == ViewType.fullScreen
+                  ? SystemChrome.setPreferredOrientations([
+                      DeviceOrientation.landscapeLeft,
+                    ])
+                  : null;
+              Navigator.pop(context);
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),

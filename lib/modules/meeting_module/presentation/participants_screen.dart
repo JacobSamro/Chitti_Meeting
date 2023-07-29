@@ -1,9 +1,11 @@
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../services/responsive.dart';
 import '../../view_module/providers/view_provider.dart';
+import '../states/meeting_states.dart';
 
 class ParticipantsScreen extends ConsumerWidget {
   const ParticipantsScreen({super.key});
@@ -13,6 +15,7 @@ class ParticipantsScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final participants = ref.watch(participantProvider);
     final responsiveDevice = Responsive().getDeviceType(context);
+    final viewType = ref.read(viewProvider).viewType;
     return Scaffold(
         appBar: AppBar(
           title: const Text('Participants'),
@@ -21,11 +24,18 @@ class ParticipantsScreen extends ConsumerWidget {
           actions: [
             GestureDetector(
               onTap: () {
-                responsiveDevice == ResponsiveDevice.desktop
-                    ? ref
-                        .read(viewProvider.notifier)
-                        .openParticipantsInDesktop(false)
-                    : Navigator.pop(context);
+                if (responsiveDevice == ResponsiveDevice.desktop) {
+                  ref
+                      .read(viewProvider.notifier)
+                      .openParticipantsInDesktop(false);
+                  return;
+                }
+                viewType == ViewType.fullScreen
+                    ? SystemChrome.setPreferredOrientations([
+                        DeviceOrientation.landscapeLeft,
+                      ])
+                    : null;
+                Navigator.pop(context);
               },
               child: Padding(
                 padding: const EdgeInsets.only(right: 16.0),
@@ -82,8 +92,12 @@ class ParticipantsScreen extends ConsumerWidget {
                       ),
                       participants[index].name == 'Host'
                           ? Container(
-                              padding:  EdgeInsets.symmetric(
-                                  vertical:responsiveDevice!=ResponsiveDevice.desktop? 4:6, horizontal:8),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: responsiveDevice !=
+                                          ResponsiveDevice.desktop
+                                      ? 4
+                                      : 6,
+                                  horizontal: 8),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(50),
@@ -91,7 +105,11 @@ class ParticipantsScreen extends ConsumerWidget {
                               child: Text(
                                 'Host',
                                 style: textTheme.bodySmall?.copyWith(
-                                    color: Colors.white, fontSize:responsiveDevice!=ResponsiveDevice.desktop?10:12),
+                                    color: Colors.white,
+                                    fontSize: responsiveDevice !=
+                                            ResponsiveDevice.desktop
+                                        ? 10
+                                        : 12),
                               ),
                             )
                           : const SizedBox()
