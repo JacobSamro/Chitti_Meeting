@@ -9,6 +9,7 @@ import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dar
 import 'package:chitti_meeting/routes.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 
@@ -44,6 +45,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([
+              DeviceOrientation.portraitUp,
+            ]);
     ref.read(meetingStateProvider.notifier).createListener();
     debugPrint("Hash Id :: ${widget.hashId}");
     pages = <Widget>[
