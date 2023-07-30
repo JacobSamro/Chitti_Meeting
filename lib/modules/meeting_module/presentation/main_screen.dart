@@ -8,6 +8,7 @@ import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
 import 'package:chitti_meeting/modules/view_module/widgets/custom_video_player.dart';
 import 'package:chitti_meeting/services/locator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,7 @@ import '../../../services/responsive.dart';
 import '../../view_module/models/view_state.dart';
 import '../../view_module/presentation/view_screen.dart';
 import '../providers/meeting_provider.dart';
+import 'package:universal_html/html.dart' as html;
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -55,67 +57,70 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final ViewType viewType = viewState.viewType;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
-    return Scaffold(
-      appBar: viewType != ViewType.fullScreen
-          ? AppBar(
-              title: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        room.name.toString(),
-                        style:
-                            textTheme.bodySmall?.copyWith(color: Colors.white),
-                        overflow: TextOverflow.ellipsis,
+    return SafeArea(
+      child: Scaffold(
+        appBar: viewType != ViewType.fullScreen
+            ? AppBar(
+                title: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          room.name.toString(),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: Colors.white),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 6,
-                    ),
-                    const CustomTimer()
-                  ],
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      const CustomTimer()
+                    ],
+                  ),
                 ),
-              ),
-            )
-          : null,
-      body: viewType != ViewType.fullScreen
-          ? const Column(
-              children: [
-                Expanded(flex: 1, child: ViewScreen()),
-                NavigationBar()
-              ],
-            )
-          : SizedBox(
-              height: double.infinity,
-              width: double.infinity,
-              child: responsiveDevice != ResponsiveDevice.desktop
-                  ? GestureDetector(
-                      onTap: () {
-                        openFloatingNavigationBar(context);
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: double.infinity,
-                        child: CustomVideoPlayer(
-                            height: double.infinity,
-                            src: ref.read(workshopDetailsProvider).sourceUrl!),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        Expanded(
+              )
+            : null,
+        body: viewType != ViewType.fullScreen
+            ? const Column(
+                children: [
+                  Flexible(flex: 1, child: ViewScreen()),
+                  NavigationBar()
+                ],
+              )
+            : SizedBox(
+                height: double.infinity,
+                width: double.infinity,
+                child: responsiveDevice != ResponsiveDevice.desktop
+                    ? GestureDetector(
+                        onTap: () {
+                          openFloatingNavigationBar(context);
+                        },
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
                           child: CustomVideoPlayer(
                               height: double.infinity,
                               src:
                                   ref.read(workshopDetailsProvider).sourceUrl!),
                         ),
-                        const NavigationBar()
-                      ],
-                    ),
-            ),
+                      )
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: CustomVideoPlayer(
+                                src: ref
+                                    .read(workshopDetailsProvider)
+                                    .sourceUrl!),
+                          ),
+                          const NavigationBar()
+                        ],
+                      ),
+              ),
+      ),
     );
   }
 }
@@ -186,8 +191,7 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
             room.localParticipant?.setCameraEnabled(true);
             break;
           case "Mic Off":
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Mic was disabled by the host")));
+            showCustomSnackBar(context);
             break;
           case "Switch View":
             showModalBottomSheet(
@@ -288,16 +292,27 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                 .openParticipantsInDesktop(!viewState.participants);
             break;
           case "Full Screen":
-            SystemChrome.setPreferredOrientations([
-              DeviceOrientation.landscapeLeft,
-            ]);
+            if (!kIsWeb) {
+              SystemChrome.setPreferredOrientations([
+                DeviceOrientation.landscapeLeft,
+              ]);
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+            }
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
-            openFloatingNavigationBar(context);
+            html.document.documentElement?.requestFullscreen();
+            if (responsiveDevice != ResponsiveDevice.desktop && !kIsWeb) {
+              openFloatingNavigationBar(context);
+            }
             break;
           case "Exit":
-            SystemChrome.setPreferredOrientations([
-              DeviceOrientation.portraitUp,
-            ]);
+            if (!kIsWeb) {
+              SystemChrome.setPreferredOrientations([
+                DeviceOrientation.portraitUp,
+              ]);
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+            }
+            html.document.exitFullscreen();
+
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
             }
@@ -318,8 +333,8 @@ class _NavigationBarState extends ConsumerState<NavigationBar> {
                         actions: [
                           GestureDetector(
                             onTap: () async {
-                              await room.disconnect();
                               Navigator.pop(context);
+                              await room.disconnect();
                             },
                             child: CustomButton(
                               width: 85,
@@ -400,4 +415,26 @@ void openFloatingNavigationBar(context) async {
   //   // }
   //   print("object");
   // });
+}
+
+void showCustomSnackBar(context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: Color(0xff191919),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: Colors.white.withOpacity(0.1))),
+      // margin: EdgeInsets.only(
+      //     bottom: MediaQuery.of(context).size.height * 0.9),
+      behavior: SnackBarBehavior.floating,
+      content: SizedBox(
+        // height: 36,
+        child: Text(
+          "Mic was disabled by the host",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      dismissDirection: DismissDirection.up,
+    ),
+  );
 }

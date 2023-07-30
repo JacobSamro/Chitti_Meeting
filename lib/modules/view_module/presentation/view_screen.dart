@@ -42,6 +42,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
   Widget build(BuildContext context) {
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
+    final src = ref.read(workshopDetailsProvider).sourceUrl;
     ref.watch(participantProvider);
     final ViewState viewState = ref.watch(viewProvider);
     final ViewType viewType = viewState.viewType;
@@ -53,12 +54,12 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
         ref);
     return participants.isNotEmpty
         ? viewType == ViewType.speaker
-            ? SizedBox(
-                height: 200,
-                width: MediaQuery.of(context).size.width,
-                child: const CustomVideoPlayer(
-                    src:
-                        "https://streameggs.net/0ae71bda-4d2f-4961-9ced-e6d21ede69e6/master.m3u8"),
+            ? Center(
+                child: SizedBox(
+                  height: 300,
+                  width: MediaQuery.of(context).size.width,
+                  child: CustomVideoPlayer(src: src!),
+                ),
               )
             : responsiveDevice != ResponsiveDevice.desktop ||
                     viewType == ViewType.gallery
@@ -88,7 +89,12 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                                   child: GridView.builder(
                                     gridDelegate:
                                         SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
+                                      crossAxisCount: responsiveDevice !=
+                                              ResponsiveDevice.mobile
+                                          ? participantTracks.length < 4
+                                              ? 2
+                                              : 6
+                                          : 2,
                                       crossAxisSpacing: 10,
                                       mainAxisSpacing: 10,
                                       mainAxisExtent: responsiveDevice !=
@@ -111,23 +117,27 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                                 responsiveDevice == ResponsiveDevice.desktop &&
                                             viewState.chat ||
                                         viewState.participants
-                                    ? Container(
-                                        width: 450,
+                                    ? Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 16),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            border: Border.all(
-                                                color: Colors.white
-                                                    .withOpacity(0.1),
-                                                style: BorderStyle.solid,
-                                                width: 1)),
-                                        child: viewState.chat
-                                            ? const ChatScreen()
-                                            : viewState.participants
-                                                ? const ParticipantsScreen()
-                                                : const SizedBox())
+                                        child: Container(
+                                            width: 450,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                    color: Colors.white
+                                                        .withOpacity(0.1),
+                                                    style: BorderStyle.solid,
+                                                    width: 1)),
+                                            child: viewState.chat
+                                                ? const ChatScreen()
+                                                : viewState.participants
+                                                    ? const ParticipantsScreen()
+                                                    : const SizedBox()),
+                                      )
                                     : const SizedBox(),
                               ],
                             );
@@ -200,8 +210,8 @@ class ParticipantWithoutVideo extends StatelessWidget {
             Center(
                 child: Image.asset(
               'assets/icons/user_rounded.png',
-              width: 44,
-              height: 44,
+              width: 60,
+              height: 60,
             )),
             Positioned(
                 bottom: 10,

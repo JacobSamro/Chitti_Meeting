@@ -71,9 +71,9 @@ class MeetingRepositories {
   List<List<dynamic>> galleryViewSort(WidgetRef ref) {
     final List<dynamic> participants = ref.read(participantProvider);
     final List<List<dynamic>> sortValue = [
-      for (var i = 0; i < participants.length; i += 4)
+      for (var i = 0; i < participants.length; i += 6)
         participants.sublist(
-            i, i + 4 <= participants.length ? i + 4 : participants.length)
+            i, i + 6 <= participants.length ? i + 6 : participants.length)
     ];
     return sortValue;
   }
