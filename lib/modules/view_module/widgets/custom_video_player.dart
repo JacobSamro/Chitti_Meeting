@@ -1,7 +1,6 @@
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:livekit_client/livekit_client.dart';
 import 'package:video_player/video_player.dart';
 import '../../../services/locator.dart';
 import 'package:universal_html/html.dart' as html;
@@ -33,13 +32,14 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
       await controller.initialize();
       html.document.onContextMenu.listen((event) => event.preventDefault());
       controller.play();
-      controller.addListener(() {
+      controller.addListener(() async {
         if (controller.value.hasError) {
           debugPrint(controller.value.errorDescription);
           controller.play();
         }
         if (controller.value.position == controller.value.duration) {
-          ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
+          await controller.pause();
+          await locator<Room>().disconnect();
         }
       });
       if (mounted) {
