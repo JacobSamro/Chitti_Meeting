@@ -36,9 +36,11 @@ class Utils {
       {required BuildContext buildContext,
       required String content,
       required String iconPath}) {
+    final width = MediaQuery.of(buildContext).size.width;
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(buildContext).size.height * 0.1,
+        left: width > 800 ? 40 : 0,
         child: Material(
           color: const Color(0xff191919),
           shape: RoundedRectangleBorder(
@@ -49,9 +51,7 @@ class Utils {
             ),
           ),
           child: Container(
-            width: MediaQuery.of(buildContext).size.width > 800
-                ? 400
-                : MediaQuery.of(buildContext).size.width,
+            width: width > 800 ? 400 : width,
             height: 36,
             padding: const EdgeInsets.all(8.0),
             child: Row(
