@@ -26,8 +26,8 @@ class _CustomTimerState extends ConsumerState<CustomTimer> {
   void startTimer() async {
     final currentTime = await locator<MeetingRepositories>().getDateTime();
     final meetingTime = ref.read(workshopDetailsProvider).scheduledAt;
-    final difference =
-        DateTime.parse(currentTime).difference(DateTime.parse(meetingTime!));
+    final difference = DateTime.parse(currentTime).difference(
+        DateTime.parse(meetingTime!).subtract(const Duration(minutes: 10)));
     duration = Duration(seconds: difference.inSeconds);
     timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       if (mounted) {
