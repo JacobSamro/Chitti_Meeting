@@ -21,7 +21,7 @@ class SwitchViewItem extends ConsumerWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           width: double.infinity,
           child: Row(
             children: [

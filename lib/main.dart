@@ -1,4 +1,3 @@
-import 'package:chitti_meeting/common/constants/app_theme_data.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_dialogues.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
@@ -11,6 +10,7 @@ import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'common/constants/constants.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 
 void main() {
@@ -46,18 +46,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([
-              DeviceOrientation.portraitUp,
-            ]);
+      DeviceOrientation.portraitUp,
+    ]);
     ref.read(meetingStateProvider.notifier).createListener();
     debugPrint("Hash Id :: ${widget.hashId}");
     pages = <Widget>[
       widget.hashId.isNotEmpty
           ? TestCamera(hashId: widget.hashId)
           : const OnBoradScreen(),
-      const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+      const Center(
+        child: CircularProgressIndicator(),
       ),
       const MainScreen(),
       const MeetingDialogue(),
@@ -102,6 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
       }
     });
-    return pages[pageIndex];
+    return Scaffold(
+        key: locator<GlobalKey<ScaffoldState>>(), body: pages[pageIndex]);
   }
 }
