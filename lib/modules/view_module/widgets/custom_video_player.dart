@@ -13,7 +13,11 @@ class CustomVideoPlayer extends ConsumerStatefulWidget {
   ConsumerState<CustomVideoPlayer> createState() => _CustomVideoPlayerState();
 }
 
-class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
+class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late VideoPlayerController controller;
   @override
   void initState() {
@@ -33,10 +37,8 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
       html.document.onContextMenu.listen((event) => event.preventDefault());
       controller.play();
       controller.addListener(() async {
-        if (controller.value.hasError) {
-          debugPrint(controller.value.errorDescription);
-          controller.play();
-        }
+        debugPrint(
+            '${controller.value.position}== ${controller.value.duration}');
         if (controller.value.position == controller.value.duration) {
           await controller.pause();
           await locator<Room>().disconnect();
@@ -55,6 +57,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: controller.value.isInitialized
