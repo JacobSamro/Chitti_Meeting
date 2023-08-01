@@ -129,6 +129,9 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   ParticipantNotifier(this.ref) : super([]);
   final Ref ref;
   final Room room = locator<Room>();
+  String _participantName='';
+
+  String get participantName=>_participantName;
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
@@ -146,6 +149,10 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
 
   void addRemoteParticipantTrack(Participant participant) {
     state = [...state, participant];
+  }
+
+  void setParticipantName(String name){
+    _participantName=name;
   }
 
   void removeRemoteParticipantTrack(Participant participant) {
@@ -174,6 +181,7 @@ class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
     hashId = id;
     final Workshop workshop =
         await locator<MeetingRepositories>().getWorkshop(id);
+    state = workshop;
     if (workshop.meetingStatus == 'ended') {
       ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
       return false;
@@ -182,7 +190,6 @@ class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
       ref.read(meetingStateProvider.notifier).changeState(WaitingRoom());
       return false;
     }
-    state = workshop;
     return true;
   }
 }

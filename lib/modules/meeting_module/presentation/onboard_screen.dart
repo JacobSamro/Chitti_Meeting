@@ -52,7 +52,6 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
 
   @override
   void dispose() {
-    // controller.dispose();
     nameController.dispose();
     hashId.dispose();
     isVideoOn ? controller.dispose() : null;
@@ -212,11 +211,11 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                   content: Text("Enter meeting ID")));
                           return;
                         }
+                        FocusScope.of(context).unfocus();
                         setState(() {
                           isLoading = true;
                         });
-                        final data = locator<Room>().localParticipant;
-                        debugPrint("Data :: ${data?.identity.toString()}_");
+                        ref.read(participantProvider.notifier).setParticipantName(nameController.text);
                         final bool canConnect = await ref
                             .read(workshopDetailsProvider.notifier)
                             .getWorkshopDetials(hashId.text);

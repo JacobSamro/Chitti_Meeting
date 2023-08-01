@@ -213,6 +213,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                               const SnackBar(content: Text("Enter User Name")));
                           return;
                         }
+                        ref.read(participantProvider.notifier).setParticipantName(nameController.text);
                         setState(() {
                           isLoading = true;
                         });
