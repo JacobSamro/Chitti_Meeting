@@ -85,7 +85,8 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             room.localParticipant?.setCameraEnabled(true);
             break;
           case "Mic Off":
-            Utils.showCustomSnackBar(context);
+            Utils.showCustomSnackBar(
+                buildContext: context, content: "Mic was disabled by Host",iconPath: 'assets/icons/mic_off.png');
             break;
           case "Switch View":
             showModalBottomSheet(

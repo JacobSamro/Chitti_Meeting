@@ -8,6 +8,7 @@ import 'package:livekit_client/livekit_client.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../services/locator.dart';
+import '../../../utils/utils.dart';
 import '../../view_module/providers/view_provider.dart';
 import '../states/meeting_states.dart';
 
@@ -30,16 +31,20 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       ref!
           .read(participantProvider.notifier)
           .addRemoteParticipantTrack(event.participant);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${event.participant.identity} connected')));
+      Utils.showCustomSnackBar(
+          buildContext: context,
+          content: '${event.participant.identity} connected',
+          iconPath: 'assets/icons/user_rounded.png');
     });
 
     _listener.on<ParticipantDisconnectedEvent>((event) {
       ref!
           .read(participantProvider.notifier)
           .removeRemoteParticipantTrack(event.participant);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('${event.participant.identity} disconnected')));
+      Utils.showCustomSnackBar(
+          buildContext: context,
+          content: '${event.participant.identity} disconnected',
+          iconPath: 'assets/icons/user_rounded.png');
     });
 
     _listener.on<TrackSubscribedEvent>((event) {});
@@ -61,15 +66,19 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<RoomReconnectingEvent>((event) async {
       state = MeetingRoomReconnecting();
       ref!.read(participantProvider.notifier).reset();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Reconnecting to room')));
+      Utils.showCustomSnackBar(
+          buildContext: context,
+          content: 'Reconnecting to room',
+          iconPath: 'assets/icons/people.png');
       await locator<VideoPlayerController>().dispose();
       await locator.unregister<VideoPlayerController>();
     });
     _listener.on<RoomReconnectedEvent>((event) {
       state = MeetingRoomJoinCompleted();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Reconnected to room')));
+      Utils.showCustomSnackBar(
+          buildContext: context,
+          content: 'Reconnected to room',
+          iconPath: 'assets/icons/people.png');
     });
     _listener.on<TrackPublishedEvent>((event) {
       state = MeetingRoomJoinCompleted();
