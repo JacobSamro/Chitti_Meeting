@@ -49,7 +49,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       DeviceOrientation.portraitUp,
     ]);
     ref.read(meetingStateProvider.notifier).createListener();
-    debugPrint("Hash Id :: ${widget.hashId}");
     pages = <Widget>[
       widget.hashId.isNotEmpty
           ? TestCamera(hashId: widget.hashId)

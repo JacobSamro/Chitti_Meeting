@@ -1,7 +1,6 @@
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/constants/constants.dart';
@@ -27,7 +26,6 @@ class MeetingRepositories {
           "participantName": participantName,
           "isVideo": isVideo
         });
-    debugPrint(response.data['token'].toString());
     await room.connect(ApiConstants.livekitUrl, response.data['token'],
         roomOptions: const RoomOptions(
           adaptiveStream: true,

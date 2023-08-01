@@ -37,8 +37,6 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
       html.document.onContextMenu.listen((event) => event.preventDefault());
       controller.play();
       controller.addListener(() async {
-        debugPrint(
-            '${controller.value.position}== ${controller.value.duration}');
         if (controller.value.position == controller.value.duration) {
           await controller.pause();
           await locator<Room>().disconnect();
