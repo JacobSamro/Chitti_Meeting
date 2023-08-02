@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_dialogues.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
@@ -12,10 +13,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'common/constants/constants.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() {
   setup();
   runApp(const ProviderScope(child: MyApp()));
+  if (Platform.isWindows) {
+    doWhenWindowReady(() {
+      const initialSize = Size(600, 800);
+      appWindow.minSize = initialSize;
+      appWindow.title = "Chitti Meet";
+      appWindow.size = initialSize;
+      appWindow.startDragging();
+      appWindow.alignment = Alignment.center;
+      appWindow.show();
+    });
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -99,7 +112,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
       }
     });
+    final buttonColor = WindowButtonColors(iconNormal: Colors.white);
     return Scaffold(
-        key: locator<GlobalKey<ScaffoldState>>(), body: pages[pageIndex]);
+        key: locator<GlobalKey<ScaffoldState>>(),
+        appBar: Platform.isWindows
+            ? AppBar(
+                iconTheme: const IconThemeData(size: 18, color: Colors.white),
+                title: SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: MoveWindow(
+                      child: const Text(
+                        "Chitti Meet",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.normal),
+                      ),
+                    )),
+                actions: [
+                  MinimizeWindowButton(
+                    colors: buttonColor,
+                  ),
+                  MaximizeWindowButton(
+                    colors: buttonColor,
+                  ),
+                  CloseWindowButton(
+                    colors: buttonColor,
+                  )
+                ],
+              )
+            : null,
+        body: pages[pageIndex]);
   }
 }
