@@ -56,7 +56,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
         ? viewType == ViewType.speaker
             ? Center(
                 child: SizedBox(
-                  height: 300,
+                  // height: 300,
                   width: MediaQuery.of(context).size.width,
                   child: CustomVideoPlayer(src: src!),
                 ),
@@ -75,12 +75,24 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: participantTracks.map((e) {
-                                return SizedBox(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: ParticipantWidget(
-                                    participant: e,
-                                  ),
-                                );
+                                return participantTracks.length <= 1
+                                    ? SizedBox(
+                                        height: 300,
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: ParticipantWidget(
+                                          participant: e,
+                                        ),
+                                      )
+                                    : Expanded(
+                                        child: SizedBox(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: ParticipantWidget(
+                                            participant: e,
+                                          ),
+                                        ),
+                                      );
                               }).toList(),
                             )
                           : Row(
@@ -91,9 +103,9 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                                         SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: responsiveDevice !=
                                               ResponsiveDevice.mobile
-                                          ? participantTracks.length < 4
+                                          ? participantTracks.length <= 4
                                               ? 2
-                                              : 6
+                                              : 3
                                           : 2,
                                       crossAxisSpacing: 10,
                                       mainAxisSpacing: 10,
