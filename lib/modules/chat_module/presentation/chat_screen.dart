@@ -16,23 +16,51 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   late final TextEditingController _controller;
+  final FocusNode focusNode = FocusNode();
+  late ScrollController scrollController;
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToBottom();
+    });
     Future.microtask(
         () => ref.read(unReadMessageProvider.notifier).markAsRead());
+  }
+
+  void scrollToBottom() {
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  void focusTextField() {
+    if (focusNode.canRequestFocus) {
+      focusNode.requestFocus();
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    focusNode.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    focusTextField();
     final chat = ref.watch(chatProvider);
+    ref.listen(chatProvider, (previous, next) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToBottom();
+      });
+    });
     final textTheme = Theme.of(context).textTheme;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
@@ -79,94 +107,95 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(children: [
             Expanded(
-                child: ListView.builder(
-                    itemCount: chat.length,
-                    itemBuilder: (context, index) {
-                      final MessageModel message = chat[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: Row(
-                          mainAxisAlignment: message.by != MessageBy.host
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.start,
-                          children: [
-                            Container(
-                                clipBehavior: Clip.hardEdge,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 10),
-                                decoration: BoxDecoration(
-                                    color: message.by != MessageBy.host
-                                        ? Colors.white
-                                        : Colors.white.withOpacity(0.05),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: const Radius.circular(10),
-                                      topRight: const Radius.circular(10),
-                                      bottomRight: message.by != MessageBy.host
-                                          ? const Radius.circular(10)
-                                          : Radius.zero,
-                                      bottomLeft: message.by != MessageBy.host
-                                          ? const Radius.circular(10)
-                                          : Radius.zero,
-                                    )),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          message.by == MessageBy.local
-                                              ? 'You'
-                                              : "Host",
-                                          style: textTheme.displaySmall
-                                              ?.copyWith(
-                                                  fontSize: 10,
-                                                  color: message.by !=
-                                                          MessageBy.host
-                                                      ? Colors.black
-                                                          .withOpacity(0.6)
-                                                      : Colors.white
-                                                          .withOpacity(0.6)),
-                                        ),
-                                        const SizedBox(
-                                          width: 20,
-                                        ),
-                                        Text(
-                                          message.time,
-                                          style: textTheme.displaySmall
-                                              ?.copyWith(
-                                                  fontSize: 10,
-                                                  color: message.by !=
-                                                          MessageBy.host
-                                                      ? Colors.black
-                                                          .withOpacity(0.6)
-                                                      : Colors.white
-                                                          .withOpacity(0.6)),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 4,
-                                    ),
-                                    SizedBox(
-                                      width: 220,
-                                      child: Text(
-                                        message.message,
-                                        maxLines: 5,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: message.by == MessageBy.host
-                                            ? textTheme.labelSmall
-                                            : textTheme.labelSmall
-                                                ?.copyWith(color: Colors.black),
+                child: ScrollConfiguration(
+              behavior: const ScrollBehavior().copyWith(
+                  scrollbars: false,
+                  overscroll: false,
+                  physics: const BouncingScrollPhysics()),
+              child: ListView.builder(
+                  itemCount: chat.length,
+                  controller: scrollController,
+                  itemBuilder: (context, index) {
+                    final MessageModel message = chat[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(7.0),
+                      child: Row(
+                        mainAxisAlignment: message.by != MessageBy.host
+                            ? MainAxisAlignment.end
+                            : MainAxisAlignment.start,
+                        children: [
+                          Container(
+                              clipBehavior: Clip.hardEdge,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                  color: message.by != MessageBy.host
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: const Radius.circular(10),
+                                    topRight: const Radius.circular(10),
+                                    bottomRight: message.by != MessageBy.host
+                                        ? const Radius.circular(10)
+                                        : Radius.zero,
+                                    bottomLeft: message.by != MessageBy.host
+                                        ? const Radius.circular(10)
+                                        : Radius.zero,
+                                  )),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        message.by == MessageBy.local
+                                            ? 'You'
+                                            : "Host",
+                                        style: textTheme.displaySmall?.copyWith(
+                                            fontSize: 10,
+                                            color: message.by != MessageBy.host
+                                                ? Colors.black.withOpacity(0.6)
+                                                : Colors.white
+                                                    .withOpacity(0.6)),
                                       ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      Text(
+                                        message.time,
+                                        style: textTheme.displaySmall?.copyWith(
+                                            fontSize: 10,
+                                            color: message.by != MessageBy.host
+                                                ? Colors.black.withOpacity(0.6)
+                                                : Colors.white
+                                                    .withOpacity(0.6)),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 4,
+                                  ),
+                                  SizedBox(
+                                    width: 220,
+                                    child: Text(
+                                      message.message,
+                                      maxLines: 5,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: message.by == MessageBy.host
+                                          ? textTheme.labelSmall
+                                          : textTheme.labelSmall
+                                              ?.copyWith(color: Colors.black),
                                     ),
-                                  ],
-                                )),
-                          ],
-                        ),
-                      );
-                    })),
+                                  ),
+                                ],
+                              )),
+                        ],
+                      ),
+                    );
+                  }),
+            )),
             Container(
               padding: const EdgeInsets.only(left: 16, right: 4),
               decoration: BoxDecoration(
@@ -190,6 +219,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       },
                       child: TextField(
                         controller: _controller,
+                        focusNode: focusNode,
                         decoration: InputDecoration(
                             hintText: "Type anything...",
                             hintStyle: textTheme.labelSmall?.copyWith(
