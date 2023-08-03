@@ -1,3 +1,5 @@
+import 'package:chitti_meeting/common/widgets/custom_timer.dart';
+import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
 import 'package:chitti_meeting/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,10 +45,26 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
     final double width = MediaQuery.of(context).size.width;
     final Room room = locator<Room>();
     final ViewState viewState = ref.watch(viewProvider);
+    final Workshop workshop = ref.watch(workshopDetailsProvider);
     final ViewType type = viewState.viewType;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
+    final bool isDesktop = responsiveDevice == ResponsiveDevice.desktop;
     return CustomBottomNavigation(
+      leading: isDesktop
+          ? Row(
+              children: [
+                Text(
+                  workshop.meetingId!,
+                  style: textTheme.bodyMedium,
+                ),
+                const SizedBox(
+                  width: 8,
+                ),
+                const CustomTimer()
+              ],
+            )
+          : null,
       items: [
         CustomBottomNavigationItem(
           label: type == ViewType.fullScreen ? "Exit" : "Full Screen",
@@ -64,18 +82,20 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           label: "Mic Off",
           iconPath: "assets/icons/mic_off.png",
         ),
-        chatNavigationItem(ref),
-        CustomBottomNavigationItem(
-          label: "Switch View",
-          iconPath: "assets/icons/view.png",
-          visible: type == ViewType.fullScreen ? false : true,
-        ),
+        isDesktop ? null : chatNavigationItem(ref),
+        type == ViewType.fullScreen
+            ? null
+            : const CustomBottomNavigationItem(
+                label: "Switch View",
+                iconPath: "assets/icons/view.png",
+              ),
         const CustomBottomNavigationItem(
           label: "Leave",
           iconPath: "assets/icons/call_outline.png",
         ),
-        participantNavigationItem(ref)
+        isDesktop ? null : participantNavigationItem(ref)
       ],
+      actions: [chatNavigationItem(ref), participantNavigationItem(ref)],
       onChanged: (value) async {
         switch (value) {
           case "Video On":
@@ -86,7 +106,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             break;
           case "Mic Off":
             Utils.showCustomSnackBar(
-                buildContext: context, content: "Mic was disabled by Host",iconPath: 'assets/icons/mic_off.png');
+                buildContext: context,
+                content: "Mic was disabled by Host",
+                iconPath: 'assets/icons/mic_off.png');
             break;
           case "Switch View":
             showModalBottomSheet(

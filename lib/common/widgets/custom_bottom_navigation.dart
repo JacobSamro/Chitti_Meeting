@@ -2,24 +2,58 @@ import 'package:flutter/material.dart';
 
 class CustomBottomNavigation extends StatelessWidget {
   const CustomBottomNavigation(
-      {super.key, required this.items, required this.onChanged});
-  final List<CustomBottomNavigationItem> items;
+      {super.key,
+      required this.items,
+      required this.onChanged,
+      this.leading,
+      this.actions});
+  final List<CustomBottomNavigationItem?> items;
+  final Widget? leading;
+  final List<CustomBottomNavigationItem>? actions;
   final Function(String) onChanged;
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black,
       height: 70,
-      child: ListView(
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        children: items
-            .map((e) => GestureDetector(
-                onTap: () {
-                  onChanged(e.label);
-                },
-                child: e))
-            .toList(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: leading ?? const SizedBox(),
+          )),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: items
+                .map((e) => e == null
+                    ? const SizedBox()
+                    : GestureDetector(
+                        onTap: () {
+                          onChanged(e.label);
+                        },
+                        child: e))
+                .toList(),
+          ),
+          actions != null
+              ? Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: actions!
+                          .map((e) => GestureDetector(
+                              onTap: () {
+                                onChanged(e.label);
+                              },
+                              child: e))
+                          .toList(),
+                    ),
+                  ),
+                )
+              : const SizedBox()
+        ],
       ),
     );
   }
