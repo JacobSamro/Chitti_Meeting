@@ -52,7 +52,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         Responsive().getDeviceType(context);
     return SafeArea(
       child: Scaffold(
-        appBar: viewType != ViewType.fullScreen
+        appBar: viewType != ViewType.fullScreen &&
+                responsiveDevice != ResponsiveDevice.desktop
             ? AppBar(
                 title: Padding(
                   padding: const EdgeInsets.all(16),
@@ -104,10 +105,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     : Column(
                         children: [
                           Expanded(
-                            child: CustomVideoPlayer(
-                                src: ref
-                                    .read(workshopDetailsProvider)
-                                    .sourceUrl!),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: CustomVideoPlayer(
+                                  src: ref
+                                      .read(workshopDetailsProvider)
+                                      .sourceUrl!),
+                            ),
                           ),
                           const CustomNavigationBar()
                         ],

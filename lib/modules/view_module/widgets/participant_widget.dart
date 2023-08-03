@@ -39,7 +39,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                 ? widget.participant.isCameraEnabled() &&
                         widget.participant.videoTracks.first.track != null
                     ? SizedBox(
-                        height: 200,
+                        // height: 200,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Stack(
@@ -88,7 +88,6 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                 : const LocalUser());
   }
 }
-
 
 class ParticipantWithoutVideo extends StatelessWidget {
   const ParticipantWithoutVideo({
