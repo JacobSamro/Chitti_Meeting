@@ -2,11 +2,13 @@ import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart'
 import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../../services/locator.dart';
 import '../../../utils/utils.dart';
 import '../../view_module/providers/view_provider.dart';
@@ -53,8 +55,14 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
 
     _listener.on<RoomDisconnectedEvent>((event) async {
       ref!.read(participantProvider.notifier).reset();
-      await locator<VideoPlayerController>().dispose();
-      await locator.unregister<VideoPlayerController>();
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        await locator<Player>().dispose();
+        await locator.unregister<VideoController>();
+        await locator.unregister<Player>();
+      } else {
+        await locator<VideoPlayerController>().dispose();
+        await locator.unregister<VideoPlayerController>();
+      }
       ref!.invalidate(workshopDetailsProvider);
       ref!.invalidate(viewProvider);
       ref!.invalidate(chatProvider);
@@ -70,8 +78,14 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
           buildContext: context,
           content: 'Reconnecting to room',
           iconPath: 'assets/icons/people.png');
-      await locator<VideoPlayerController>().dispose();
-      await locator.unregister<VideoPlayerController>();
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        await locator<Player>().dispose();
+        await locator.unregister<VideoController>();
+        await locator.unregister<Player>();
+      } else {
+        await locator<VideoPlayerController>().dispose();
+        await locator.unregister<VideoPlayerController>();
+      }
     });
     _listener.on<RoomReconnectedEvent>((event) {
       state = MeetingRoomJoinCompleted();
@@ -129,9 +143,9 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   ParticipantNotifier(this.ref) : super([]);
   final Ref ref;
   final Room room = locator<Room>();
-  String _participantName='';
+  String _participantName = '';
 
-  String get participantName=>_participantName;
+  String get participantName => _participantName;
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
@@ -151,8 +165,8 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
     state = [...state, participant];
   }
 
-  void setParticipantName(String name){
-    _participantName=name;
+  void setParticipantName(String name) {
+    _participantName = name;
   }
 
   void removeRemoteParticipantTrack(Participant participant) {
