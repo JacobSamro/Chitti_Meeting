@@ -20,6 +20,7 @@ import '../presentation/participants_screen.dart';
 import '../providers/meeting_provider.dart';
 import '../states/meeting_states.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class CustomNavigationBar extends ConsumerStatefulWidget {
   const CustomNavigationBar({super.key, this.isFloating = false});
@@ -50,6 +51,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
     final bool isDesktop = responsiveDevice == ResponsiveDevice.desktop;
+    debugPrint(room.localParticipant!.isScreenShareEnabled().toString());
     return CustomBottomNavigation(
       leading: isDesktop
           ? Row(
@@ -84,6 +86,12 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
         const CustomBottomNavigationItem(
           label: "Mic Off",
           iconPath: "assets/icons/mic_off.png",
+        ),
+        CustomBottomNavigationItem(
+          label: !room.localParticipant!.isScreenShareEnabled()
+              ? "Share Screen"
+              : "Stop Sharing",
+          iconPath: "assets/icons/mic.png",
         ),
         isDesktop ? null : chatNavigationItem(ref),
         type == ViewType.fullScreen
@@ -240,6 +248,37 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             }
             ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
 
+            break;
+          case "Share Screen":
+            try {
+              final source = await showDialog<DesktopCapturerSource>(
+                context: context,
+                builder: (context) => ScreenSelectDialog(),
+              );
+              if (source == null) {
+                debugPrint('cancelled screenshare');
+                return;
+              }
+              debugPrint('DesktopCapturerSource: ${source.id}');
+              final LocalVideoTrack track =
+                  await LocalVideoTrack.createScreenShareTrack(
+                ScreenShareCaptureOptions(
+                  sourceId: source.id,
+                  maxFrameRate: 15.0,
+                ),
+              );
+              await room.localParticipant?.publishVideoTrack(track);
+              await room.localParticipant?.setScreenShareEnabled(true);
+            } catch (e) {
+              debugPrint('could not publish screen sharing: $e');
+            }
+            break;
+          case "Stop Sharing":
+            try {
+              await room.localParticipant?.setScreenShareEnabled(false);
+            } catch (e) {
+              throw Exception(e);
+            }
             break;
           case "Leave":
             showDialog(

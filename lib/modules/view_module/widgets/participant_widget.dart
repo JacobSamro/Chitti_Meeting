@@ -36,7 +36,8 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                 src: widget.participant.src,
               )
             : widget.participant is Participant
-                ? widget.participant.isCameraEnabled() &&
+                ? (widget.participant.isCameraEnabled() ||
+                            widget.participant.isScreenShareEnabled()) &&
                         widget.participant.videoTracks.first.track != null
                     ? SizedBox(
                         // height: 200,

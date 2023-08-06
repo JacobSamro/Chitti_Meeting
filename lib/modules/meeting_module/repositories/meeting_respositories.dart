@@ -20,18 +20,38 @@ class MeetingRepositories {
       String meetingId, bool isVideo, WidgetRef ref) async {
     final Room room = locator<Room>();
     // final int id = Random().nextInt(100);
-    final Response response = await dio.post(ApiConstants.addParticipantUrl,
-        data: {
-          "roomId": meetingId,
-          "participantName": participantName,
-          "isVideo": isVideo
-        });
+    final Response response =
+        await dio.post(ApiConstants.addParticipantUrl, data: {
+      "roomId": meetingId,
+      "participantName": participantName,
+      "passcode": "123",
+      "isVideo": isVideo
+    });
     await room.connect(ApiConstants.livekitUrl, response.data['token'],
         roomOptions: const RoomOptions(
           adaptiveStream: true,
-          dynacast: true,
+          dynacast: false,
           defaultVideoPublishOptions: VideoPublishOptions(
             simulcast: true,
+          ),
+          defaultScreenShareCaptureOptions: ScreenShareCaptureOptions(
+            params: VideoParameters(
+              dimensions: VideoDimensionsPresets.h720_169,
+              encoding: VideoEncoding(
+                maxBitrate: 2 * 1000 * 1000,
+                maxFramerate: 15,
+              ),
+            ),
+          ),
+          defaultCameraCaptureOptions: CameraCaptureOptions(
+            maxFrameRate: 15,
+            params: VideoParameters(
+              dimensions: VideoDimensionsPresets.h720_169,
+              encoding: VideoEncoding(
+                maxBitrate: 2 * 1000 * 1000,
+                maxFramerate: 15,
+              ),
+            ),
           ),
         ),
         fastConnectOptions: FastConnectOptions(

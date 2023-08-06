@@ -108,7 +108,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
       }
     });
-    // final buttonColor = WindowButtonColors(iconNormal: Colors.white);
     return Scaffold(
         key: locator<GlobalKey<ScaffoldState>>(),
         appBar: !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
