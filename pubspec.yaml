@@ -55,6 +55,10 @@ dependencies:
   # windows
   bitsdojo_window: ^0.1.5
   camera_windows: ^0.2.1+7
+  media_kit: ^1.1.1
+  media_kit_video: ^1.1.1
+  media_kit_native_event_loop: ^1.0.6
+  media_kit_libs_windows_video: ^1.0.5
 
 
 dependency_overrides:
