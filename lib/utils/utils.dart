@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import '../modules/meeting_module/widgets/navigationbar.dart';
@@ -73,6 +74,17 @@ class Utils {
 
     Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
+    });
+  }
+  static void setWindowSize(){
+        doWhenWindowReady(() {
+      const initialSize = Size(1024, 800);
+      appWindow.minSize = initialSize;
+      appWindow.title = "Chitti Meet";
+      appWindow.size = initialSize;
+      appWindow.startDragging();
+      appWindow.alignment = Alignment.center;
+      appWindow.show();
     });
   }
 }

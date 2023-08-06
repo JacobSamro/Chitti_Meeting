@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_dialogues.dart';
 import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
@@ -8,27 +8,23 @@ import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:chitti_meeting/routes.dart';
 import 'package:chitti_meeting/services/locator.dart';
+import 'package:chitti_meeting/utils/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:media_kit/media_kit.dart';
 import 'common/constants/constants.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() {
   setup();
-  runApp(const ProviderScope(child: MyApp()));
-  if (Platform.isWindows) {
-    doWhenWindowReady(() {
-      const initialSize = Size(600, 800);
-      appWindow.minSize = initialSize;
-      appWindow.title = "Chitti Meet";
-      appWindow.size = initialSize;
-      appWindow.startDragging();
-      appWindow.alignment = Alignment.center;
-      appWindow.show();
-    });
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+    Utils.setWindowSize();
   }
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -112,10 +108,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
       }
     });
-    final buttonColor = WindowButtonColors(iconNormal: Colors.white);
+    // final buttonColor = WindowButtonColors(iconNormal: Colors.white);
     return Scaffold(
         key: locator<GlobalKey<ScaffoldState>>(),
-        appBar: Platform.isWindows
+        appBar: !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
             ? AppBar(
                 iconTheme: const IconThemeData(size: 18, color: Colors.white),
                 title: SizedBox(
@@ -130,13 +126,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     )),
                 actions: [
                   MinimizeWindowButton(
-                    colors: buttonColor,
+                    colors: WindowButtonColors(iconNormal: Colors.white),
                   ),
                   MaximizeWindowButton(
-                    colors: buttonColor,
+                    colors: WindowButtonColors(iconNormal: Colors.white),
                   ),
                   CloseWindowButton(
-                    colors: buttonColor,
+                    colors: WindowButtonColors(iconNormal: Colors.white),
                   )
                 ],
               )
