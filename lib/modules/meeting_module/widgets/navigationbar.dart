@@ -54,9 +54,12 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
       leading: isDesktop
           ? Row(
               children: [
-                Text(
-                  workshop.meetingId!,
-                  style: textTheme.bodyMedium,
+                Flexible(
+                  child: Text(
+                    workshop.meetingId!,
+                    style: textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const SizedBox(
                   width: 8,
@@ -95,7 +98,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
         ),
         isDesktop ? null : participantNavigationItem(ref)
       ],
-      actions: [chatNavigationItem(ref), participantNavigationItem(ref)],
+      actions: isDesktop
+          ? [chatNavigationItem(ref), participantNavigationItem(ref)]
+          : null,
       onChanged: (value) async {
         switch (value) {
           case "Video On":

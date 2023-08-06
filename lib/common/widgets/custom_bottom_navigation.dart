@@ -16,45 +16,62 @@ class CustomBottomNavigation extends StatelessWidget {
     return Container(
       color: Colors.black,
       height: 70,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: leading ?? const SizedBox(),
-          )),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: items
-                .map((e) => e == null
-                    ? const SizedBox()
-                    : GestureDetector(
-                        onTap: () {
-                          onChanged(e.label);
-                        },
-                        child: e))
-                .toList(),
-          ),
-          actions != null
-              ? Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: actions!
-                          .map((e) => GestureDetector(
+      child: leading != null && leading != null
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                leading != null
+                    ? Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: leading,
+                        ),
+                      )
+                    : const SizedBox(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: items
+                      .map((e) => e == null
+                          ? const SizedBox()
+                          : GestureDetector(
                               onTap: () {
                                 onChanged(e.label);
                               },
                               child: e))
-                          .toList(),
-                    ),
-                  ),
-                )
-              : const SizedBox()
-        ],
-      ),
+                      .toList(),
+                ),
+                actions != null
+                    ? Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: actions!
+                                .map((e) => GestureDetector(
+                                    onTap: () {
+                                      onChanged(e.label);
+                                    },
+                                    child: e))
+                                .toList(),
+                          ),
+                        ),
+                      )
+                    : const SizedBox()
+              ],
+            )
+          : ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: items
+                  .map((e) => e == null
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () {
+                            onChanged(e.label);
+                          },
+                          child: e))
+                  .toList(),
+            ),
     );
   }
 }
