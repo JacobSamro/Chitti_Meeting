@@ -116,6 +116,12 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackMutedEvent>((event) {
       callback();
     });
+    _listener.on<SpeakingChangedEvent>((event) {
+      callback();
+    });
+    _listener.on<ActiveSpeakersChangedEvent>((event) {
+      callback();
+    });
     _listener.on<TrackUnmutedEvent>((event) {
       callback();
     });
@@ -208,6 +214,12 @@ class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
       return false;
     }
     return true;
+  }
+
+  void setHost(bool host) {
+    final Workshop newState = state;
+    newState.isHost = host;
+    state = newState;
   }
 }
 

@@ -39,8 +39,12 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                 ? (widget.participant.isCameraEnabled() ||
                             widget.participant.isScreenShareEnabled()) &&
                         widget.participant.videoTracks.first.track != null
-                    ? SizedBox(
-                        // height: 200,
+                    ? Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: widget.participant.isSpeaking
+                                ? Border.all(color: Colors.green)
+                                : null),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Stack(
@@ -72,7 +76,9 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                                           width: 8,
                                         ),
                                         Image.asset(
-                                          'assets/icons/mic_off.png',
+                                          widget.participant.isMuted
+                                              ? 'assets/icons/mic_off.png'
+                                              : 'assets/icons/mic.png',
                                           width: 16,
                                           height: 16,
                                         )
@@ -84,7 +90,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                         ),
                       )
                     : ParticipantWithoutVideo(
-                        participantName: widget.participant.identity,
+                        participant: widget.participant,
                       )
                 : const LocalUser());
   }
@@ -93,9 +99,9 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
 class ParticipantWithoutVideo extends StatelessWidget {
   const ParticipantWithoutVideo({
     super.key,
-    required this.participantName,
+    required this.participant,
   });
-  final String participantName;
+  final Participant participant;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -103,9 +109,11 @@ class ParticipantWithoutVideo extends StatelessWidget {
         width: double.infinity,
         height: 200,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.white.withOpacity(0.06),
-        ),
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white.withOpacity(0.06),
+            border: participant.isSpeaking
+                ? Border.all(color: Colors.green)
+                : null),
         child: Stack(
           children: [
             Center(
@@ -127,14 +135,16 @@ class ParticipantWithoutVideo extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        participantName,
+                        participant.identity,
                         style: textTheme.labelSmall?.copyWith(fontSize: 12),
                       ),
                       const SizedBox(
                         width: 8,
                       ),
                       Image.asset(
-                        'assets/icons/mic_off.png',
+                        participant.isMuted
+                            ? 'assets/icons/mic_off.png'
+                            : 'assets/icons/mic.png',
                         width: 16,
                         height: 16,
                       )

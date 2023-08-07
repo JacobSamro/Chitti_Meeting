@@ -82,7 +82,6 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
         setState(() {});
       }
     }
-    debugPrint('controller :: ${controller.runtimeType}');
   }
 
   @override
@@ -104,12 +103,13 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
                   )
                 : const Center(child: CircularProgressIndicator())
             : controller.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: controller.value.aspectRatio,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
                       child: VideoPlayer(controller),
-                    ))
+                    ),
+                  )
                 : const Center(child: CircularProgressIndicator())
         : const Center(child: CircularProgressIndicator());
   }

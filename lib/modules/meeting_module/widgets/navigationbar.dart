@@ -58,7 +58,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               children: [
                 Flexible(
                   child: Text(
-                    workshop.meetingId!,
+                    workshop.workshopName!,
                     style: textTheme.bodyMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -83,16 +83,24 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               ? 'assets/icons/video.png'
               : "assets/icons/video_off.png",
         ),
-        const CustomBottomNavigationItem(
-          label: "Mic Off",
-          iconPath: "assets/icons/mic_off.png",
-        ),
         CustomBottomNavigationItem(
-          label: !room.localParticipant!.isScreenShareEnabled()
-              ? "Share Screen"
-              : "Stop Sharing",
-          iconPath: "assets/icons/mic.png",
+          label: room.localParticipant!.isMicrophoneEnabled()
+              ? "Mic On"
+              : "Mic Off",
+          iconPath: room.localParticipant!.isMicrophoneEnabled()
+              ? "assets/icons/mic.png"
+              : "assets/icons/mic_off.png",
         ),
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
+            ? CustomBottomNavigationItem(
+                label: !room.localParticipant!.isScreenShareEnabled()
+                    ? "Share Screen"
+                    : "Stop Sharing",
+                iconPath: !room.localParticipant!.isScreenShareEnabled()
+                    ? "assets/icons/screen_share.png"
+                    : "assets/icons/stop_screen_share.png",
+              )
+            : null,
         isDesktop ? null : chatNavigationItem(ref),
         type == ViewType.fullScreen
             ? null
@@ -115,13 +123,23 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             await room.localParticipant?.setCameraEnabled(false);
             break;
           case "Video Off":
-            room.localParticipant?.setCameraEnabled(true);
+            room.localParticipant!.isScreenShareEnabled()
+                ? Utils.showCustomSnackBar(
+                    buildContext: context,
+                    content: "Screen Share is enabled",
+                    iconPath: 'assets/icons/info.png')
+                : room.localParticipant?.setCameraEnabled(true);
             break;
           case "Mic Off":
-            Utils.showCustomSnackBar(
-                buildContext: context,
-                content: "Mic was disabled by Host",
-                iconPath: 'assets/icons/mic_off.png');
+            workshop.isHost!
+                ? await room.localParticipant?.setMicrophoneEnabled(true)
+                : Utils.showCustomSnackBar(
+                    buildContext: context,
+                    content: "Mic was disabled by Host",
+                    iconPath: 'assets/icons/mic_off.png');
+            break;
+          case "Mic On":
+            await room.localParticipant?.setMicrophoneEnabled(false);
             break;
           case "Switch View":
             showModalBottomSheet(
@@ -289,7 +307,11 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                       contentPadding: const EdgeInsets.all(0),
                       insetPadding: const EdgeInsets.all(0),
                       content: CustomCard(
-                        content: "Are you sure to leave?",
+                        content: Text(
+                          "Are you sure to leave?",
+                          textAlign: TextAlign.center,
+                          style: textTheme.titleMedium,
+                        ),
                         iconPath: 'assets/icons/cross_mark.png',
                         actions: [
                           GestureDetector(
