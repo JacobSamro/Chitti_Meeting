@@ -16,7 +16,7 @@ class MeetingRepositories {
     return response.data['dateTime'];
   }
 
-  Future<void> addParticipant(String participantName, Room room1,
+  Future<void> addParticipant(String participantName, String passcode,
       String meetingId, bool isVideo, WidgetRef ref) async {
     final Room room = locator<Room>();
     // final int id = Random().nextInt(100);
@@ -24,9 +24,10 @@ class MeetingRepositories {
         await dio.post(ApiConstants.addParticipantUrl, data: {
       "roomId": meetingId,
       "participantName": participantName,
-      "passcode": "123",
+      "passcode": passcode,
       "isVideo": isVideo
     });
+    ref.read(workshopDetailsProvider.notifier).setHost(response.data['isHost']);
     await room.connect(ApiConstants.livekitUrl, response.data['token'],
         roomOptions: const RoomOptions(
           adaptiveStream: true,

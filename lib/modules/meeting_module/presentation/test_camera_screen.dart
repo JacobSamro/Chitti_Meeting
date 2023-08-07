@@ -8,6 +8,7 @@ import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
+import '../../../common/widgets/custom_card.dart';
 import '../providers/meeting_provider.dart';
 import '../repositories/meeting_respositories.dart';
 
@@ -22,12 +23,14 @@ class _TestCameraState extends ConsumerState<TestCamera> {
   late CameraController controller;
   bool cameraPermission = false;
   late final TextEditingController nameController;
+  late final TextEditingController passcode;
   bool isVideoOn = false;
   bool isLoading = false;
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController();
+    passcode = TextEditingController();
     getWorkshop();
     if (!locator.isRegistered<Room>()) {
       locator.registerLazySingleton<Room>(() => Room());
@@ -59,6 +62,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
   @override
   void dispose() {
     nameController.dispose();
+    passcode.dispose();
     isVideoOn ? controller.dispose() : null;
     super.dispose();
   }
@@ -213,13 +217,92 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                               const SnackBar(content: Text("Enter User Name")));
                           return;
                         }
-                        ref.read(participantProvider.notifier).setParticipantName(nameController.text);
+                        if (nameController.text.split('.').last == 'host' &&
+                            passcode.text.isEmpty) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            barrierColor: Colors.black,
+                            builder: (dialogContext) => AlertDialog(
+                              backgroundColor: Colors.transparent,
+                              content: CustomCard(
+                                  iconPath: "assets/icons/passcode.png",
+                                  content: Column(
+                                    children: [
+                                      const Text(
+                                          "Confirm Passcode to join as Host"),
+                                      const SizedBox(
+                                        height: 16,
+                                      ),
+                                      CustomInputField(
+                                          controller: passcode,
+                                          obscureText: true,
+                                          label: "Passcode"),
+                                    ],
+                                  ),
+                                  actions: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (passcode.text.isEmpty) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(const SnackBar(
+                                                  content:
+                                                      Text("Enter Passcode")));
+                                          Navigator.pop(context);
+                                          return;
+                                        }
+                                        Navigator.pop(context);
+                                      },
+                                      child: CustomButton(
+                                        height: 52,
+                                        width: responsiveDevice !=
+                                                ResponsiveDevice.mobile
+                                            ? 480
+                                            : 300,
+                                        child: Center(
+                                          child: Text(
+                                            "Continue",
+                                            style:
+                                                textTheme.titleSmall?.copyWith(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        passcode.clear();
+                                      },
+                                      child: CustomButton(
+                                        height: 52,
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: responsiveDevice !=
+                                                ResponsiveDevice.mobile
+                                            ? 480
+                                            : 300,
+                                        child: Center(
+                                          child: Text("Cancel",
+                                              style: textTheme.titleSmall),
+                                        ),
+                                      ),
+                                    ),
+                                  ]),
+                            ),
+                          );
+                          return;
+                        }
+
+                        ref
+                            .read(participantProvider.notifier)
+                            .setParticipantName(nameController.text);
                         setState(() {
                           isLoading = true;
                         });
                         await locator<MeetingRepositories>().addParticipant(
                             nameController.text,
-                            locator<Room>(),
+                            passcode.text,
                             workshop.meetingId!,
                             isVideoOn,
                             ref);

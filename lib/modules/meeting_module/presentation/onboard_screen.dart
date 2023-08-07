@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:chitti_meeting/common/widgets/custom_card.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +23,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
   bool cameraPermission = false;
   late final TextEditingController nameController;
   late final TextEditingController hashId;
+  late final TextEditingController passcode;
   bool isVideoOn = false;
   bool isLoading = false;
   @override
@@ -29,6 +31,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
     super.initState();
     nameController = TextEditingController();
     hashId = TextEditingController();
+    passcode = TextEditingController();
     if (!locator.isRegistered<Room>()) {
       locator.registerLazySingleton<Room>(() => Room());
     }
@@ -54,6 +57,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
   void dispose() {
     nameController.dispose();
     hashId.dispose();
+    passcode.dispose();
     isVideoOn ? controller.dispose() : null;
     super.dispose();
   }
@@ -211,11 +215,90 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                   content: Text("Enter meeting ID")));
                           return;
                         }
+                        if (nameController.text.split('.').last == 'host' &&
+                            passcode.text.isEmpty) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            barrierColor: Colors.black,
+                            builder: (dialogContext) => AlertDialog(
+                              backgroundColor: Colors.transparent,
+                              content: CustomCard(
+                                  iconPath: "assets/icons/passcode.png",
+                                  content: Column(
+                                    children: [
+                                      const Text(
+                                          "Confirm Passcode to join as Host"),
+                                      const SizedBox(
+                                        height: 16,
+                                      ),
+                                      CustomInputField(
+                                          controller: passcode,
+                                          obscureText: true,
+                                          label: "Passcode"),
+                                    ],
+                                  ),
+                                  actions: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (passcode.text.isEmpty) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(const SnackBar(
+                                                  content:
+                                                      Text("Enter Passcode")));
+                                          Navigator.pop(context);
+                                          return;
+                                        }
+                                        Navigator.pop(context);
+                                      },
+                                      child: CustomButton(
+                                        height: 52,
+                                        width: responsiveDevice !=
+                                                ResponsiveDevice.mobile
+                                            ? 480
+                                            : 300,
+                                        child: Center(
+                                          child: Text(
+                                            "Continue",
+                                            style:
+                                                textTheme.titleSmall?.copyWith(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        passcode.clear();
+                                      },
+                                      child: CustomButton(
+                                        height: 52,
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: responsiveDevice !=
+                                                ResponsiveDevice.mobile
+                                            ? 480
+                                            : 300,
+                                        child: Center(
+                                          child: Text("Cancel",
+                                              style: textTheme.titleSmall),
+                                        ),
+                                      ),
+                                    ),
+                                  ]),
+                            ),
+                          );
+                          return;
+                        }
+
                         FocusScope.of(context).unfocus();
                         setState(() {
                           isLoading = true;
                         });
-                        ref.read(participantProvider.notifier).setParticipantName(nameController.text);
+                        ref
+                            .read(participantProvider.notifier)
+                            .setParticipantName(nameController.text);
                         final bool canConnect = await ref
                             .read(workshopDetailsProvider.notifier)
                             .getWorkshopDetials(hashId.text);
@@ -223,7 +306,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                             ? await locator<MeetingRepositories>()
                                 .addParticipant(
                                     nameController.text,
-                                    locator<Room>(),
+                                    passcode.text,
                                     ref
                                         .read(workshopDetailsProvider)
                                         .meetingId

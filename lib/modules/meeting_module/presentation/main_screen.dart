@@ -1,4 +1,5 @@
 import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
+import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
 import 'package:chitti_meeting/modules/view_module/widgets/custom_video_player.dart';
@@ -50,6 +51,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final ViewType viewType = viewState.viewType;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
+    final Workshop workshop = ref.read(workshopDetailsProvider);
     return SafeArea(
       child: Scaffold(
         appBar: viewType != ViewType.fullScreen &&
@@ -63,7 +65,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     children: [
                       Flexible(
                         child: Text(
-                          room.name.toString(),
+                          workshop.workshopName.toString(),
                           style: textTheme.bodySmall
                               ?.copyWith(color: Colors.white),
                           overflow: TextOverflow.ellipsis,

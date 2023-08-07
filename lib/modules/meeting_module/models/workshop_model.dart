@@ -4,6 +4,8 @@ class Workshop {
   String? type;
   int? curriculumId;
   String? sourceUrl;
+  String? workshopName;
+  bool? isHost;
   String? meetingStatus;
 
   Workshop(
@@ -12,6 +14,8 @@ class Workshop {
       this.type,
       this.curriculumId,
       this.sourceUrl,
+      this.workshopName,
+      this.isHost,
       this.meetingStatus});
 
   Workshop.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,7 @@ class Workshop {
     type = json['type'];
     curriculumId = json['curriculumId'];
     sourceUrl = json['sourceUrl'];
+    workshopName = json['workshopName'];
     meetingStatus = json['meetingStatus'];
   }
 }
