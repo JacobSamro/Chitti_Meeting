@@ -6,6 +6,7 @@ import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_s
 import 'package:chitti_meeting/modules/meeting_module/presentation/waiting_screen.dart';
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
+import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
 import 'package:chitti_meeting/routes.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/utils/utils.dart';
@@ -16,11 +17,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 import 'common/constants/constants.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
   setup();
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+  if (kIsWeb) {
+    usePathUrlStrategy();
+    final String url = Uri.base.path;
+    router.go(url);
+  }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
     Utils.setWindowSize();
   }
@@ -85,6 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final pageIndex = ref.watch(meetingPageProvider);
+    final ViewType viewType = ref.watch(viewProvider).viewType;
     ref.listen(meetingStateProvider, (previous, next) {
       debugPrint("Current State :: ${next.runtimeType}");
       switch (next.runtimeType) {
@@ -110,7 +118,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
     return Scaffold(
         key: locator<GlobalKey<ScaffoldState>>(),
-        appBar: !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
+        appBar: !kIsWeb &&
+                defaultTargetPlatform == TargetPlatform.windows &&
+                viewType != ViewType.fullScreen
             ? AppBar(
                 iconTheme: const IconThemeData(size: 18, color: Colors.white),
                 title: SizedBox(
