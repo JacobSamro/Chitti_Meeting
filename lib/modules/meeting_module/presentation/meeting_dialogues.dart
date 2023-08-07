@@ -12,15 +12,21 @@ class MeetingDialogue extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final MeetingStates state = ref.watch(meetingStateProvider);
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       body: Center(
         child: CustomCard(
           iconPath: state.runtimeType == MeetingEnded
               ? 'assets/icons/emoji.png'
               : 'assets/icons/call.png',
-          content: state.runtimeType == MeetingEnded
-              ? "Workshop have ended"
-              : "You have left the meeting",
+          content: Text(
+            state.runtimeType == MeetingEnded
+                ? "Workshop have ended"
+                : "You have left the meeting",
+            textAlign: TextAlign.center,
+            style: textTheme.titleMedium,
+          ),
           actions: [
             GestureDetector(
               onTap: () {

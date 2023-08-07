@@ -7,11 +7,10 @@ class CustomCard extends StatelessWidget {
       required this.content,
       this.actions = const <Widget>[]});
   final String iconPath;
-  final String content;
+  final Widget content;
   final List<Widget> actions;
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final double width = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -36,11 +35,7 @@ class CustomCard extends StatelessWidget {
           const SizedBox(
             height: 18,
           ),
-          Text(
-            content,
-            textAlign: TextAlign.center,
-            style: textTheme.titleMedium,
-          ),
+          content,
           SizedBox(
             height: actions.isNotEmpty ? 40 : 0,
           ),

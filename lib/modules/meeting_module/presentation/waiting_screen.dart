@@ -7,7 +7,6 @@ import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:livekit_client/livekit_client.dart';
 
 class WaitingScreen extends ConsumerStatefulWidget {
   const WaitingScreen({super.key});
@@ -34,7 +33,8 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
     final Workshop workshop = ref.read(workshopDetailsProvider);
     final loalTime = await locator<MeetingRepositories>().getDateTime();
     DateTime currentTime = DateTime.parse(loalTime);
-    final DateTime meetingTime = DateTime.parse(workshop.scheduledAt!).subtract(const Duration(minutes: 10));
+    final DateTime meetingTime = DateTime.parse(workshop.scheduledAt!)
+        .subtract(const Duration(minutes: 10));
     elapsedTime = currentTime.toUtc().difference(meetingTime);
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
       currentTime = currentTime.add(const Duration(seconds: 1));
@@ -42,16 +42,22 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
         elapsedTime = currentTime.toUtc().difference(meetingTime);
       });
       if (elapsedTime == Duration.zero) {
-        await ref
-        .read(workshopDetailsProvider.notifier)
-        .getWorkshopDetials(ref.read(workshopDetailsProvider.notifier).hashId);
-        await locator<MeetingRepositories>().addParticipant(
-            ref.read(participantProvider.notifier).participantName,
-            locator<Room>(),
-            workshop.meetingId!,
-            false,
-            ref);
-            _timer.cancel();
+        await ref.read(workshopDetailsProvider.notifier).getWorkshopDetials(
+            ref.read(workshopDetailsProvider.notifier).hashId);
+        ref
+                    .read(participantProvider.notifier)
+                    .participantName
+                    .split('.')
+                    .last ==
+                'host'
+            ? ref.read(meetingPageProvider.notifier).changePageIndex(1)
+            : await locator<MeetingRepositories>().addParticipant(
+                ref.read(participantProvider.notifier).participantName,
+                '',
+                workshop.meetingId!,
+                false,
+                ref);
+        _timer.cancel();
       }
     });
   }
@@ -68,8 +74,9 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final Map<String, dynamic> formattedTime = timeFormat(elapsedTime);
-    final ResponsiveDevice responsiveDevice=Responsive().getDeviceType(context);
-    final bool isDesktop=responsiveDevice==ResponsiveDevice.desktop;
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(context);
+    final bool isDesktop = responsiveDevice == ResponsiveDevice.desktop;
     return Scaffold(
       body: _timer.isActive
           ? Container(
@@ -95,7 +102,9 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                       child: GifImage(image: image, controller: controller)),
                   Text(
                     "Workshop will be live in",
-                    style:isDesktop?textTheme.titleLarge?.copyWith(fontSize: 24):textTheme.titleLarge,
+                    style: isDesktop
+                        ? textTheme.titleLarge?.copyWith(fontSize: 24)
+                        : textTheme.titleLarge,
                   ),
                   const SizedBox(
                     height: 14,
@@ -117,15 +126,23 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(e.value.toString(),
-                                   style:isDesktop?textTheme.titleLarge?.copyWith(fontSize: 34,fontWeight: FontWeight.w900):textTheme.titleLarge?.copyWith(fontSize: 18,fontWeight: FontWeight.w900)
-                                    ),
+                                        style: isDesktop
+                                            ? textTheme.titleLarge?.copyWith(
+                                                fontSize: 34,
+                                                fontWeight: FontWeight.w900)
+                                            : textTheme.titleLarge?.copyWith(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w900)),
                                     const SizedBox(
                                       height: 3,
                                     ),
                                     Text(
                                       e.key,
-                                      style:isDesktop?textTheme.displayLarge?.copyWith(fontSize: 18): textTheme.displaySmall
-                                          ?.copyWith(fontSize: 12),
+                                      style: isDesktop
+                                          ? textTheme.displayLarge
+                                              ?.copyWith(fontSize: 18)
+                                          : textTheme.displaySmall
+                                              ?.copyWith(fontSize: 12),
                                     ),
                                   ],
                                 ),

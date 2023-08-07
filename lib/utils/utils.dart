@@ -3,6 +3,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import '../modules/meeting_module/widgets/navigationbar.dart';
+import '../services/responsive.dart';
 
 class Utils {
   static Timer? timer;
@@ -38,6 +39,10 @@ class Utils {
       required String content,
       required String iconPath}) {
     final width = MediaQuery.of(buildContext).size.width;
+    final ResponsiveDevice responsiveDevice =
+        Responsive().getDeviceType(buildContext);
+    final isDesktop = responsiveDevice == ResponsiveDevice.desktop;
+    final textTheme = Theme.of(buildContext).textTheme;
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(buildContext).size.height * 0.1,
@@ -53,16 +58,21 @@ class Utils {
           ),
           child: Container(
             width: width > 800 ? 400 : width,
-            height: 36,
+            height: isDesktop ? 44 : 36,
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Image.asset(iconPath, height: 20, width: 20),
+                Image.asset(iconPath,
+                    height: isDesktop ? 24 : 20, width: isDesktop ? 24 : 20),
                 const SizedBox(
                   width: 6,
                 ),
-                Text(content,
-                    style: const TextStyle(color: Colors.white, fontSize: 12)),
+                Text(
+                  content,
+                  style: isDesktop
+                      ? textTheme.bodySmall
+                      : textTheme.bodySmall?.copyWith(fontSize: 12),
+                )
               ],
             ),
           ),
@@ -76,8 +86,9 @@ class Utils {
       overlayEntry.remove();
     });
   }
-  static void setWindowSize(){
-        doWhenWindowReady(() {
+
+  static void setWindowSize() {
+    doWhenWindowReady(() {
       const initialSize = Size(1024, 800);
       appWindow.minSize = initialSize;
       appWindow.title = "Chitti Meet";
