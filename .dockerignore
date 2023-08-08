@@ -1,9 +1,2 @@
-android
-assets
-ios
-lib
-linux
-macos
-windows
-web
+build/
 .dart_tool
