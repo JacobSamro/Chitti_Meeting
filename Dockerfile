@@ -1,18 +1,14 @@
-# Use the Nginx image from Docker Hub
-FROM nginx:latest
+FROM instrumentisto/flutter:3.10.6 as build-env
 
-# Remove the default Nginx configuration file
-RUN rm /etc/nginx/conf.d/default.conf
+# Copy files to container and build
+RUN mkdir /app/
+ADD . /app/
+WORKDIR /app/
 
-# Add a new configuration file
-# This file sets up Nginx to serve static files from /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/
+RUN flutter pub get
 
-# Copy static files to the Nginx container
-COPY build/web/ /usr/share/nginx/html/
+RUN flutter build web --web-renderer html --base-href=/meet/
 
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx when the container has launched
-CMD ["nginx", "-g", "daemon off;"]
+# Stage 2 - Create the run-time image
+FROM nginx:1.21.1-alpine
+COPY --from=build-env /app/build/web /usr/share/nginx/html
