@@ -1,0 +1,21 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.PAT_TOKEN }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+            owner: 'jacobsamro',
+            repo: 'ChittiCloud',
+            workflow_id: 'staging-api.yml',
+            ref: 'dev'
+          })
