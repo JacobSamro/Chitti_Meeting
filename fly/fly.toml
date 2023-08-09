@@ -3,8 +3,8 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "staging-chitti-meet"
-primary_region = "sin"
+app = "chitti-meet"
+primary_region = "bom"
 
 [build]
 

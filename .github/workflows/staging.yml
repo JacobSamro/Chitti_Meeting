@@ -1,21 +1,23 @@
-name: Deploy Staging
+name: CI - Deploy Staging API
 
 on:
   push:
     branches:
       - dev
+  workflow_dispatch:
 
 jobs:
-  dispatch:
+  build:
+
+    name: Build, push, and deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
-    - uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.PAT_TOKEN }}
-        script: |
-          await github.rest.actions.createWorkflowDispatch({
-            owner: 'jacobsamro',
-            repo: 'ChittiCloud',
-            workflow_id: 'staging-api.yml',
-            ref: 'dev'
-          })
+    - name: Checkout master
+      uses: actions/checkout@v2
+
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+    - run: flyctl deploy --remote-only
+      env:
+          FLY_API_TOKEN: ${{ secrets.FLY_STAGING_API_TOKEN }}

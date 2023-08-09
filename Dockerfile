@@ -7,7 +7,7 @@ WORKDIR /app/
 
 RUN flutter pub get
 
-RUN flutter build web --web-renderer html --base-href=/meet/
+RUN flutter build web --web-renderer html
 
 # Stage 2 - Create the run-time image
 FROM nginx:1.21.1-alpine
