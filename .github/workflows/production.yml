@@ -1,0 +1,23 @@
+name: CI - Deploy Production API
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    name: Build, push, and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v2
+
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+    - run: mv fly/production/fly.toml fly.toml && flyctl deploy --remote-only
+      env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
