@@ -12,3 +12,6 @@ RUN flutter build web --web-renderer html
 # Stage 2 - Create the run-time image
 FROM nginx:1.21.1-alpine
 COPY --from=build-env /app/build/web /usr/share/nginx/html
+
+# Copy nginx config
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
