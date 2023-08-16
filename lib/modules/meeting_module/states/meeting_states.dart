@@ -15,4 +15,6 @@ class MeetingRoomReconnected extends MeetingStates {}
 
 class MeetingEnded extends MeetingStates {}
 
+class MeetingNotFound extends MeetingStates {}
+
 enum ViewType{standard,gallery,speaker,fullScreen}
