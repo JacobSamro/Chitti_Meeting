@@ -26,6 +26,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
   late final TextEditingController passcode;
   bool isVideoOn = false;
   bool isLoading = false;
+  String buttonText = 'Join Meeting';
   @override
   void initState() {
     super.initState();
@@ -39,6 +40,24 @@ class _TestCameraState extends ConsumerState<TestCamera> {
       ref.read(meetingStateProvider.notifier).createListener();
       ref.read(meetingStateProvider.notifier).listen(context);
     }
+    nameController.addListener(() {
+      if (nameController.text.split('.').last == 'host') {
+        setState(() {
+          buttonText = 'Confirm Passcode';
+        });
+      } else {
+        setState(() {
+          buttonText = 'Join Meeting';
+        });
+      }
+    });
+    passcode.addListener(() {
+      if (passcode.text.isNotEmpty) {
+        setState(() {
+          buttonText = 'Join Meeting';
+        });
+      }
+    });
   }
 
   void getWorkshop() async {
@@ -69,6 +88,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('hello');
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final ResponsiveDevice responsiveDevice =
@@ -301,8 +321,8 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                           isLoading = true;
                         });
                         await locator<MeetingRepositories>().addParticipant(
-                            nameController.text,
-                            passcode.text,
+                            nameController.text.trim(),
+                            passcode.text.trim(),
                             workshop.meetingId!,
                             isVideoOn,
                             ref);
@@ -320,7 +340,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                                   : 300,
                               child: Center(
                                   child: Text(
-                                "Join the Workshop",
+                                buttonText,
                                 style: textTheme.titleSmall?.copyWith(
                                   color: Colors.black,
                                 ),
