@@ -5,7 +5,8 @@ class CustomInputField extends StatelessWidget {
   const CustomInputField({
     super.key,
     required this.controller,
-    required this.label,  this.obscureText=false,
+    required this.label,
+    this.obscureText = false,
   });
 
   final TextEditingController controller;

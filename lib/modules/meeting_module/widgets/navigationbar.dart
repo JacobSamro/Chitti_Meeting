@@ -20,7 +20,6 @@ import '../presentation/participants_screen.dart';
 import '../providers/meeting_provider.dart';
 import '../states/meeting_states.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class CustomNavigationBar extends ConsumerStatefulWidget {
   const CustomNavigationBar({super.key, this.isFloating = false});
@@ -30,9 +29,11 @@ class CustomNavigationBar extends ConsumerStatefulWidget {
 }
 
 class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
+  late final Room room;
   @override
   void initState() {
     super.initState();
+    room = locator<Room>();
     ref.read(meetingStateProvider.notifier).listenTrack(() {
       if (mounted) {
         setState(() {});
@@ -44,7 +45,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final double width = MediaQuery.of(context).size.width;
-    final Room room = locator<Room>();
+
     final ViewState viewState = ref.watch(viewProvider);
     final Workshop workshop = ref.watch(workshopDetailsProvider);
     final ViewType type = viewState.viewType;
@@ -92,6 +93,8 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               : "assets/icons/mic_off.png",
         ),
         !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
+            // &&
+            // workshop.isHost!
             ? CustomBottomNavigationItem(
                 label: !room.localParticipant!.isScreenShareEnabled()
                     ? "Share Screen"
@@ -192,6 +195,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                     ),
                   );
                 });
+
             break;
           case "Chat":
             if (responsiveDevice != ResponsiveDevice.desktop) {
@@ -269,7 +273,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             break;
           case "Share Screen":
             try {
-              final source = await showDialog<DesktopCapturerSource>(
+              final source = await showDialog(
                 context: context,
                 builder: (context) => ScreenSelectDialog(),
               );
@@ -277,7 +281,6 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                 debugPrint('cancelled screenshare');
                 return;
               }
-              debugPrint('DesktopCapturerSource: ${source.id}');
               final LocalVideoTrack track =
                   await LocalVideoTrack.createScreenShareTrack(
                 ScreenShareCaptureOptions(
@@ -285,15 +288,68 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                   maxFrameRate: 15.0,
                 ),
               );
-              await room.localParticipant?.publishVideoTrack(track);
+
+              await room.localParticipant?.publishVideoTrack(track,
+                  publishOptions: const VideoPublishOptions(simulcast: false));
               await room.localParticipant?.setScreenShareEnabled(true);
             } catch (e) {
-              debugPrint('could not publish screen sharing: $e');
+              throw Exception(e);
             }
             break;
           case "Stop Sharing":
             try {
-              await room.localParticipant?.setScreenShareEnabled(false);
+              showDialog(
+                  barrierColor: Colors.black,
+                  context: context,
+                  builder: (context) => AlertDialog(
+                        backgroundColor: Colors.black,
+                        contentPadding: const EdgeInsets.all(0),
+                        insetPadding: const EdgeInsets.all(0),
+                        content: CustomCard(
+                          content: Text(
+                            "Are you sure to Stop?",
+                            textAlign: TextAlign.center,
+                            style: textTheme.titleMedium,
+                          ),
+                          iconPath: 'assets/icons/cross_mark.png',
+                          actions: [
+                            GestureDetector(
+                              onTap: () async {
+                                Navigator.pop(context);
+                                await room.localParticipant
+                                    ?.setScreenShareEnabled(false);
+                              },
+                              child: CustomButton(
+                                width: 85,
+                                height: 45,
+                                child: Center(
+                                  child: Text(
+                                    "Yes",
+                                    style: textTheme.labelMedium
+                                        ?.copyWith(color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: CustomButton(
+                                width: 85,
+                                height: 45,
+                                child: Center(
+                                  child: Text(
+                                    "No",
+                                    style: textTheme.labelMedium
+                                        ?.copyWith(color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ));
             } catch (e) {
               throw Exception(e);
             }

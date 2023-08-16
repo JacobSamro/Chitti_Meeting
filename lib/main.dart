@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 import 'common/constants/constants.dart';
+import 'common/widgets/custom_button.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
@@ -73,7 +74,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: CircularProgressIndicator(),
       ),
       const MainScreen(),
-      const MeetingDialogue(),
+      MeetingDialogue(
+        iconPath: ref.read(meetingStateProvider).runtimeType == MeetingEnded
+            ? 'assets/icons/emoji.png'
+            : ref.read(meetingStateProvider).runtimeType == MeetingNotFound
+                ? 'assets/icons/cross_mark.png'
+                : 'assets/icons/call.png',
+        content: ref.read(meetingStateProvider).runtimeType == MeetingEnded
+            ? "Workshop have ended"
+            : ref.read(meetingStateProvider).runtimeType == MeetingNotFound
+                ? "Sorry we can't find this meeting"
+                : "You have left the meeting",
+        actions: ref.read(meetingStateProvider).runtimeType == MeetingNotFound
+            ? []
+            : [
+                GestureDetector(
+                  onTap: () {
+                    ref.read(meetingPageProvider.notifier).changePageIndex(0);
+                  },
+                  child:
+                      ref.read(meetingStateProvider).runtimeType == MeetingEnded
+                          ? const CustomButton(
+                              width: 178,
+                              height: 52,
+                              child: Center(
+                                child: Text(
+                                  "Visit paid workshop",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            )
+                          : const CustomButton(
+                              width: 178,
+                              height: 52,
+                              child: Center(
+                                child: Text(
+                                  "Rejoin workshop",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                      decoration: TextDecoration.none,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ),
+                )
+              ],
+      ),
       const WaitingScreen()
     ];
     ref.read(cameraProvider.notifier).addCameras();
@@ -101,6 +152,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
         case MeetingRoomJoinCompleted:
           ref.read(meetingPageProvider.notifier).changePageIndex(2);
+          break;
+        case MeetingNotFound:
+          ref.read(meetingPageProvider.notifier).changePageIndex(3);
           break;
         case MeetingRoomDisconnected:
           ref.read(meetingPageProvider.notifier).changePageIndex(3);

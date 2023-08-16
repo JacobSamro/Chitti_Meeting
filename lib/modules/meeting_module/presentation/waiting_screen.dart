@@ -88,7 +88,6 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                   image: Image.asset(
                     'assets/images/background.png',
                     fit: BoxFit.cover,
-                    // fit: BoxFit.cover,
                   ).image,
                 ),
               ),
@@ -116,8 +115,8 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                             (e) => Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: Container(
-                                height: 74,
-                                width: 70,
+                                height: isDesktop ? 110 : 74,
+                                width: isDesktop ? 130 : 70,
                                 decoration: BoxDecoration(
                                   color: theme.primaryColor,
                                   borderRadius: BorderRadius.circular(14),
