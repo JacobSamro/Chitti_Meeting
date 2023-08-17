@@ -101,9 +101,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackUnpublishedEvent>((event) {
       callback();
     });
-    _listener.on<ParticipantEvent>((event) {
-      callback();
-    });
     _listener.on<LocalTrackPublishedEvent>((event) {
       callback();
     });
@@ -113,7 +110,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackPublishedEvent>((event) {
       state == MeetingRoomJoinCompleted() ? callback() : null;
     });
-
     _listener.on<TrackMutedEvent>((event) {
       callback();
     });
@@ -127,7 +123,14 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       callback();
     });
   }
-
+ void sortOrder(VoidCallback callback){
+    _listener.on<TrackSubscribedEvent>((event) {
+      callback();
+    });
+    _listener.on<TrackUnsubscribedEvent>((event) {
+      callback();
+    });
+ }
   void removeListener() {
     _listener.dispose();
   }
@@ -154,9 +157,7 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   final Ref ref;
   final Room room = locator<Room>();
   String _participantName = '';
-  List<dynamic> _participants = [];
   String get participantName => _participantName;
-  List<dynamic> get participants => _participants;
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
@@ -170,12 +171,10 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
       participants.add(element);
     }
     state = [...participants];
-    _participants = state;
   }
 
   void addRemoteParticipantTrack(Participant participant) {
     state = [...state, participant];
-    _participants = state;
   }
 
   void setParticipantName(String name) {
@@ -188,12 +187,10 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
             element is HostModel ? true : element.sid != participant.sid)
         .toList();
     state = newState;
-    _participants = state;
   }
 
   void reset() {
     state = [];
-    _participants = state;
   }
 }
 
