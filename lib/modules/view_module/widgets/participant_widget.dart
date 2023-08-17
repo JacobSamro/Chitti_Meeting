@@ -55,7 +55,6 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                               VideoTrackRenderer(
                                 widget.participant.videoTracks.first.track
                                     as VideoTrack,
-                                mirrorMode: VideoViewMirrorMode.mirror,
                                 fit: rtc.RTCVideoViewObjectFit
                                     .RTCVideoViewObjectFitCover,
                               ),
