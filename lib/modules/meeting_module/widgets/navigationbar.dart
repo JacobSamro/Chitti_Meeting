@@ -92,9 +92,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               ? "assets/icons/mic.png"
               : "assets/icons/mic_off.png",
         ),
-        !kIsWeb && defaultTargetPlatform == TargetPlatform.windows
-            // &&
-            // workshop.isHost!
+        !kIsWeb &&
+                defaultTargetPlatform == TargetPlatform.windows &&
+                workshop.isHost!
             ? CustomBottomNavigationItem(
                 label: !room.localParticipant!.isScreenShareEnabled()
                     ? "Share Screen"
