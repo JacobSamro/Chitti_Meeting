@@ -221,10 +221,10 @@ packages:
     dependency: transitive
     description:
       name: dart_webrtc
-      sha256: "3f581ea799829fabd6e0b99bd2210146e4d107c7b3ac8495af3510737a5c5c1a"
+      sha256: dfe42714abe3eb83eefec407c9da7f8e341a899aa1b8ac2484af298cdfeb74a3
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   dbus:
     dependency: transitive
     description:
@@ -340,10 +340,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_webrtc
-      sha256: "6a26a2ca8e1759fe60705d745444184e384508b82feb68547d66d411dbc4ad2d"
+      sha256: "770c6f8babfdc4907539dc57bf9e98b89132eaa4486bac774c537dd25c2d5362"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.37"
+    version: "0.9.40"
   flutter_window_close:
     dependency: transitive
     description:
@@ -408,14 +408,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
-  js_bindings:
-    dependency: transitive
-    description:
-      name: js_bindings
-      sha256: "4b2f25c42b5b5eb2537bfe1006878787bdf10d50f680d80d15bd90569e36c926"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2+1"
   lints:
     dependency: transitive
     description:
@@ -428,10 +420,10 @@ packages:
     dependency: "direct main"
     description:
       name: livekit_client
-      sha256: d7a8416aa3cc4baf3e3127edc266a56888fcfba0b454b1fbf5980cd147d76e2b
+      sha256: cd51e47f194cbdedc0e95fd378090388058e04f75d06ae482f284e3d767f89bd
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.1"
+    version: "1.4.3"
   logging:
     dependency: transitive
     description:
@@ -946,10 +938,10 @@ packages:
     dependency: transitive
     description:
       name: webrtc_interface
-      sha256: "0dd96f4d7fb6ba9895930644cebd3f1adb5179caa83cb1760061b2fe9cba5aad"
+      sha256: faec2b578f7cd588766843a8c59d4a0137c44de10b83341ce7bec05e104614d7
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   win32:
     dependency: "direct overridden"
     description:
