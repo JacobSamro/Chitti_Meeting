@@ -26,6 +26,8 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
   late final TextEditingController passcode;
   bool isVideoOn = false;
   bool isLoading = false;
+  String buttonText = 'Join Meeting';
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +41,24 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
       ref.read(meetingStateProvider.notifier).createListener();
       ref.read(meetingStateProvider.notifier).listen(context);
     }
+    nameController.addListener(() {
+      if (nameController.text.split('.').last == 'host') {
+        setState(() {
+          buttonText = 'Confirm Passcode';
+        });
+      } else {
+        setState(() {
+          buttonText = 'Join Meeting';
+        });
+      }
+    });
+    passcode.addListener(() {
+      if (passcode.text.isNotEmpty) {
+        setState(() {
+          buttonText = 'Join Meeting';
+        });
+      }
+    });
   }
 
   initCamera() async {
@@ -247,6 +267,9 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                                   content:
                                                       Text("Enter Passcode")));
                                           Navigator.pop(context);
+                                          setState(() {
+                                            buttonText = 'Join Meeting';
+                                          });
                                           return;
                                         }
                                         Navigator.pop(context);
@@ -305,8 +328,8 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                         canConnect
                             ? await locator<MeetingRepositories>()
                                 .addParticipant(
-                                    nameController.text,
-                                    passcode.text,
+                                    nameController.text.trim(),
+                                    passcode.text.trim(),
                                     ref
                                         .read(workshopDetailsProvider)
                                         .meetingId
@@ -324,7 +347,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                             : 300,
                         child: Center(
                           child: Text(
-                            "Join the Workshop",
+                            buttonText,
                             style: textTheme.titleSmall?.copyWith(
                               color: Colors.black,
                             ),

@@ -30,6 +30,11 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+    ref.read(meetingStateProvider.notifier).sortOrder(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override

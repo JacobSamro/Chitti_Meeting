@@ -24,6 +24,9 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
         setState(() {});
       }
     });
+    // widget.participant is LocalParticipant
+    //     ? debugPrint(widget.participant.videoTracks.first.track.toString())
+    //     : null;
   }
 
   @override
@@ -68,7 +71,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          widget.participant.identity,
+                                          widget.participant.name,
                                           style: textTheme.labelSmall
                                               ?.copyWith(fontSize: 12),
                                         ),
@@ -135,7 +138,7 @@ class ParticipantWithoutVideo extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        participant.identity,
+                        participant.name,
                         style: textTheme.labelSmall?.copyWith(fontSize: 12),
                       ),
                       const SizedBox(

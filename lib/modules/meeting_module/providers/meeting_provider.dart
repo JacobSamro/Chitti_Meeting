@@ -35,7 +35,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
           .addRemoteParticipantTrack(event.participant);
       Utils.showCustomSnackBar(
           buildContext: context,
-          content: '${event.participant.identity} connected',
+          content: '${event.participant.name} connected',
           iconPath: 'assets/icons/user_rounded.png');
     });
 
@@ -45,13 +45,9 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
           .removeRemoteParticipantTrack(event.participant);
       Utils.showCustomSnackBar(
           buildContext: context,
-          content: '${event.participant.identity} disconnected',
+          content: '${event.participant.name} disconnected',
           iconPath: 'assets/icons/user_rounded.png');
     });
-
-    _listener.on<TrackSubscribedEvent>((event) {});
-
-    _listener.on<TrackUnsubscribedEvent>((event) {});
 
     _listener.on<RoomDisconnectedEvent>((event) async {
       ref!.read(participantProvider.notifier).reset();
@@ -87,6 +83,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
         await locator.unregister<VideoPlayerController>();
       }
     });
+
     _listener.on<RoomReconnectedEvent>((event) {
       state = MeetingRoomJoinCompleted();
       Utils.showCustomSnackBar(
@@ -94,6 +91,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
           content: 'Reconnected to room',
           iconPath: 'assets/icons/people.png');
     });
+
     _listener.on<TrackPublishedEvent>((event) {
       state = MeetingRoomJoinCompleted();
     });
@@ -112,7 +110,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<TrackPublishedEvent>((event) {
       state == MeetingRoomJoinCompleted() ? callback() : null;
     });
-
     _listener.on<TrackMutedEvent>((event) {
       callback();
     });
@@ -126,7 +123,14 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       callback();
     });
   }
-
+ void sortOrder(VoidCallback callback){
+    _listener.on<TrackSubscribedEvent>((event) {
+      callback();
+    });
+    _listener.on<TrackUnsubscribedEvent>((event) {
+      callback();
+    });
+ }
   void removeListener() {
     _listener.dispose();
   }
@@ -153,17 +157,16 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   final Ref ref;
   final Room room = locator<Room>();
   String _participantName = '';
-
   String get participantName => _participantName;
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
     final Workshop workshop = ref.read(workshopDetailsProvider);
-    final HostModel host = HostModel(name: "Host", src: workshop.sourceUrl!);
-    participants = [
-      host,
-      room.localParticipant as Participant,
-    ];
+    if (workshop.sourceUrl!.isNotEmpty) {
+      final HostModel host = HostModel(name: "Host", src: workshop.sourceUrl!);
+      participants.add(host);
+    }
+    participants.add(room.localParticipant as Participant);
     for (var element in room.participants.values) {
       participants.add(element);
     }
@@ -202,14 +205,19 @@ class WorkshopDetialsNotifier extends StateNotifier<Workshop> {
   String hashId = '';
   Future<bool> getWorkshopDetials(String id) async {
     hashId = id;
-    final Workshop workshop =
+    final Map<String, dynamic> workshopDetails =
         await locator<MeetingRepositories>().getWorkshop(id);
-    state = workshop;
-    if (workshop.meetingStatus == 'ended') {
+    if (workshopDetails['success'] == false) {
+      ref.read(meetingStateProvider.notifier).changeState(MeetingNotFound());
+      return false;
+    }
+    state = Workshop.fromJson(workshopDetails['workshop']);
+
+    if (state.meetingStatus == 'ended') {
       ref.read(meetingStateProvider.notifier).changeState(MeetingEnded());
       return false;
     }
-    if (workshop.meetingStatus == 'notstarted') {
+    if (state.meetingStatus == 'notstarted') {
       ref.read(meetingStateProvider.notifier).changeState(WaitingRoom());
       return false;
     }
