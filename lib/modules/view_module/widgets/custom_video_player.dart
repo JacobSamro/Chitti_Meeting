@@ -38,9 +38,9 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
         locator.registerLazySingleton<VideoController>(
             () => VideoController(locator<Player>()));
         controller = locator<VideoController>();
-        controller?.player.stream.buffer.listen((event) {
-          debugPrint('duration :: ${event.inSeconds}');
-        });
+        // controller?.player.stream.buffer.listen((event) {
+        //   debugPrint('duration :: ${event.inSeconds}');
+        // });
         controller?.rect.addListener(() {
           if (mounted) {
             setState(() {});
@@ -87,30 +87,33 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return controller != null
-        ? controller is VideoController
-            ? controller!.player.state.buffering == false
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Video(
-                        controller: controller!,
-                        fit: BoxFit.fitWidth,
-                        controls: (state) => const SizedBox(),
+    return AbsorbPointer(
+      // absorbing: ,
+      child: controller != null
+          ? controller is VideoController
+              ? controller!.player.state.buffering == false
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Video(
+                          controller: controller!,
+                          fit: BoxFit.fitWidth,
+                          controls: (state) => const SizedBox(),
+                        ),
                       ),
-                    ),
-                  )
-                : const Center(child: CircularProgressIndicator())
-            : controller.value.isInitialized
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: VideoPlayer(controller),
-                    ),
-                  )
-                : const Center(child: CircularProgressIndicator())
-        : const Center(child: CircularProgressIndicator());
+                    )
+                  : const Center(child: CircularProgressIndicator())
+              : controller.value.isInitialized
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: VideoPlayer(controller),
+                      ),
+                    )
+                  : const Center(child: CircularProgressIndicator())
+          : const Center(child: CircularProgressIndicator()),
+    );
   }
 }
