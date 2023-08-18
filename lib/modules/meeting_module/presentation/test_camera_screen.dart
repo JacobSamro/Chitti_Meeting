@@ -88,7 +88,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('hello');
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final ResponsiveDevice responsiveDevice =

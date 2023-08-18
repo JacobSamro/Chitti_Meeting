@@ -52,7 +52,6 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
     final bool isDesktop = responsiveDevice == ResponsiveDevice.desktop;
-    debugPrint(room.localParticipant!.isScreenShareEnabled().toString());
     return CustomBottomNavigation(
       leading: isDesktop
           ? Row(
