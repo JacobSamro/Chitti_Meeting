@@ -2,7 +2,7 @@ import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart'
 import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
-import 'package:chitti_meeting/modules/view_module/widgets/custom_video_player.dart';
+import 'package:chitti_meeting/modules/view_module/widgets/participant_widget.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -98,10 +98,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         child: SizedBox(
                           width: double.infinity,
                           height: double.infinity,
-                          child: CustomVideoPlayer(
-                              height: double.infinity,
-                              src:
-                                  ref.read(workshopDetailsProvider).sourceUrl!),
+                          child: ParticipantWidget(
+                              participant: ref.read(participantProvider).first),
                         ),
                       )
                     : Column(
@@ -109,10 +107,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                           Expanded(
                             child: SizedBox(
                               width: double.infinity,
-                              child: CustomVideoPlayer(
-                                  src: ref
-                                      .read(workshopDetailsProvider)
-                                      .sourceUrl!),
+                              child: ParticipantWidget(
+                                  participant:
+                                      ref.read(participantProvider).first),
                             ),
                           ),
                           const CustomNavigationBar()
