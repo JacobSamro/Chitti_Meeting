@@ -121,3 +121,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+msix_config:
+  display_name: ChittiMeet
+  publisher_display_name: LMES Academy Private Limited
+  identity_name: LMESAcademyPrivateLimited.ChittiCloud
+  msix_version: 0.1.0.0
+  logo_path: windows/runner/resources/app_icon.ico
+  publisher: CN=420391C9-4F48-440D-B6A9-D5753AC82A3D
+  capabilities: internetClient, location, microphone, webcam
+  protocol_activation: http,https
+  app_uri_handler_hosts: meet.chitti.xyz
+  execution_alias: chittimeet
+  sign_msix: false
