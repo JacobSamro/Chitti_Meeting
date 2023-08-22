@@ -123,14 +123,21 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       callback();
     });
   }
- void sortOrder(VoidCallback callback){
+  void sortOrder(VoidCallback callback){
     _listener.on<TrackSubscribedEvent>((event) {
       callback();
     });
     _listener.on<TrackUnsubscribedEvent>((event) {
       callback();
     });
- }
+    _listener.on<LocalTrackPublishedEvent>((event) {
+      callback();
+    });
+    _listener.on<LocalTrackUnpublishedEvent>((event) {
+      callback();
+    });
+  }
+
   void removeListener() {
     _listener.dispose();
   }
