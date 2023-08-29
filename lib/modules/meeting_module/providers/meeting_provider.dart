@@ -66,7 +66,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     });
 
     _listener.on<RoomReconnectingEvent>((event) async {
-      state = MeetingRoomReconnecting();
+      // state = MeetingRoomReconnecting();
       ref!.read(participantProvider.notifier).reset();
       context.showCustomSnackBar(
           content: 'Reconnecting to room', iconPath: 'assets/icons/people.png');
