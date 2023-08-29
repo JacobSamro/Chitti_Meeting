@@ -25,13 +25,12 @@ class MeetingRepositories {
       "isVideo": isVideo
     });
     ref.read(workshopDetailsProvider.notifier).setHost(response.data['isHost']);
-    await connectMeeting(isVideo, ref);
+    await connectMeeting(isVideo, ref, response.data['token']);
   }
 
-  Future<void> connectMeeting(bool isVideo, dynamic ref) async {
+  Future<void> connectMeeting(bool isVideo, WidgetRef ref, String token) async {
     try {
-      await room.connect(ApiConstants.livekitUrl,
-          ref.read(meetingStateProvider.notifier).token,
+      await room.connect(ApiConstants.livekitUrl, token,
           roomOptions: const RoomOptions(
             adaptiveStream: true,
             dynacast: true,
