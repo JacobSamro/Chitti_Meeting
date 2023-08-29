@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ChatNotifier extends StateNotifier<List<MessageModel>> {
   ChatNotifier(this.ref) : super([]);
   final Ref ref;
+  bool canListenMessge = false;
   void addLocalMessage(String message) {
     state = [...state, MessageModel(MessageBy.local, message)];
   }
@@ -16,8 +17,12 @@ class ChatNotifier extends StateNotifier<List<MessageModel>> {
     state = [...state, MessageModel(MessageBy.host, message)];
   }
 
+  void canListen(bool value) {
+    canListenMessge = value;
+  }
+
   void listenMessage(String id) async {
-    while (true) {
+    while (canListenMessge) {
       Response? response;
       try {
         response =
@@ -36,6 +41,11 @@ class ChatNotifier extends StateNotifier<List<MessageModel>> {
         await Future.delayed(const Duration(seconds: 1));
       }
     }
+  }
+
+  void reset() {
+    state = [];
+    canListenMessge = false;
   }
 }
 
