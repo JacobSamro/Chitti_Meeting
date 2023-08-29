@@ -48,7 +48,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     });
 
     _listener.on<RoomDisconnectedEvent>((event) async {
-      ref!.read(participantProvider.notifier).reset();
+      // ref!.read(participantProvider.notifier).reset();
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
         await locator<Player>().dispose();
         await locator.unregister<VideoController>();
@@ -66,25 +66,30 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     });
 
     _listener.on<RoomReconnectingEvent>((event) async {
-      // state = MeetingRoomReconnecting();
-      ref!.read(participantProvider.notifier).reset();
-      context.showCustomSnackBar(
-          content: 'Reconnecting to room', iconPath: 'assets/icons/people.png');
-      ref!.read(chatProvider.notifier).reset();
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
-        await locator<Player>().dispose();
-        await locator.unregister<VideoController>();
-        await locator.unregister<Player>();
-      } else {
-        await locator<VideoPlayerController>().dispose();
-        await locator.unregister<VideoPlayerController>();
+      try {
+        ref!.read(participantProvider.notifier).reset();
+        context.showCustomSnackBar(
+            content: 'Reconnecting to room',
+            iconPath: 'assets/icons/people.png');
+        ref!.read(chatProvider.notifier).reset();
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+          await locator<Player>().dispose();
+          await locator.unregister<VideoController>();
+          await locator.unregister<Player>();
+        } else {
+          await locator<VideoPlayerController>().dispose();
+          await locator.unregister<VideoPlayerController>();
+        }
+      } catch (e) {
+        debugPrint(e.toString());
       }
     });
 
-    _listener.on<RoomReconnectedEvent>((event) {
+    _listener.on<RoomReconnectedEvent>((event) async {
       state = MeetingRoomJoinCompleted();
       context.showCustomSnackBar(
           content: 'Reconnected to room', iconPath: 'assets/icons/people.png');
+      await ref!.read(participantProvider.notifier).addLocalParticipantTrack();
     });
 
     _listener.on<TrackPublishedEvent>((event) {
