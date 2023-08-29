@@ -1,5 +1,6 @@
 import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
+import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
 import 'package:chitti_meeting/modules/view_module/widgets/participant_widget.dart';
@@ -24,12 +25,15 @@ class MainScreen extends ConsumerStatefulWidget {
 
 class _MainScreenState extends ConsumerState<MainScreen> {
   final Room room = locator<Room>();
+  final MeetingRepositories meetingRepositories =
+      locator<MeetingRepositories>();
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(participantProvider.notifier).addLocalParticipantTrack();
+      ref.read(chatProvider.notifier).canListen(true);
       ref
           .read(chatProvider.notifier)
           .listenMessage(ref.read(workshopDetailsProvider.notifier).hashId);
@@ -41,6 +45,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.dispose();
     ref.invalidate(participantProvider);
     room.dispose();
+    ref.read(chatProvider.notifier).reset();
     locator.unregister<Room>();
   }
 
@@ -93,13 +98,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 child: responsiveDevice != ResponsiveDevice.desktop
                     ? GestureDetector(
                         onTap: () {
-                          Utils.openFloatingNavigationBar(context);
+                          context.openFloatingNavigationBar();
                         },
                         child: SizedBox(
                           width: double.infinity,
                           height: double.infinity,
                           child: ParticipantWidget(
-                              participant: ref.read(participantProvider).first),
+                              participant: meetingRepositories
+                                  .sortParticipant(viewType, ref)
+                                  .first),
                         ),
                       )
                     : Column(
@@ -108,8 +115,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             child: SizedBox(
                               width: double.infinity,
                               child: ParticipantWidget(
-                                  participant:
-                                      ref.read(participantProvider).first),
+                                  participant: meetingRepositories
+                                      .sortParticipant(viewType, ref)
+                                      .first),
                             ),
                           ),
                           const CustomNavigationBar()

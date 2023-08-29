@@ -1,5 +1,4 @@
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
@@ -7,8 +6,9 @@ import '../../../common/constants/constants.dart';
 import '../states/meeting_states.dart';
 
 class MeetingRepositories {
-  const MeetingRepositories({required this.dio});
+  const MeetingRepositories({required this.room, required this.dio});
   final Dio dio;
+  final Room room;
 
   Future<String> getDateTime() async {
     final Response<dynamic> response = await dio.get(ApiConstants.dateTimeUrl);
@@ -17,7 +17,6 @@ class MeetingRepositories {
 
   Future<void> addParticipant(String participantName, String passcode,
       String meetingId, bool isVideo, WidgetRef ref) async {
-    final Room room = locator<Room>();
     final Response response =
         await dio.post(ApiConstants.addParticipantUrl, data: {
       "roomId": meetingId,
@@ -26,20 +25,25 @@ class MeetingRepositories {
       "isVideo": isVideo
     });
     ref.read(workshopDetailsProvider.notifier).setHost(response.data['isHost']);
-    await room.connect(ApiConstants.livekitUrl, response.data['token'],
-        roomOptions: const RoomOptions(
-          adaptiveStream: true,
-          dynacast: true,
-          defaultVideoPublishOptions: VideoPublishOptions(
-            simulcast: false,
-          ),
-        ),
-        fastConnectOptions: FastConnectOptions(
-          microphone: const TrackOption(enabled: false),
-          camera: TrackOption(enabled: isVideo),
-        ));
+    await connectMeeting(isVideo, ref);
+  }
 
+  Future<void> connectMeeting(bool isVideo, dynamic ref) async {
     try {
+      await room.connect(ApiConstants.livekitUrl,
+          ref.read(meetingStateProvider.notifier).token,
+          roomOptions: const RoomOptions(
+            adaptiveStream: true,
+            dynacast: true,
+            defaultVideoPublishOptions: VideoPublishOptions(
+              simulcast: false,
+            ),
+          ),
+          fastConnectOptions: FastConnectOptions(
+            microphone: const TrackOption(enabled: false),
+            camera: TrackOption(enabled: isVideo),
+          ));
+
       await room.localParticipant?.setCameraEnabled(isVideo);
       await room.localParticipant?.setMicrophoneEnabled(false);
       ref
@@ -53,29 +57,27 @@ class MeetingRepositories {
   List<dynamic> sortParticipant(ViewType view, WidgetRef ref) {
     if (view == ViewType.standard) return standardViewSort(ref);
     if (view == ViewType.gallery) return galleryViewSort(ref);
-    final List<dynamic> participantList =
-        ref.read(participantProvider);
+    final List<dynamic> participantList = ref.read(participantProvider);
     final List<Participant> screenShare = [];
     final List<dynamic> otherParticipants = [];
     for (var e in participantList) {
       e is Participant && e.isScreenShareEnabled()
           ? screenShare.add(e)
           : otherParticipants.add(e);
-      }
+    }
     final List<dynamic> participants = [...screenShare, ...otherParticipants];
     return participants;
   }
 
   List<List<dynamic>> standardViewSort(WidgetRef ref) {
-final List<dynamic> participantList =
-        ref.read(participantProvider);
+    final List<dynamic> participantList = ref.read(participantProvider);
     final List<Participant> screenShare = [];
     final List<dynamic> otherParticipants = [];
     for (var e in participantList) {
       e is Participant && e.isScreenShareEnabled()
           ? screenShare.add(e)
           : otherParticipants.add(e);
-      }
+    }
     final List<dynamic> participants = [...screenShare, ...otherParticipants];
     final List<List<dynamic>> sortValue = [
       for (var i = 0; i < participants.length; i += 2)
@@ -86,15 +88,14 @@ final List<dynamic> participantList =
   }
 
   List<List<dynamic>> galleryViewSort(WidgetRef ref) {
-    final List<dynamic> participantList =
-        ref.read(participantProvider);
+    final List<dynamic> participantList = ref.read(participantProvider);
     final List<Participant> screenShare = [];
     final List<dynamic> otherParticipants = [];
     for (var e in participantList) {
       e is Participant && e.isScreenShareEnabled()
           ? screenShare.add(e)
           : otherParticipants.add(e);
-      }
+    }
     final List<dynamic> participants = [...screenShare, ...otherParticipants];
     final List<List<dynamic>> sortValue = [
       for (var i = 0; i < participants.length; i += 6)
