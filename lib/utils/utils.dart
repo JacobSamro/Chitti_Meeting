@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import '../modules/meeting_module/widgets/navigationbar.dart';
 import '../services/responsive.dart';
 
-class Utils {
+extension Utils on BuildContext {
   static Timer? timer;
   static PersistentBottomSheetController? controller;
-  static openFloatingNavigationBar(context) async {
+  void openFloatingNavigationBar() async {
     timer?.cancel();
     timer = Timer(const Duration(seconds: 3), () async {
       controller?.close();
@@ -34,18 +34,18 @@ class Utils {
         : null;
   }
 
-  static void showCustomSnackBar(
-      {required BuildContext buildContext,
+   void showCustomSnackBar(
+      {
       required String content,
       required String iconPath}) {
-    final width = MediaQuery.of(buildContext).size.width;
+    final width = MediaQuery.of(this).size.width;
     final ResponsiveDevice responsiveDevice =
-        Responsive().getDeviceType(buildContext);
+        Responsive().getDeviceType(this);
     final isDesktop = responsiveDevice == ResponsiveDevice.desktop;
-    final textTheme = Theme.of(buildContext).textTheme;
+    final textTheme = Theme.of(this).textTheme;
     OverlayEntry overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(buildContext).size.height * 0.1,
+        top: MediaQuery.of(this).size.height * 0.1,
         left: width > 800 ? 40 : 0,
         child: Material(
           color: const Color(0xff191919),
@@ -80,7 +80,7 @@ class Utils {
       ),
     );
 
-    Overlay.of(buildContext).insert(overlayEntry);
+    Overlay.of(this).insert(overlayEntry);
 
     Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();

@@ -33,8 +33,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       ref!
           .read(participantProvider.notifier)
           .addRemoteParticipantTrack(event.participant);
-      Utils.showCustomSnackBar(
-          buildContext: context,
+      context.showCustomSnackBar(
           content: '${event.participant.name} connected',
           iconPath: 'assets/icons/user_rounded.png');
     });
@@ -43,8 +42,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       ref!
           .read(participantProvider.notifier)
           .removeRemoteParticipantTrack(event.participant);
-      Utils.showCustomSnackBar(
-          buildContext: context,
+      context.showCustomSnackBar(
           content: '${event.participant.name} disconnected',
           iconPath: 'assets/icons/user_rounded.png');
     });
@@ -70,10 +68,9 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
     _listener.on<RoomReconnectingEvent>((event) async {
       state = MeetingRoomReconnecting();
       ref!.read(participantProvider.notifier).reset();
-      Utils.showCustomSnackBar(
-          buildContext: context,
-          content: 'Reconnecting to room',
-          iconPath: 'assets/icons/people.png');
+      context.showCustomSnackBar(
+          content: 'Reconnecting to room', iconPath: 'assets/icons/people.png');
+      ref!.read(chatProvider.notifier).reset();
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
         await locator<Player>().dispose();
         await locator.unregister<VideoController>();
@@ -86,10 +83,8 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
 
     _listener.on<RoomReconnectedEvent>((event) {
       state = MeetingRoomJoinCompleted();
-      Utils.showCustomSnackBar(
-          buildContext: context,
-          content: 'Reconnected to room',
-          iconPath: 'assets/icons/people.png');
+      context.showCustomSnackBar(
+          content: 'Reconnected to room', iconPath: 'assets/icons/people.png');
     });
 
     _listener.on<TrackPublishedEvent>((event) {
@@ -123,7 +118,8 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       callback();
     });
   }
-  void sortOrder(VoidCallback callback){
+
+  void sortOrder(VoidCallback callback) {
     _listener.on<TrackSubscribedEvent>((event) {
       callback();
     });

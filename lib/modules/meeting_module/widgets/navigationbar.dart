@@ -126,8 +126,8 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             break;
           case "Video Off":
             room.localParticipant!.isScreenShareEnabled()
-                ? Utils.showCustomSnackBar(
-                    buildContext: context,
+                // ignore: use_build_context_synchronously
+                ? context.showCustomSnackBar(
                     content: "Screen Share is enabled",
                     iconPath: 'assets/icons/info.png')
                 : room.localParticipant?.setCameraEnabled(true);
@@ -135,8 +135,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           case "Mic Off":
             workshop.isHost!
                 ? await room.localParticipant?.setMicrophoneEnabled(true)
-                : Utils.showCustomSnackBar(
-                    buildContext: context,
+              
+                // ignore: use_build_context_synchronously
+                : context.showCustomSnackBar(
                     content: "Mic was disabled by Host",
                     iconPath: 'assets/icons/mic_off.png');
             break;
@@ -144,6 +145,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             await room.localParticipant?.setMicrophoneEnabled(false);
             break;
           case "Switch View":
+            // ignore: use_build_context_synchronously
             showModalBottomSheet(
                 context: context,
                 barrierColor: Colors.white.withOpacity(0),
@@ -199,10 +201,11 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           case "Chat":
             if (responsiveDevice != ResponsiveDevice.desktop) {
               if (type == ViewType.fullScreen) {
-                SystemChrome.setPreferredOrientations([
+                await SystemChrome.setPreferredOrientations([
                   DeviceOrientation.portraitUp,
                 ]);
               }
+              if (!context.mounted) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -221,10 +224,11 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           case "Participants":
             if (responsiveDevice != ResponsiveDevice.desktop) {
               if (type == ViewType.fullScreen) {
-                SystemChrome.setPreferredOrientations([
+                await SystemChrome.setPreferredOrientations([
                   DeviceOrientation.portraitUp,
                 ]);
               }
+              if (!context.mounted) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -252,7 +256,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
             html.document.documentElement?.requestFullscreen();
             if (responsiveDevice != ResponsiveDevice.desktop && !kIsWeb) {
-              Utils.openFloatingNavigationBar(context);
+              context.openFloatingNavigationBar();
             }
             break;
           case "Exit":

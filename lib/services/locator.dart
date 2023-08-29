@@ -14,7 +14,7 @@ void setup() {
   locator.registerLazySingleton<MeetingStateNotifier>(
       () => MeetingStateNotifier());
   locator.registerLazySingleton<MeetingRepositories>(
-      () => MeetingRepositories(dio: locator<Dio>()));
+      () => MeetingRepositories(dio: locator<Dio>(), room: locator<Room>()));
   locator.registerLazySingleton<EventsListener>(
       () => locator<Room>().createListener());
   locator.registerLazySingleton<GlobalKey<ScaffoldState>>(
