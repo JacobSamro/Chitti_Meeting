@@ -22,13 +22,13 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 void main() {
   setup();
   WidgetsFlutterBinding.ensureInitialized();
-  MediaKit.ensureInitialized();
   if (kIsWeb) {
     usePathUrlStrategy();
     final String url = Uri.base.path;
     router.go(url);
   }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+    MediaKit.ensureInitialized();
     Utils.setWindowSize();
   }
   runApp(const ProviderScope(child: MyApp()));
@@ -138,13 +138,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     )),
                 actions: [
                   MinimizeWindowButton(
-                    colors: WindowButtonColors(iconNormal: Colors.white),
+                    colors: WindowButtonColors(iconNormal: Colors.grey),
                   ),
                   MaximizeWindowButton(
-                    colors: WindowButtonColors(iconNormal: Colors.white),
+                    colors: WindowButtonColors(iconNormal: Colors.grey),
                   ),
                   CloseWindowButton(
-                    colors: WindowButtonColors(iconNormal: Colors.white),
+                    colors: WindowButtonColors(
+                        iconNormal: Colors.grey, mouseOver: Colors.red),
                   )
                 ],
               )
