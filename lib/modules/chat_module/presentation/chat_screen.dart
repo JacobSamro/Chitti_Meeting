@@ -23,6 +23,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.initState();
     _controller = TextEditingController();
     scrollController = ScrollController();
+    focusTextField();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollToBottom();
     });
@@ -54,7 +55,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    focusTextField();
     final chat = ref.watch(chatProvider);
     ref.listen(chatProvider, (previous, next) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
