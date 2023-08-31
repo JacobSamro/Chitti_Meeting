@@ -4,9 +4,12 @@ import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider
 import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
+import 'package:chitti_meeting/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../states/meeting_states.dart';
 
 class WaitingScreen extends ConsumerStatefulWidget {
   const WaitingScreen({super.key});
@@ -51,12 +54,23 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                     .last ==
                 'host'
             ? ref.read(meetingPageProvider.notifier).changePageIndex(1)
-            : await locator<MeetingRepositories>().addParticipant(
-                ref.read(participantProvider.notifier).participantName,
-                '',
-                workshop.meetingId!,
-                false,
-                ref);
+            : await locator<MeetingRepositories>()
+                .addParticipant(
+                    ref.read(participantProvider.notifier).participantName,
+                    '',
+                    workshop.meetingId!,
+                    false,
+                    ref)
+                .then((value) {
+                if (!value) {
+                  ref
+                      .read(meetingStateProvider.notifier)
+                      .changeState(RouterInitial());
+                  context.showCustomSnackBar(
+                      content: "Participant unable to join",
+                      iconPath: 'assets/icons/info.png');
+                }
+              });
         _timer.cancel();
       }
     });

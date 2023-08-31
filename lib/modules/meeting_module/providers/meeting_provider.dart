@@ -151,8 +151,15 @@ final meetingStateProvider =
 
 class MeetingPageNotifier extends StateNotifier<int> {
   MeetingPageNotifier(super.state);
+  String _meetingId = '';
+  String get meetingId => _meetingId;
+
   void changePageIndex(int index) {
     state = index;
+  }
+
+  void setMeetingId(String id) {
+    _meetingId = id;
   }
 }
 

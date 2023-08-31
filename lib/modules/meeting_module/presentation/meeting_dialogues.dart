@@ -32,6 +32,7 @@ class MeetingDialogue extends ConsumerWidget {
           actions: [
             GestureDetector(
                 onTap: () {
+                  ref.read(meetingPageProvider.notifier).setMeetingId('');
                   ref.read(meetingPageProvider.notifier).changePageIndex(0);
                 },
                 child: CustomButton(

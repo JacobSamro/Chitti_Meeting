@@ -58,6 +58,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Widget> pages = [];
+  final GlobalKey<ScaffoldState> scaffoldKey =
+      locator<GlobalKey<ScaffoldState>>();
   @override
   void initState() {
     super.initState();
@@ -65,8 +67,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       DeviceOrientation.portraitUp,
     ]);
     ref.read(meetingStateProvider.notifier).createListener();
+    ref.read(meetingPageProvider.notifier).setMeetingId(widget.hashId);
+    ref.read(cameraProvider.notifier).addCameras();
+    ref.read(meetingStateProvider.notifier).listen(context);
+  }
+
+  void createPages() {
     pages = <Widget>[
-      widget.hashId.isNotEmpty
+      ref.read(meetingPageProvider.notifier).meetingId.isNotEmpty
           ? TestCamera(hashId: widget.hashId)
           : const OnBoradScreen(),
       const Center(
@@ -76,8 +84,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       const MeetingDialogue(),
       const WaitingScreen()
     ];
-    ref.read(cameraProvider.notifier).addCameras();
-    ref.read(meetingStateProvider.notifier).listen(context);
   }
 
   @override
@@ -93,6 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final pageIndex = ref.watch(meetingPageProvider);
     final ViewType viewType = ref.watch(viewProvider).viewType;
+    createPages();
     ref.listen(meetingStateProvider, (previous, next) {
       debugPrint("Current State :: ${next.runtimeType}");
       switch (next.runtimeType) {
@@ -120,7 +127,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     });
     return Scaffold(
-        key: locator<GlobalKey<ScaffoldState>>(),
+        key: scaffoldKey,
         appBar: !kIsWeb &&
                 defaultTargetPlatform == TargetPlatform.windows &&
                 viewType != ViewType.fullScreen

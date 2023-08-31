@@ -5,12 +5,14 @@ import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart
 import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:chitti_meeting/services/responsive.dart';
+import 'package:chitti_meeting/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/widgets/custom_card.dart';
 import '../providers/meeting_provider.dart';
 import '../repositories/meeting_respositories.dart';
+import '../states/meeting_states.dart';
 
 class TestCamera extends ConsumerStatefulWidget {
   const TestCamera({super.key, required this.hashId});
@@ -319,14 +321,26 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                         setState(() {
                           isLoading = true;
                         });
-                        await locator<MeetingRepositories>().addParticipant(
-                            nameController.text.trim(),
-                            passcode.text.trim(),
-                            workshop.meetingId!,
-                            isVideoOn,
-                            ref);
-                        isLoading = false;
-                        isVideoOn = false;
+                        final bool value = await locator<MeetingRepositories>()
+                            .addParticipant(
+                                nameController.text.trim(),
+                                passcode.text.trim(),
+                                ref
+                                    .read(workshopDetailsProvider)
+                                    .meetingId
+                                    .toString(),
+                                isVideoOn,
+                                ref);
+                        if (!value) {
+                          context.showCustomSnackBar(
+                              content: "Participant unable to join",
+                              iconPath: 'assets/icons/info.png');
+                          isLoading = false;
+                          isVideoOn = false;
+                          ref
+                              .read(meetingStateProvider.notifier)
+                              .changeState(RouterInitial());
+                        }
                       },
                       child: !isLoading
                           ? CustomButton(

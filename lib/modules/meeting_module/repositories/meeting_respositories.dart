@@ -15,7 +15,7 @@ class MeetingRepositories {
     return response.data['dateTime'];
   }
 
-  Future<void> addParticipant(String participantName, String passcode,
+  Future<bool> addParticipant(String participantName, String passcode,
       String meetingId, bool isVideo, WidgetRef ref) async {
     final Response response =
         await dio.post(ApiConstants.addParticipantUrl, data: {
@@ -25,10 +25,10 @@ class MeetingRepositories {
       "isVideo": isVideo
     });
     ref.read(workshopDetailsProvider.notifier).setHost(response.data['isHost']);
-    await connectMeeting(isVideo, ref, response.data['token']);
+    return await connectMeeting(isVideo, ref, response.data['token']);
   }
 
-  Future<void> connectMeeting(bool isVideo, WidgetRef ref, String token) async {
+  Future<bool> connectMeeting(bool isVideo, WidgetRef ref, String token) async {
     try {
       await room.connect(ApiConstants.livekitUrl, token,
           roomOptions: const RoomOptions(
@@ -48,8 +48,10 @@ class MeetingRepositories {
       ref
           .read(meetingStateProvider.notifier)
           .changeState(MeetingRoomJoinCompleted());
+      return true;
     } catch (error) {
-      throw Exception(error);
+      return false;
+      // throw Exception(error);
     }
   }
 
