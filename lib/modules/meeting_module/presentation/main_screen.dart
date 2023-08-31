@@ -45,7 +45,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.dispose();
     ref.invalidate(participantProvider);
     room.dispose();
-    ref.read(chatProvider.notifier).reset();
+    ref.invalidate(chatProvider);
     locator.unregister<Room>();
   }
 
