@@ -81,12 +81,14 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: participantTracks.map((e) {
                                 return participantTracks.length <= 1
-                                    ? SizedBox(
-                                        height: 300,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: ParticipantWidget(
-                                          participant: e,
+                                    ? Expanded(
+                                        child: SizedBox(
+                                          // height: 300,
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: ParticipantWidget(
+                                            participant: e,
+                                          ),
                                         ),
                                       )
                                     : Expanded(

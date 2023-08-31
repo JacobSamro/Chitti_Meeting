@@ -1,3 +1,4 @@
+import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,8 +62,14 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
               videoPlayerOptions: VideoPlayerOptions(
                   mixWithOthers: true, allowBackgroundPlayback: true)),
         );
-        controller = locator<VideoPlayerController>();
-        await controller.initialize();
+        await locator<VideoPlayerController>().initialize();
+      }
+      if (!locator.isRegistered<ChewieController>()) {
+        controller = ChewieController(
+            // aspectRatio: 16 / 9,
+            videoPlayerController: locator<VideoPlayerController>(),
+            autoPlay: true,
+            showControls: false);
         html.document.onContextMenu.listen((event) => event.preventDefault());
         controller.play();
 
@@ -77,7 +84,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
         }
         return;
       }
-      controller = locator<VideoPlayerController>();
+      controller = locator<ChewieController>();
       if (mounted) {
         setState(() {});
       }
@@ -88,7 +95,6 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
   Widget build(BuildContext context) {
     super.build(context);
     return AbsorbPointer(
-      // absorbing: ,
       child: controller != null
           ? controller is VideoController
               ? controller!.player.state.buffering == false
@@ -98,18 +104,23 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
                         aspectRatio: 16 / 9,
                         child: Video(
                           controller: controller!,
-                          fit: BoxFit.fitWidth,
-                          controls: (state) => const SizedBox(),
                         ),
                       ),
                     )
                   : const Center(child: CircularProgressIndicator())
-              : controller.value.isInitialized
+              : controller.videoPlayerController.value.isInitialized
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: VideoPlayer(controller),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: constraints.maxWidth,
+                              child: Chewie(controller: controller),
+                            ),
+                          );
+                        },
                       ),
                     )
                   : const Center(child: CircularProgressIndicator())
