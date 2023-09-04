@@ -40,8 +40,6 @@ class ErrorScreen extends StatelessWidget {
                 router.go('/');
               },
               child: CustomButton(
-                height: 52,
-                width: 300,
                 child: Center(
                   child: Text(
                     "Go to home page",

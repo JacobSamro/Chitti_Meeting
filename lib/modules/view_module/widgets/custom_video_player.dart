@@ -2,7 +2,6 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:livekit_client/livekit_client.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:video_player/video_player.dart';
@@ -76,7 +75,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
         controller.addListener(() async {
           if (controller.value.position == controller.value.duration) {
             await controller.pause();
-            await locator<Room>().disconnect();
+            // await locator<Room>().disconnect();
           }
         });
         if (mounted) {
@@ -103,6 +102,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
                       child: AspectRatio(
                         aspectRatio: 16 / 9,
                         child: Video(
+                          fit: BoxFit.cover,
                           controller: controller!,
                         ),
                       ),

@@ -19,12 +19,13 @@ class CustomInputField extends StatelessWidget {
     final responsiveDevice = Responsive().getDeviceType(context);
     return SizedBox(
       width: responsiveDevice != ResponsiveDevice.mobile ? 480 : 300,
-      height: responsiveDevice != ResponsiveDevice.mobile ? 68 : 52,
+      height: responsiveDevice != ResponsiveDevice.mobile ? 48 : 52,
       child: TextField(
           controller: controller,
           obscureText: obscureText,
           textAlign: TextAlign.center,
-          style: textTheme.labelSmall?.copyWith(color: Colors.white),
+          style: textTheme.labelSmall
+              ?.copyWith(color: Colors.white, fontWeight: FontWeight.normal),
           decoration: InputDecoration(
             hintText: label,
             hintStyle: textTheme.labelSmall

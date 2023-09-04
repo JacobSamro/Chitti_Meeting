@@ -37,7 +37,6 @@ class MeetingDialogue extends ConsumerWidget {
                 },
                 child: CustomButton(
                   width: 178,
-                  height: 52,
                   child: Center(
                     child: Text(
                       ref.read(meetingStateProvider).runtimeType ==
