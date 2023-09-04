@@ -46,7 +46,7 @@ dependencies:
   video_player: ^2.6.1
   chewie: ^1.7.0
   # mobile
-  camera: ^0.10.5
+  camera: ^0.10.5+4
   intl: ^0.18.1
 
   # deeplink
@@ -61,7 +61,7 @@ dependencies:
 
   # windows
   bitsdojo_window: ^0.1.5
-  camera_windows: ^0.2.1+7
+  camera_windows: ^0.2.1+8
   media_kit: ^1.1.1
   media_kit_video: ^1.1.1
   media_kit_native_event_loop: ^1.0.6
