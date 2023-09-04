@@ -1,20 +1,27 @@
 import 'package:chitti_meeting/common/constants/constants.dart';
+import 'package:chitti_meeting/modules/chat_module/models/chat_model.dart';
 import 'package:chitti_meeting/modules/chat_module/models/message_model.dart';
 import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChatNotifier extends StateNotifier<List<MessageModel>> {
-  ChatNotifier(this.ref) : super([]);
+class ChatNotifier extends StateNotifier<ChatModel> {
+  ChatNotifier(this.ref)
+      : super(ChatModel(messages: [], showPaymentCard: false));
   final Ref ref;
   bool canListenMessge = false;
+  bool _showPaymentCard = false;
   void addLocalMessage(String message) {
-    state = [...state, MessageModel(MessageBy.local, message)];
+    state = ChatModel(
+        messages: [...state.messages, MessageModel(MessageBy.local, message)],
+        showPaymentCard: _showPaymentCard);
   }
 
   void addHostMessage(String message) {
-    state = [...state, MessageModel(MessageBy.host, message)];
+    state = ChatModel(
+        messages: [...state.messages, MessageModel(MessageBy.host, message)],
+        showPaymentCard: _showPaymentCard);
   }
 
   void canListen(bool value) {
@@ -34,6 +41,9 @@ class ChatNotifier extends StateNotifier<List<MessageModel>> {
       }
       if (response?.data != null) {
         for (var template in response?.data) {
+          template['chatTemplate']['type'] == 'payment_message'
+              ? _showPaymentCard = true
+              : null;
           addHostMessage(template['chatTemplate']['message']);
           ref.read(unReadMessageProvider.notifier).addMessageCount();
         }
@@ -44,14 +54,13 @@ class ChatNotifier extends StateNotifier<List<MessageModel>> {
   }
 
   void reset() {
-    state = [];
+    state = ChatModel(messages: [], showPaymentCard: false);
     canListenMessge = false;
   }
 }
 
-final StateNotifierProvider<ChatNotifier, List<MessageModel>> chatProvider =
-    StateNotifierProvider<ChatNotifier, List<MessageModel>>(
-        (ref) => ChatNotifier(ref));
+final StateNotifierProvider<ChatNotifier, ChatModel> chatProvider =
+    StateNotifierProvider<ChatNotifier, ChatModel>((ref) => ChatNotifier(ref));
 
 class UnReadMessageNotifier extends StateNotifier<int> {
   UnReadMessageNotifier(super.state);

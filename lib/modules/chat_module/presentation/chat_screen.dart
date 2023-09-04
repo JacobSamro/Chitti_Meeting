@@ -1,3 +1,4 @@
+import 'package:chitti_meeting/common/widgets/payment_card.dart';
 import 'package:chitti_meeting/modules/chat_module/models/message_model.dart';
 import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
 import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
@@ -6,10 +7,10 @@ import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
-
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
@@ -106,6 +107,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(children: [
+            chat.showPaymentCard ? const PaymentCard() : const SizedBox(),
             Expanded(
                 child: ScrollConfiguration(
               behavior: const ScrollBehavior().copyWith(
@@ -113,10 +115,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   overscroll: false,
                   physics: const BouncingScrollPhysics()),
               child: ListView.builder(
-                  itemCount: chat.length,
+                  itemCount: chat.messages.length,
                   controller: scrollController,
                   itemBuilder: (context, index) {
-                    final MessageModel message = chat[index];
+                    final MessageModel message = chat.messages[index];
                     return Padding(
                       padding: const EdgeInsets.all(7.0),
                       child: Row(
@@ -164,7 +166,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                         width: 20,
                                       ),
                                       Text(
-                                        message.time,
+                                        DateFormat('h:mm a', Intl.defaultLocale)
+                                            .format(
+                                                DateTime.parse(message.time)),
                                         style: textTheme.displaySmall?.copyWith(
                                             fontSize: 10,
                                             color: message.by != MessageBy.host
@@ -208,7 +212,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: RawKeyboardListener(
                       focusNode: FocusNode(),
                       onKey: (RawKeyEvent event) {
-                        if (event.data.logicalKey == LogicalKeyboardKey.enter) {
+                        debugPrint(event.toString());
+                        if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
                           if (_controller.text.isNotEmpty) {
                             ref
                                 .read(chatProvider.notifier)
