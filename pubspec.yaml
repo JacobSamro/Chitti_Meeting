@@ -42,7 +42,7 @@ dependencies:
   flutter_gif: ^0.0.4
   livekit_client: ^1.4.3
   flutter_riverpod: ^2.3.6
-  url_launcher: ^6.1.12
+  webview_universal: ^0.0.5
   video_player: ^2.6.1
   chewie: ^1.7.0
   # mobile
