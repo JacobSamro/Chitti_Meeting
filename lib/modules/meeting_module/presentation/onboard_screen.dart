@@ -45,10 +45,13 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
     }
     nameController.addListener(() {
       if (nameController.text.split('.').last == 'host') {
-        setState(() {
-          buttonText = 'Confirm Passcode';
-        });
+        if (passcode.text.isEmpty) {
+          setState(() {
+            buttonText = 'Confirm Passcode';
+          });
+        }
       } else {
+        passcode.clear();
         setState(() {
           buttonText = 'Join Meeting';
         });
@@ -244,7 +247,9 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                             barrierDismissible: false,
                             barrierColor: Colors.black,
                             builder: (dialogContext) => AlertDialog(
-                              backgroundColor: Colors.transparent,
+                              backgroundColor: Colors.black,
+                              contentPadding: const EdgeInsets.all(0),
+                              insetPadding: const EdgeInsets.all(0),
                               content: CustomCard(
                                   iconPath: "assets/icons/passcode.png",
                                   content: Column(
@@ -277,11 +282,6 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                         Navigator.pop(context);
                                       },
                                       child: CustomButton(
-                                        height: 52,
-                                        width: responsiveDevice !=
-                                                ResponsiveDevice.mobile
-                                            ? 480
-                                            : 300,
                                         child: Center(
                                           child: Text(
                                             "Continue",
@@ -299,12 +299,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                         passcode.clear();
                                       },
                                       child: CustomButton(
-                                        height: 52,
                                         color: Colors.white.withOpacity(0.2),
-                                        width: responsiveDevice !=
-                                                ResponsiveDevice.mobile
-                                            ? 480
-                                            : 300,
                                         child: Center(
                                           child: Text("Cancel",
                                               style: textTheme.titleSmall),

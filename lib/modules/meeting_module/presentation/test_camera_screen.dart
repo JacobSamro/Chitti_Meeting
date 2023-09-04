@@ -44,9 +44,11 @@ class _TestCameraState extends ConsumerState<TestCamera> {
     }
     nameController.addListener(() {
       if (nameController.text.split('.').last == 'host') {
-        setState(() {
-          buttonText = 'Confirm Passcode';
-        });
+        if (passcode.text.isEmpty) {
+          setState(() {
+            buttonText = 'Confirm Passcode';
+          });
+        }
       } else {
         setState(() {
           buttonText = 'Join Meeting';
@@ -233,6 +235,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                     ),
                     GestureDetector(
                       onTap: () async {
+                        Navigator.pop(context);
                         if (nameController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text("Enter User Name")));
@@ -276,10 +279,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                                       },
                                       child: CustomButton(
                                         height: 52,
-                                        width: responsiveDevice !=
-                                                ResponsiveDevice.mobile
-                                            ? 480
-                                            : 300,
                                         child: Center(
                                           child: Text(
                                             "Continue",
@@ -299,10 +298,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                                       child: CustomButton(
                                         height: 52,
                                         color: Colors.white.withOpacity(0.2),
-                                        width: responsiveDevice !=
-                                                ResponsiveDevice.mobile
-                                            ? 480
-                                            : 300,
                                         child: Center(
                                           child: Text("Cancel",
                                               style: textTheme.titleSmall),
@@ -344,13 +339,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                       },
                       child: !isLoading
                           ? CustomButton(
-                              height:
-                                  responsiveDevice != ResponsiveDevice.mobile
-                                      ? 68
-                                      : 52,
-                              width: responsiveDevice != ResponsiveDevice.mobile
-                                  ? 480
-                                  : 300,
                               child: Center(
                                   child: Text(
                                 buttonText,
