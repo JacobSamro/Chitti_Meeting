@@ -235,7 +235,6 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                        Navigator.pop(context);
                         if (nameController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text("Enter User Name")));
@@ -313,6 +312,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                         ref
                             .read(participantProvider.notifier)
                             .setParticipantName(nameController.text);
+                        FocusScope.of(context).unfocus();
                         setState(() {
                           isLoading = true;
                         });
