@@ -1,3 +1,4 @@
+import 'package:chitti_meeting/modules/chat_module/presentation/payment_screen.dart';
 import 'package:flutter/material.dart';
 
 class PaymentCard extends StatelessWidget {
@@ -35,108 +36,97 @@ class PaymentCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'SEATS ARE LIMITED',
+                child: const Center(
+                  child: Text(
+                    'SEATS ARE LIMITED',
+                    style: TextStyle(
+                      color: Color(0xFFDF2E38),
+                      fontSize: 12,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      height: 1.33,
+                      letterSpacing: 0.12,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 14,
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    '4 Days workshop',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      height: 1.56,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Best STEM Educational workshop in India with ₹6,000 gift. Fun and Engaging sessions.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFFDF2E38),
+                        color: Colors.black.withOpacity(0.8),
                         fontSize: 12,
                         fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         height: 1.33,
-                        letterSpacing: 0.12,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
-              Container(
-                width: double.infinity,
-                height: 108,
-                padding: const EdgeInsets.only(
-                  top: 14,
-                  left: 16,
-                  right: 16,
-                  bottom: 24,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '4 Days workshop',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        height: 1.56,
+              GestureDetector(
+                onTap: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PaymentScreeen(
+                                url:
+                                    'https://chitti.app/workshop/aeromodelling-workshop/',
+                              )));
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 56,
+                  padding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: ShapeDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment(1.00, -0.03),
+                        end: Alignment(-1, 0.03),
+                        colors: [Colors.black, Color(0xFF2D2D2D)],
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
+                    child: const Center(
                       child: Text(
-                        'Best STEM Educational workshop in India with ₹6,000 gift. Fun and Engaging sessions.',
-                        textAlign: TextAlign.center,
+                        'Enroll now',
                         style: TextStyle(
-                          color: Colors.black.withOpacity(0.800000011920929),
-                          fontSize: 12,
+                          color: Colors.white,
+                          fontSize: 14,
                           fontFamily: 'Inter',
-                          fontWeight: FontWeight.w400,
-                          height: 1.33,
+                          fontWeight: FontWeight.w700,
+                          height: 1.43,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 56,
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10),
-                      decoration: ShapeDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment(1.00, -0.03),
-                          end: Alignment(-1, 0.03),
-                          colors: [Colors.black, Color(0xFF2D2D2D)],
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Enroll now',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              height: 1.43,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
