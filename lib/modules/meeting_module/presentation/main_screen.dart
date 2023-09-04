@@ -44,9 +44,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void dispose() {
     super.dispose();
     ref.invalidate(participantProvider);
-    room.dispose();
     ref.invalidate(chatProvider);
-    locator.unregister<Room>();
   }
 
   @override

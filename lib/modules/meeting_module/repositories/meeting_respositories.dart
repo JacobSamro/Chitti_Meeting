@@ -1,14 +1,15 @@
 import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
+import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/constants/constants.dart';
 import '../states/meeting_states.dart';
 
 class MeetingRepositories {
-  const MeetingRepositories({required this.room, required this.dio});
+  const MeetingRepositories({required this.dio});
   final Dio dio;
-  final Room room;
 
   Future<String> getDateTime() async {
     final Response<dynamic> response = await dio.get(ApiConstants.dateTimeUrl);
@@ -29,6 +30,7 @@ class MeetingRepositories {
   }
 
   Future<bool> connectMeeting(bool isVideo, WidgetRef ref, String token) async {
+    final Room room = locator<Room>();
     try {
       await room.connect(ApiConstants.livekitUrl, token,
           roomOptions: const RoomOptions(
@@ -50,6 +52,7 @@ class MeetingRepositories {
           .changeState(MeetingRoomJoinCompleted());
       return true;
     } catch (error) {
+      debugPrint(error.toString());
       return false;
       // throw Exception(error);
     }

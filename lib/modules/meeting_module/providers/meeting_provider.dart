@@ -62,6 +62,9 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       ref!.invalidate(chatProvider);
       ref!.invalidate(unReadMessageProvider);
       ref!.read(meetingStateProvider.notifier).removeListener();
+      await locator<Room>().dispose();
+      locator.unregister<Room>();
+      locator.registerLazySingleton(() => Room());
       state = MeetingRoomDisconnected();
     });
 
