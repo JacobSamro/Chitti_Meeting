@@ -42,12 +42,13 @@ dependencies:
   flutter_gif: ^0.0.4
   livekit_client: ^1.4.3
   flutter_riverpod: ^2.3.6
-  webview_universal: ^0.0.5
   video_player: ^2.6.1
   chewie: ^1.7.0
+
   # mobile
   camera: ^0.10.5+4
   intl: ^0.18.1
+  webviewx: ^0.2.2
 
   # deeplink
   go_router: ^7.1.1
@@ -66,6 +67,8 @@ dependencies:
   media_kit_video: ^1.1.1
   media_kit_native_event_loop: ^1.0.6
   media_kit_libs_windows_video: ^1.0.5
+  window_manager: ^0.3.6
+  webview_windows: ^0.3.0
 
 dependency_overrides:
   http: ^1.0.0
