@@ -15,19 +15,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:window_manager/window_manager.dart';
 import 'common/constants/constants.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-void main() {
+void main() async {
   setup();
   WidgetsFlutterBinding.ensureInitialized();
+
   if (kIsWeb) {
     usePathUrlStrategy();
     final String url = Uri.base.path;
     router.go(url);
   }
   if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+    await windowManager.ensureInitialized();
     MediaKit.ensureInitialized();
     Utils.setWindowSize();
   }

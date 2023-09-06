@@ -10,7 +10,7 @@ class PaymentCard extends StatelessWidget {
       children: [
         Container(
           width: 328,
-          height: 188,
+          height: 190,
           clipBehavior: Clip.antiAlias,
           decoration: ShapeDecoration(
             color: Colors.white,
