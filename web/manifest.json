@@ -1,6 +1,6 @@
 {
-    "name": "chitti_meeting",
-    "short_name": "chitti_meeting",
+    "name": "Chitti Meet",
+    "short_name": "Chitti Meet",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
