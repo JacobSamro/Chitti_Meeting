@@ -1,7 +1,3 @@
-import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/models/host_model.dart';
-import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
-import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +7,11 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:video_player/video_player.dart';
 import '../../../services/locator.dart';
 import '../../../utils/utils.dart';
+import '../../chat_module/providers/chat_provider.dart';
 import '../../view_module/providers/view_provider.dart';
+import '../models/host_model.dart';
+import '../models/workshop_model.dart';
+import '../repositories/meeting_respositories.dart';
 import '../states/meeting_states.dart';
 
 class MeetingStateNotifier extends StateNotifier<MeetingStates> {

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:chitti_meeting/services/locator.dart';
 import 'package:flutter/material.dart';
 import '../modules/meeting_module/widgets/navigationbar.dart';
+import '../services/locator.dart';
 import '../services/responsive.dart';
 
 extension Utils on BuildContext {

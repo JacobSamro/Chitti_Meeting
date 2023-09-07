@@ -1,5 +1,6 @@
-import 'package:chitti_meeting/modules/chat_module/presentation/payment_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../../modules/chat_module/presentation/payment_screen.dart';
 
 class PaymentCard extends StatelessWidget {
   const PaymentCard({super.key});

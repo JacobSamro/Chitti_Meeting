@@ -1,15 +1,15 @@
 import 'package:camera/camera.dart';
-import 'package:chitti_meeting/common/widgets/custom_card.dart';
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/utils/utils.dart';
+import '../../../utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/widgets/custom_button.dart';
+import '../../../common/widgets/custom_card.dart';
 import '../../../common/widgets/custom_inputfield.dart';
 import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
 import '../../view_module/providers/camera_provider.dart';
+import '../providers/meeting_provider.dart';
 import '../repositories/meeting_respositories.dart';
 import '../states/meeting_states.dart';
 
@@ -61,6 +61,10 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
       if (passcode.text.isNotEmpty) {
         setState(() {
           buttonText = 'Join Meeting';
+        });
+      } else {
+        setState(() {
+          buttonText = 'Confirm Passcode';
         });
       }
     });

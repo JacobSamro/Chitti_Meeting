@@ -1,7 +1,8 @@
 import 'package:camera/camera.dart';
-import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../providers/camera_provider.dart';
 
 class LocalUser extends ConsumerStatefulWidget {
   const LocalUser({super.key});

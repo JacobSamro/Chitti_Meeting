@@ -1,8 +1,7 @@
-import 'package:chitti_meeting/routes.dart';
-import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
-
 import '../../../common/widgets/custom_button.dart';
+import '../../../routes.dart';
+import '../../../services/responsive.dart';
 
 class ErrorScreen extends StatelessWidget {
   const ErrorScreen({super.key});

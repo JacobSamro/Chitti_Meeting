@@ -1,10 +1,10 @@
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/constants/constants.dart';
+import '../../../services/locator.dart';
+import '../providers/meeting_provider.dart';
 import '../states/meeting_states.dart';
 
 class MeetingRepositories {

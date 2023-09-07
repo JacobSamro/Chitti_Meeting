@@ -1,6 +1,3 @@
-import 'package:chitti_meeting/common/widgets/custom_timer.dart';
-import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
-import 'package:chitti_meeting/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +6,8 @@ import 'package:livekit_client/livekit_client.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../common/widgets/custom_button.dart';
 import '../../../common/widgets/custom_card.dart';
+import '../../../utils/utils.dart';
+import '../../../common/widgets/custom_timer.dart';
 import '../../../common/widgets/switch_view_item.dart';
 import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
@@ -16,6 +15,7 @@ import '../../chat_module/presentation/chat_screen.dart';
 import '../../chat_module/providers/chat_provider.dart';
 import '../../view_module/models/view_state.dart';
 import '../../view_module/providers/view_provider.dart';
+import '../models/workshop_model.dart';
 import '../presentation/participants_screen.dart';
 import '../providers/meeting_provider.dart';
 import '../states/meeting_states.dart';
@@ -135,7 +135,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           case "Mic Off":
             workshop.isHost!
                 ? await room.localParticipant?.setMicrophoneEnabled(true)
-              
+
                 // ignore: use_build_context_synchronously
                 : context.showCustomSnackBar(
                     content: "Mic was disabled by Host",
@@ -375,7 +375,16 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                         actions: [
                           GestureDetector(
                             onTap: () async {
+                              if (type == ViewType.fullScreen) {
+                                ref
+                                    .read(viewProvider.notifier)
+                                    .changeViewType(ViewType.standard);
+                                SystemChrome.setPreferredOrientations([
+                                  DeviceOrientation.portraitUp,
+                                ]);
+                              }
                               Navigator.pop(context);
+
                               await room.disconnect();
                             },
                             child: CustomButton(

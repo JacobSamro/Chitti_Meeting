@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
-import 'package:chitti_meeting/services/locator.dart';
-import 'package:chitti_meeting/services/responsive.dart';
+import '../../modules/meeting_module/providers/meeting_provider.dart';
+import '../../modules/meeting_module/repositories/meeting_respositories.dart';
+import '../../services/locator.dart';
+import '../../services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,11 +30,10 @@ class _CustomTimerState extends ConsumerState<CustomTimer> {
         DateTime.parse(meetingTime!).subtract(const Duration(minutes: 10)));
     duration = Duration(seconds: difference.inSeconds);
     timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-      if (mounted) {
-        setState(() {
-          duration += const Duration(milliseconds: 30);
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        duration += const Duration(milliseconds: 30);
+      });
     });
   }
 

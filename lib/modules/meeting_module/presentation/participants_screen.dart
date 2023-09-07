@@ -1,10 +1,9 @@
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../services/responsive.dart';
 import '../../view_module/providers/view_provider.dart';
+import '../providers/meeting_provider.dart';
 import '../states/meeting_states.dart';
 
 class ParticipantsScreen extends ConsumerWidget {

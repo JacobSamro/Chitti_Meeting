@@ -1,10 +1,11 @@
-import 'package:chitti_meeting/common/constants/constants.dart';
-import 'package:chitti_meeting/modules/chat_module/models/chat_model.dart';
-import 'package:chitti_meeting/modules/chat_module/models/message_model.dart';
-import 'package:chitti_meeting/services/locator.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../common/constants/api_constants.dart';
+import '../../../services/locator.dart';
+import '../models/chat_model.dart';
+import '../models/message_model.dart';
 
 class ChatNotifier extends StateNotifier<ChatModel> {
   ChatNotifier(this.ref)

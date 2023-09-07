@@ -1,19 +1,19 @@
-import 'package:chitti_meeting/modules/chat_module/providers/chat_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
-import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
-import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
-import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
-import 'package:chitti_meeting/modules/view_module/widgets/participant_widget.dart';
-import 'package:chitti_meeting/services/locator.dart';
-import 'package:chitti_meeting/utils/utils.dart';
+import '../../../utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/widgets/custom_timer.dart';
+import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
+import '../../chat_module/providers/chat_provider.dart';
 import '../../view_module/models/view_state.dart';
 import '../../view_module/presentation/view_screen.dart';
+import '../../view_module/providers/view_provider.dart';
+import '../../view_module/widgets/participant_widget.dart';
+import '../models/workshop_model.dart';
 import '../providers/meeting_provider.dart';
+import '../repositories/meeting_respositories.dart';
+import '../states/meeting_states.dart';
 import '../widgets/navigationbar.dart';
 
 class MainScreen extends ConsumerStatefulWidget {

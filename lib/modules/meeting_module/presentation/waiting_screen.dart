@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'package:chitti_meeting/modules/meeting_module/models/workshop_model.dart';
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
-import 'package:chitti_meeting/services/locator.dart';
-import 'package:chitti_meeting/services/responsive.dart';
-import 'package:chitti_meeting/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../services/responsive.dart';
+import '../../../utils/utils.dart';
+import '../../../services/locator.dart';
+import '../models/workshop_model.dart';
+import '../providers/meeting_provider.dart';
+import '../repositories/meeting_respositories.dart';
 import '../states/meeting_states.dart';
 
 class WaitingScreen extends ConsumerStatefulWidget {

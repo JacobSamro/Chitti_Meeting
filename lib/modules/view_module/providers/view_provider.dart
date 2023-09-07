@@ -1,6 +1,6 @@
-import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../meeting_module/states/meeting_states.dart';
 import '../models/view_state.dart';
 
 class ViewNotifier extends StateNotifier<ViewState> {
