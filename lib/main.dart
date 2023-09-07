@@ -1,15 +1,5 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/main_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/meeting_dialogues.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/onboard_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/test_camera_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/waiting_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/modules/view_module/providers/camera_provider.dart';
-import 'package:chitti_meeting/modules/view_module/providers/view_provider.dart';
-import 'package:chitti_meeting/routes.dart';
-import 'package:chitti_meeting/services/locator.dart';
-import 'package:chitti_meeting/utils/utils.dart';
+import 'package:chitti_meet/common/widgets/custom_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,8 +7,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 import 'common/constants/constants.dart';
+import 'common/widgets/custom_button.dart';
+import 'modules/meeting_module/presentation/main_screen.dart';
+import 'modules/meeting_module/presentation/meeting_dialogues.dart';
+import 'modules/meeting_module/presentation/onboard_screen.dart';
+import 'modules/meeting_module/presentation/test_camera_screen.dart';
+import 'modules/meeting_module/presentation/waiting_screen.dart';
+import 'modules/meeting_module/providers/meeting_provider.dart';
 import 'modules/meeting_module/states/meeting_states.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'modules/view_module/providers/camera_provider.dart';
+import 'modules/view_module/providers/view_provider.dart';
+import 'routes.dart';
+import 'services/locator.dart';
+import '../../../utils/utils.dart';
 
 void main() async {
   setup();
@@ -100,6 +102,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
     final pageIndex = ref.watch(meetingPageProvider);
     final ViewType viewType = ref.watch(viewProvider).viewType;
     createPages();
@@ -129,37 +132,90 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           break;
       }
     });
-    return Scaffold(
-        key: scaffoldKey,
-        appBar: !kIsWeb &&
-                defaultTargetPlatform == TargetPlatform.windows &&
-                viewType != ViewType.fullScreen
-            ? AppBar(
-                iconTheme: const IconThemeData(size: 18, color: Colors.white),
-                title: SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child: MoveWindow(
-                      child: const Text(
-                        "Chitti Meet",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.normal),
+    return WillPopScope(
+      onWillPop: () async {
+        return await showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: Colors.black,
+                contentPadding: const EdgeInsets.all(0),
+                insetPadding: const EdgeInsets.all(0),
+                content: CustomCard(
+                  content: Text(
+                    "Are you sure to Exit?",
+                    textAlign: TextAlign.center,
+                    style: textTheme.titleMedium,
+                  ),
+                  iconPath: 'assets/icons/cross_mark.png',
+                  actions: [
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(true),
+                      child: CustomButton(
+                        width: 85,
+                        height: 45,
+                        child: Center(
+                          child: Text(
+                            "Exit",
+                            style: textTheme.labelMedium
+                                ?.copyWith(color: Colors.black),
+                          ),
+                        ),
                       ),
-                    )),
-                actions: [
-                  MinimizeWindowButton(
-                    colors: WindowButtonColors(iconNormal: Colors.grey),
-                  ),
-                  MaximizeWindowButton(
-                    colors: WindowButtonColors(iconNormal: Colors.grey),
-                  ),
-                  CloseWindowButton(
-                    colors: WindowButtonColors(
-                        iconNormal: Colors.grey, mouseOver: Colors.red),
-                  )
-                ],
-              )
-            : null,
-        body: pages[pageIndex]);
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context, false),
+                      child: CustomButton(
+                        width: 85,
+                        height: 45,
+                        color: Colors.white.withOpacity(0.1),
+                        child: Center(
+                          child: Text(
+                            "Cancel",
+                            style: textTheme.labelMedium
+                                ?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            });
+      },
+      child: Scaffold(
+          key: scaffoldKey,
+          appBar: !kIsWeb &&
+                  defaultTargetPlatform == TargetPlatform.windows &&
+                  viewType != ViewType.fullScreen
+              ? AppBar(
+                  iconTheme: const IconThemeData(size: 18, color: Colors.white),
+                  title: SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: MoveWindow(
+                        child: const Text(
+                          "Chitti Meet",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      )),
+                  actions: [
+                    MinimizeWindowButton(
+                      colors: WindowButtonColors(iconNormal: Colors.grey),
+                    ),
+                    MaximizeWindowButton(
+                      colors: WindowButtonColors(iconNormal: Colors.grey),
+                    ),
+                    CloseWindowButton(
+                      colors: WindowButtonColors(
+                          iconNormal: Colors.grey, mouseOver: Colors.red),
+                    )
+                  ],
+                )
+              : null,
+          body: pages[pageIndex]),
+    );
   }
 }
