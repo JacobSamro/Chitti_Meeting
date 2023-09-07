@@ -1,17 +1,16 @@
-import 'package:chitti_meeting/modules/chat_module/presentation/chat_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/presentation/participants_screen.dart';
-import 'package:chitti_meeting/modules/meeting_module/providers/meeting_provider.dart';
-import 'package:chitti_meeting/modules/meeting_module/repositories/meeting_respositories.dart';
-import 'package:chitti_meeting/modules/meeting_module/states/meeting_states.dart';
-import 'package:chitti_meeting/modules/view_module/models/view_state.dart';
-import 'package:chitti_meeting/modules/view_module/widgets/custom_video_player.dart';
-import 'package:chitti_meeting/modules/view_module/widgets/participant_widget.dart';
-import 'package:chitti_meeting/services/locator.dart';
-import 'package:chitti_meeting/services/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
+import '../../../services/locator.dart';
+import '../../../services/responsive.dart';
+import '../../chat_module/presentation/chat_screen.dart';
+import '../../meeting_module/presentation/participants_screen.dart';
+import '../../meeting_module/providers/meeting_provider.dart';
+import '../../meeting_module/repositories/meeting_respositories.dart';
+import '../../meeting_module/states/meeting_states.dart';
+import '../models/view_state.dart';
 import '../providers/view_provider.dart';
+import '../widgets/participant_widget.dart';
 // import '../widgets/page_number.dart';
 
 class ViewScreen extends ConsumerStatefulWidget {
@@ -47,7 +46,6 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
   Widget build(BuildContext context) {
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
-    final src = ref.read(workshopDetailsProvider).sourceUrl;
     ref.watch(participantProvider);
     final ViewState viewState = ref.watch(viewProvider);
     final ViewType viewType = viewState.viewType;
@@ -63,7 +61,7 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
                 child: SizedBox(
                   // height: 300,
                   width: MediaQuery.of(context).size.width,
-                  child: CustomVideoPlayer(src: src!),
+                  child: ParticipantWidget(participant: participants[0]),
                 ),
               )
             : responsiveDevice != ResponsiveDevice.desktop ||
