@@ -43,7 +43,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void dispose() {
     super.dispose();
     ref.invalidate(participantProvider);
-    ref.invalidate(chatProvider);
   }
 
   @override

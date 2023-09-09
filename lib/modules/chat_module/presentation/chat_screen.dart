@@ -116,9 +116,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(children: [
-              // chat.showPaymentCard ?
-              const PaymentCard(),
-              // : const SizedBox(),
+              chat.showPaymentCard
+                  ? PaymentCard(
+                      paymentDetails:
+                          ref.read(chatProvider.notifier).paymentDetails,
+                    )
+                  : const SizedBox(),
               Expanded(
                   child: ScrollConfiguration(
                 behavior: const ScrollBehavior().copyWith(

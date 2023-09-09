@@ -1,3 +1,4 @@
+import 'package:chitti_meet/modules/chat_module/models/payment_model.dart';
 import 'package:chitti_meet/modules/view_module/providers/view_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,8 @@ class ChatNotifier extends StateNotifier<ChatModel> {
       : super(ChatModel(messages: [], showPaymentCard: false));
   final Ref ref;
   bool _showPaymentCard = false;
+  PaymentModel paymentModel = PaymentModel();
+  PaymentModel get paymentDetails => paymentModel;
   sockect.Socket? client;
   void addLocalMessage(String message) {
     state = ChatModel(
@@ -25,23 +28,33 @@ class ChatNotifier extends StateNotifier<ChatModel> {
   }
 
   void listenMessage(String id) async {
-    client = sockect.io(ApiConstants.messageScoketUrl);
-    client!.onConnect((_) {
-      debugPrint('connect');
-    });
-    client!.on('message', (msg) {
-      addHostMessage(msg['text']);
-      ref.read(viewProvider).chat
-          ? null
-          : ref.read(unReadMessageProvider.notifier).addMessageCount();
-    });
-    client!.onDisconnect((_) => debugPrint('disconnect'));
-    client!.on('paymentMessage', (msg) {
-      _showPaymentCard = true;
-      ref.read(viewProvider).chat
-          ? null
-          : ref.read(unReadMessageProvider.notifier).addMessageCount();
-    });
+    if (client != null) {
+      client!.connect();
+    } else {
+      client = sockect.io(ApiConstants.messageScoketUrl,
+          sockect.OptionBuilder().setTransports(['websocket']).build());
+    }
+    try {
+      client!.onConnect((_) {
+        debugPrint('connect');
+      });
+      client!.on('message', (msg) {
+        addHostMessage(msg['text']);
+        ref.read(viewProvider).chat
+            ? null
+            : ref.read(unReadMessageProvider.notifier).addMessageCount();
+      });
+      client!.onDisconnect((_) => debugPrint('disconnect'));
+      client!.on('paymentMessage', (msg) {
+        paymentModel = PaymentModel.fromJson(msg);
+        _showPaymentCard = true;
+        ref.read(viewProvider).chat
+            ? null
+            : ref.read(unReadMessageProvider.notifier).addMessageCount();
+      });
+    } catch (e) {
+      debugPrint("ERROR in socket connection $e");
+    }
   }
 
   void reset() {

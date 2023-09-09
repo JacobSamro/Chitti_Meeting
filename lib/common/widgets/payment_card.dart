@@ -1,10 +1,11 @@
+import 'package:chitti_meet/modules/chat_module/models/payment_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../modules/chat_module/presentation/payment_screen.dart';
 
 class PaymentCard extends StatelessWidget {
-  const PaymentCard({super.key});
-
+  const PaymentCard({super.key, required this.paymentDetails});
+  final PaymentModel paymentDetails;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,10 +38,10 @@ class PaymentCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'SEATS ARE LIMITED',
-                    style: TextStyle(
+                    '${paymentDetails.topLabel}',
+                    style: const TextStyle(
                       color: Color(0xFFDF2E38),
                       fontSize: 12,
                       fontFamily: 'Inter',
@@ -59,9 +60,9 @@ class PaymentCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    '4 Days workshop',
-                    style: TextStyle(
+                  Text(
+                    "${paymentDetails.title}",
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 18,
                       fontFamily: 'Inter',
@@ -73,7 +74,7 @@ class PaymentCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'Best STEM Educational workshop in India with ₹6,000 gift. Fun and Engaging sessions.',
+                      '${paymentDetails.description}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black.withOpacity(0.8),
@@ -92,9 +93,8 @@ class PaymentCard extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const PaymentScreeen(
-                                url:
-                                    'https://chitti.app/workshop/aeromodelling-workshop/',
+                          builder: (context) => PaymentScreeen(
+                                url: '${paymentDetails.link}',
                               )));
                 },
                 child: Container(
@@ -115,10 +115,10 @@ class PaymentCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'Enroll now',
-                        style: TextStyle(
+                        paymentDetails.buttonText.toString(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontFamily: 'Inter',

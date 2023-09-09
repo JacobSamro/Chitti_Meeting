@@ -59,7 +59,8 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       }
       ref!.invalidate(workshopDetailsProvider);
       ref!.invalidate(viewProvider);
-      ref!.invalidate(chatProvider);
+      ref!.read(chatProvider.notifier).reset();
+      // ref!.refresh(chatProvider);
       ref!.invalidate(unReadMessageProvider);
       ref!.read(meetingStateProvider.notifier).removeListener();
       await locator<Room>().dispose();
@@ -75,6 +76,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
             content: 'Reconnecting to room',
             iconPath: 'assets/icons/people.png');
         ref!.read(chatProvider.notifier).reset();
+        ref!.invalidate(chatProvider);
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
           await locator<Player>().dispose();
           await locator.unregister<VideoController>();
