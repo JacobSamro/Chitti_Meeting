@@ -92,6 +92,9 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       state = MeetingRoomJoinCompleted();
       context.showCustomSnackBar(
           content: 'Reconnected to room', iconPath: 'assets/icons/people.png');
+      ref!
+          .read(chatProvider.notifier)
+          .listenMessage(ref!.read(workshopDetailsProvider.notifier).hashId);
       await ref!.read(participantProvider.notifier).addLocalParticipantTrack();
     });
 

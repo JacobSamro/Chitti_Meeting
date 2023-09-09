@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
+import 'package:chitti_meet/modules/view_module/providers/view_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:socket_io_client/socket_io_client.dart' as sockect;
 import '../../../common/constants/api_constants.dart';
-import '../../../services/locator.dart';
 import '../models/chat_model.dart';
 import '../models/message_model.dart';
 
@@ -11,8 +10,8 @@ class ChatNotifier extends StateNotifier<ChatModel> {
   ChatNotifier(this.ref)
       : super(ChatModel(messages: [], showPaymentCard: false));
   final Ref ref;
-  bool canListenMessge = false;
   bool _showPaymentCard = false;
+  sockect.Socket? client;
   void addLocalMessage(String message) {
     state = ChatModel(
         messages: [...state.messages, MessageModel(MessageBy.local, message)],
@@ -25,38 +24,29 @@ class ChatNotifier extends StateNotifier<ChatModel> {
         showPaymentCard: _showPaymentCard);
   }
 
-  void canListen(bool value) {
-    canListenMessge = value;
-  }
-
   void listenMessage(String id) async {
-    while (canListenMessge) {
-      Response? response;
-      try {
-        response =
-            await locator<Dio>().get('${ApiConstants.hostMessageUrl}$id');
-        await Future.delayed(const Duration(seconds: 1));
-      } catch (onError) {
-        debugPrint(onError.toString());
-        response = null;
-      }
-      if (response?.data != null) {
-        for (var template in response?.data) {
-          template['chatTemplate']['type'] == 'payment_message'
-              ? _showPaymentCard = true
-              : null;
-          addHostMessage(template['chatTemplate']['message']);
-          ref.read(unReadMessageProvider.notifier).addMessageCount();
-        }
-        response?.data = null;
-      }
-      await Future.delayed(const Duration(seconds: 1));
-    }
+    client = sockect.io(ApiConstants.messageScoketUrl);
+    client!.onConnect((_) {
+      debugPrint('connect');
+    });
+    client!.on('message', (msg) {
+      addHostMessage(msg['text']);
+      ref.read(viewProvider).chat
+          ? null
+          : ref.read(unReadMessageProvider.notifier).addMessageCount();
+    });
+    client!.onDisconnect((_) => debugPrint('disconnect'));
+    client!.on('paymentMessage', (msg) {
+      _showPaymentCard = true;
+      ref.read(viewProvider).chat
+          ? null
+          : ref.read(unReadMessageProvider.notifier).addMessageCount();
+    });
   }
 
   void reset() {
     state = ChatModel(messages: [], showPaymentCard: false);
-    canListenMessge = false;
+    client!.disconnect();
   }
 }
 

@@ -4,5 +4,6 @@ class ApiConstants {
   static const String dateTimeUrl = "$baseUrl/workshops/datetime";
   static const String workshopUrl = "$baseUrl/workshops/workshops";
   static const String livekitUrl = "wss://livekit-dev.lmes.app";
-  static const String hostMessageUrl = "$baseUrl/workshops/hostmessage?hashId=";
+  static const String messageScoketUrl =
+      "https://staging-chitti-cloud-socket-server.fly.dev";
 }

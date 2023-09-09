@@ -33,7 +33,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(participantProvider.notifier).addLocalParticipantTrack();
-      ref.read(chatProvider.notifier).canListen(true);
       ref
           .read(chatProvider.notifier)
           .listenMessage(ref.read(workshopDetailsProvider.notifier).hashId);
