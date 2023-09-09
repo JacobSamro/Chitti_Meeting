@@ -1,3 +1,4 @@
+import 'package:chitti_meet/modules/meeting_module/widgets/custom_dropdown.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,7 @@ import '../../../common/widgets/custom_button.dart';
 import '../../../common/widgets/custom_card.dart';
 import '../../../utils/utils.dart';
 import '../../../common/widgets/custom_timer.dart';
-import '../../../common/widgets/switch_view_item.dart';
+import '../../../common/widgets/dropdown_item.dart';
 import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
 import '../../chat_module/presentation/chat_screen.dart';
@@ -82,6 +83,35 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           iconPath: room.localParticipant!.isCameraEnabled()
               ? 'assets/icons/video.png'
               : "assets/icons/video_off.png",
+          suffixIcon: IconButton(
+              onPressed: () async {
+                final videoDevices = await Hardware.instance.videoInputs();
+                // ignore: use_build_context_synchronously
+                showModalBottomSheet(
+                    context: context,
+                    barrierColor: Colors.white.withOpacity(0),
+                    backgroundColor: Colors.white.withOpacity(0),
+                    constraints: BoxConstraints(
+                        maxWidth: width > 800 ? 300 : double.infinity),
+                    builder: (context) {
+                      return CustomDropDown(
+                        value: room.selectedVideoInputDeviceId!,
+                        items: videoDevices
+                            .map((e) => CustomDropDownItem(
+                                value: e.deviceId,
+                                label:
+                                    e.label.isEmpty ? "In build Cam" : e.label))
+                            .toList(),
+                        onChanged: (device) async {
+                          Navigator.pop(context);
+                          await room.setVideoInputDevice(
+                              videoDevices.firstWhere(
+                                  (element) => element.deviceId == device));
+                        },
+                      );
+                    });
+              },
+              icon: const Icon(Icons.arrow_drop_up_rounded)),
         ),
         CustomBottomNavigationItem(
           label: room.localParticipant!.isMicrophoneEnabled()
@@ -90,6 +120,35 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           iconPath: room.localParticipant!.isMicrophoneEnabled()
               ? "assets/icons/mic.png"
               : "assets/icons/mic_off.png",
+          suffixIcon: IconButton(
+              onPressed: () async {
+                final audioDevice = await Hardware.instance.audioInputs();
+                // ignore: use_build_context_synchronously
+                showModalBottomSheet(
+                    context: context,
+                    barrierColor: Colors.white.withOpacity(0),
+                    backgroundColor: Colors.white.withOpacity(0),
+                    constraints: BoxConstraints(
+                        maxWidth: width > 800 ? 300 : double.infinity),
+                    builder: (context) {
+                      return CustomDropDown(
+                        value: room.selectedAudioInputDeviceId!,
+                        items: audioDevice
+                            .map((e) => CustomDropDownItem(
+                                value: e.deviceId,
+                                label: e.label.isEmpty
+                                    ? "In build Microphone"
+                                    : e.label))
+                            .toList(),
+                        onChanged: (device) async {
+                          Navigator.pop(context);
+                          await room.setAudioInputDevice(audioDevice.firstWhere(
+                              (element) => element.deviceId == device));
+                        },
+                      );
+                    });
+              },
+              icon: const Icon(Icons.arrow_drop_up_rounded)),
         ),
         !kIsWeb &&
                 defaultTargetPlatform == TargetPlatform.windows &&
@@ -153,47 +212,27 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                 constraints: BoxConstraints(
                     maxWidth: width > 800 ? 300 : double.infinity),
                 builder: (context) {
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: width > 800 ? 70 : 0),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.black,
-                        border: Border.all(
-                            width: 1, color: Colors.white.withOpacity(0.1)),
+                  return CustomDropDown(
+                    value: ref.read(viewProvider).viewType.toString(),
+                    items: [
+                      CustomDropDownItem(
+                        label: "Standard View",
+                        value: 'standard',
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SwitchViewItem(
-                              label: "Standard View",
-                              onTap: () {
-                                ref
-                                    .read(viewProvider.notifier)
-                                    .changeViewType(ViewType.standard);
-                                Navigator.pop(context);
-                              }),
-                          SwitchViewItem(
-                              label: "Gallery View",
-                              onTap: () {
-                                ref
-                                    .read(viewProvider.notifier)
-                                    .changeViewType(ViewType.gallery);
-                                Navigator.pop(context);
-                              }),
-                          SwitchViewItem(
-                              label: "Speaker View",
-                              onTap: () {
-                                ref
-                                    .read(viewProvider.notifier)
-                                    .changeViewType(ViewType.speaker);
-                                Navigator.pop(context);
-                              })
-                        ],
+                      CustomDropDownItem(
+                        label: "Gallery View",
+                        value: 'gallery',
                       ),
-                    ),
+                      CustomDropDownItem(
+                        label: "Speaker View",
+                        value: 'speaker',
+                      )
+                    ],
+                    onChanged: (String value) {
+                      ref.read(viewProvider.notifier).changeViewType(
+                          ViewType.values.firstWhere(
+                              (element) => element.toString() == value));
+                    },
                   );
                 });
 

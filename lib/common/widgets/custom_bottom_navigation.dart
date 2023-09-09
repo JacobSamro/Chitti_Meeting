@@ -30,14 +30,31 @@ class CustomBottomNavigation extends StatelessWidget {
                     : const SizedBox(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: items
                       .map((e) => e == null
                           ? const SizedBox()
-                          : GestureDetector(
-                              onTap: () {
-                                onChanged(e.label);
-                              },
-                              child: e))
+                          : e.suffixIcon == null
+                              ? GestureDetector(
+                                  onTap: () {
+                                    onChanged(e.label);
+                                  },
+                                  child: e)
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                        onTap: () {
+                                          onChanged(e.label);
+                                        },
+                                        child: e),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 16.0, left: 5),
+                                      child: e.suffixIcon,
+                                    )
+                                  ],
+                                ))
                       .toList(),
                 ),
                 actions != null
@@ -65,11 +82,15 @@ class CustomBottomNavigation extends StatelessWidget {
               children: items
                   .map((e) => e == null
                       ? const SizedBox()
-                      : GestureDetector(
-                          onTap: () {
-                            onChanged(e.label);
-                          },
-                          child: e))
+                      : Row(
+                          children: [
+                            GestureDetector(
+                                onTap: () {
+                                  onChanged(e.label);
+                                },
+                                child: e),
+                          ],
+                        ))
                   .toList(),
             ),
     );
@@ -83,12 +104,14 @@ class CustomBottomNavigationItem extends StatelessWidget {
       required this.label,
       this.badge = false,
       this.visible = true,
-      this.badgeValue = 0});
+      this.badgeValue = 0,
+      this.suffixIcon});
   final String iconPath;
   final String label;
   final bool badge;
   final bool visible;
   final int badgeValue;
+  final Widget? suffixIcon;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -97,7 +120,8 @@ class CustomBottomNavigationItem extends StatelessWidget {
             cursor: SystemMouseCursors.click,
             child: Center(
               child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  padding: EdgeInsets.only(
+                      right: suffixIcon == null ? 15 : 0, left: 15),
                   height: 49,
                   child: !badge
                       ? Column(
