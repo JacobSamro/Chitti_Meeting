@@ -51,8 +51,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
                       },
                       child: Image.asset(
                         obscureText
-                            ? 'icons/hide_password.png'
-                            : 'icons/show_password.png',
+                            ? 'assets/icons/hide_password.png'
+                            : 'assets/icons/show_password.png',
                         width: 24,
                         height: 24,
                       )),
