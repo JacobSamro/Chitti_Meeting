@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "Chitti Meet" "\0"
+            VALUE "CompanyName", "app.chitti" "\0"
+            VALUE "FileDescription", "chitti_meeting" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "Chitti Meet" "\0"
+            VALUE "InternalName", "chitti_meeting" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "Chitti Meet.exe" "\0"
-            VALUE "ProductName", "Chitti Meet" "\0"
+            VALUE "OriginalFilename", "chitti_meeting.exe" "\0"
+            VALUE "ProductName", "chitti_meeting" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
