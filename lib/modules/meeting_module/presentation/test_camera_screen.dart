@@ -327,6 +327,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                                 isVideoOn,
                                 ref);
                         if (!value) {
+                          // ignore: use_build_context_synchronously
                           context.showCustomSnackBar(
                               content: "Participant unable to join",
                               iconPath: 'assets/icons/info.png');

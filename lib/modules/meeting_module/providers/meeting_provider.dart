@@ -76,7 +76,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
             content: 'Reconnecting to room',
             iconPath: 'assets/icons/people.png');
         ref!.read(chatProvider.notifier).reset();
-        ref!.invalidate(chatProvider);
+        // ref!.invalidate(chatProvider);
         if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
           await locator<Player>().dispose();
           await locator.unregister<VideoController>();

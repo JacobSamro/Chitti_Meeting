@@ -5,7 +5,6 @@ import 'package:livekit_client/livekit_client.dart';
 import '../../meeting_module/models/host_model.dart';
 import '../../meeting_module/providers/meeting_provider.dart';
 import 'custom_video_player.dart';
-import 'local_user.dart';
 
 class ParticipantWidget extends ConsumerStatefulWidget {
   const ParticipantWidget({super.key, required this.participant});
@@ -24,9 +23,6 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
         setState(() {});
       }
     });
-    // widget.participant is LocalParticipant
-    //     ? debugPrint(widget.participant.videoTracks.first.track.toString())
-    //     : null;
   }
 
   @override
@@ -38,64 +34,62 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
             ? CustomVideoPlayer(
                 src: widget.participant.src,
               )
-            : widget.participant is Participant
-                ? (widget.participant.isCameraEnabled() ||
-                            widget.participant.isScreenShareEnabled()) &&
-                        widget.participant.videoTracks.first.track != null
-                    ? Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: widget.participant.isSpeaking
-                                ? Border.all(color: Colors.green)
-                                : null),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Stack(
-                            children: [
-                              VideoTrackRenderer(
-                                widget.participant.videoTracks.first.track
-                                    as VideoTrack,
-                                fit: rtc.RTCVideoViewObjectFit
-                                    .RTCVideoViewObjectFitCover,
-                              ),
-                              Positioned(
-                                  bottom: 10,
-                                  right: 10,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Colors.black.withOpacity(0.6),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          widget.participant.name,
-                                          style: textTheme.labelSmall
-                                              ?.copyWith(fontSize: 12),
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        Image.asset(
-                                          widget.participant.isMuted
-                                              ? 'assets/icons/mic_off.png'
-                                              : 'assets/icons/mic.png',
-                                          width: 16,
-                                          height: 16,
-                                        )
-                                      ],
-                                    ),
-                                  ))
-                            ],
+            : (widget.participant.isCameraEnabled() ||
+                        widget.participant.isScreenShareEnabled()) &&
+                    widget.participant.videoTracks.first.track != null
+                ? Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: widget.participant.isSpeaking
+                            ? Border.all(color: Colors.green)
+                            : null),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Stack(
+                        children: [
+                          VideoTrackRenderer(
+                            widget.participant.videoTracks.first.track
+                                as VideoTrack,
+                            fit: rtc.RTCVideoViewObjectFit
+                                .RTCVideoViewObjectFitCover,
                           ),
-                        ),
-                      )
-                    : ParticipantWithoutVideo(
-                        participant: widget.participant,
-                      )
-                : const LocalUser());
+                          Positioned(
+                              bottom: 10,
+                              right: 10,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Colors.black.withOpacity(0.6),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      widget.participant.name,
+                                      style: textTheme.labelSmall
+                                          ?.copyWith(fontSize: 12),
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Image.asset(
+                                      widget.participant.isMuted
+                                          ? 'assets/icons/mic_off.png'
+                                          : 'assets/icons/mic.png',
+                                      width: 16,
+                                      height: 16,
+                                    )
+                                  ],
+                                ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  )
+                : ParticipantWithoutVideo(
+                    participant: widget.participant,
+                  ));
   }
 }
 
