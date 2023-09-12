@@ -62,46 +62,42 @@ class _PaymentScreeenState extends State<PaymentScreeen> {
               ),
             )
           ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(2.0),
-            child: Container(
-              color: Colors.white.withOpacity(0.1),
-              height: 1.0,
-            ),
-          ),
         ),
-        body: isWindows
-            ? StreamBuilder(
-                stream: windowsController.loadingState,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != LoadingState.loading) {
-                    return Center(
-                        child: Webview(
-                      windowsController,
-                    ));
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                })
-            : Stack(
-                children: [
-                  WebViewX(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    initialContent: widget.url,
-                    javascriptMode: JavascriptMode.unrestricted,
-                    onPageFinished: (String state) {
-                      setState(() {
-                        isLoading = false;
-                      });
-                    },
-                  ),
-                  isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : const SizedBox()
-                ],
-              ));
+        body: SingleChildScrollView(
+          child: isWindows
+              ? StreamBuilder(
+                  stream: windowsController.loadingState,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != LoadingState.loading) {
+                      return Center(
+                          child: Webview(
+                        windowsController,
+                      ));
+                    }
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  })
+              : Stack(
+                  children: [
+                    WebViewX(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      initialContent: widget.url,
+                      javascriptMode: JavascriptMode.unrestricted,
+                      onPageFinished: (String state) {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      },
+                    ),
+                    if (isLoading)
+                      const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                  ],
+                ),
+        ));
   }
 }

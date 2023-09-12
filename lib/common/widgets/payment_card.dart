@@ -1,6 +1,5 @@
 import 'package:chitti_meet/modules/chat_module/models/payment_model.dart';
 import 'package:flutter/material.dart';
-
 import '../../modules/chat_module/presentation/payment_screen.dart';
 
 class PaymentCard extends StatelessWidget {
@@ -23,7 +22,6 @@ class PaymentCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: double.infinity,
@@ -90,12 +88,17 @@ class PaymentCard extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () async {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PaymentScreeen(
-                                url: '${paymentDetails.link}',
-                              )));
+                  showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.9,
+                          child: PaymentScreeen(
+                            url: '${paymentDetails.link}',
+                          ),
+                        );
+                      });
                 },
                 child: Container(
                   width: double.infinity,
