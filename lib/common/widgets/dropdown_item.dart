@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class CustomDropDownItem extends ConsumerWidget {
   CustomDropDownItem({
     this.selected,
-    required this.value, 
+    required this.value,
     super.key,
     required this.label,
   });
@@ -32,9 +32,12 @@ class CustomDropDownItem extends ConsumerWidget {
                     ),
                   )
                 : const SizedBox(),
-            Text(
-              label,
-              style: textTheme.labelSmall,
+            Expanded(
+              child: Text(
+                label,
+                style: textTheme.labelSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

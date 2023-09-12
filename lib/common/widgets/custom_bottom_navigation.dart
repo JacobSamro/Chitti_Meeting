@@ -16,7 +16,7 @@ class CustomBottomNavigation extends StatelessWidget {
     return Container(
       color: Colors.black,
       height: 70,
-      child: leading != null && leading != null
+      child: leading != null && actions != null
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -31,31 +31,25 @@ class CustomBottomNavigation extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: items
-                      .map((e) => e == null
-                          ? const SizedBox()
-                          : e.suffixIcon == null
-                              ? GestureDetector(
+                  children: items.map((e) {
+                    return e == null
+                        ? const SizedBox()
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              GestureDetector(
                                   onTap: () {
                                     onChanged(e.label);
                                   },
-                                  child: e)
-                              : Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    GestureDetector(
-                                        onTap: () {
-                                          onChanged(e.label);
-                                        },
-                                        child: e),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 16.0, left: 5),
-                                      child: e.suffixIcon,
-                                    )
-                                  ],
-                                ))
-                      .toList(),
+                                  child: e),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 16.0, right: 15, left: 5),
+                                child: e.suffixIcon!,
+                              )
+                            ],
+                          );
+                  }).toList(),
                 ),
                 actions != null
                     ? Flexible(
@@ -79,19 +73,27 @@ class CustomBottomNavigation extends StatelessWidget {
           : ListView(
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
-              children: items
-                  .map((e) => e == null
-                      ? const SizedBox()
-                      : Row(
-                          children: [
-                            GestureDetector(
-                                onTap: () {
-                                  onChanged(e.label);
-                                },
-                                child: e),
-                          ],
-                        ))
-                  .toList(),
+              children: items.map((e) {
+                return e == null
+                    ? const SizedBox()
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                onChanged(e.label);
+                              },
+                              child: e),
+                          e.suffixIcon != null
+                              ? Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 16.0, left: 5, right: 15),
+                                  child: e.suffixIcon,
+                                )
+                              : const SizedBox()
+                        ],
+                      );
+              }).toList(),
             ),
     );
   }
@@ -121,7 +123,7 @@ class CustomBottomNavigationItem extends StatelessWidget {
             child: Center(
               child: Container(
                   padding: EdgeInsets.only(
-                      right: suffixIcon == null ? 15 : 0, left: 15),
+                      right: suffixIcon != null ? 0 : 15, left: 15),
                   height: 49,
                   child: !badge
                       ? Column(

@@ -15,6 +15,7 @@ import '../../../services/responsive.dart';
 import '../../chat_module/presentation/chat_screen.dart';
 import '../../chat_module/providers/chat_provider.dart';
 import '../../view_module/models/view_state.dart';
+import '../../view_module/providers/camera_provider.dart';
 import '../../view_module/providers/view_provider.dart';
 import '../models/workshop_model.dart';
 import '../presentation/participants_screen.dart';
@@ -83,8 +84,8 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           iconPath: room.localParticipant!.isCameraEnabled()
               ? 'assets/icons/video.png'
               : "assets/icons/video_off.png",
-          suffixIcon: IconButton(
-              onPressed: () async {
+          suffixIcon: GestureDetector(
+              onTap: () async {
                 final videoDevices = await Hardware.instance.videoInputs();
                 // ignore: use_build_context_synchronously
                 showModalBottomSheet(
@@ -111,7 +112,14 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                       );
                     });
               },
-              icon: const Icon(Icons.arrow_drop_up_rounded)),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Image.asset(
+                  'assets/icons/arrow_up.png',
+                  width: 14,
+                  height: 14,
+                ),
+              )),
         ),
         CustomBottomNavigationItem(
           label: room.localParticipant!.isMicrophoneEnabled()
@@ -120,8 +128,8 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           iconPath: room.localParticipant!.isMicrophoneEnabled()
               ? "assets/icons/mic.png"
               : "assets/icons/mic_off.png",
-          suffixIcon: IconButton(
-              onPressed: () async {
+          suffixIcon: GestureDetector(
+              onTap: () async {
                 final audioDevice = await Hardware.instance.audioInputs();
                 // ignore: use_build_context_synchronously
                 showModalBottomSheet(
@@ -148,7 +156,14 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                       );
                     });
               },
-              icon: const Icon(Icons.arrow_drop_up_rounded)),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Image.asset(
+                  'assets/icons/arrow_up.png',
+                  width: 14,
+                  height: 14,
+                ),
+              )),
         ),
         !kIsWeb &&
                 defaultTargetPlatform == TargetPlatform.windows &&
@@ -181,6 +196,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
       onChanged: (value) async {
         switch (value) {
           case "Video On":
+            await ref.read(cameraProvider).dispose();
             await room.localParticipant?.setCameraEnabled(false);
             break;
           case "Video Off":
@@ -213,7 +229,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                     maxWidth: width > 800 ? 300 : double.infinity),
                 builder: (context) {
                   return CustomDropDown(
-                    value: ref.read(viewProvider).viewType.toString(),
+                    value: ref.read(viewProvider).viewType.name.toString(),
                     items: [
                       CustomDropDownItem(
                         label: "Standard View",
@@ -229,9 +245,10 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                       )
                     ],
                     onChanged: (String value) {
-                      ref.read(viewProvider.notifier).changeViewType(
-                          ViewType.values.firstWhere(
-                              (element) => element.toString() == value));
+                      final type = ViewType.values
+                          .firstWhere((element) => element.name == value);
+                      ref.read(viewProvider.notifier).changeViewType(type);
+                      Navigator.pop(context);
                     },
                   );
                 });
@@ -295,6 +312,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
             html.document.documentElement?.requestFullscreen();
             if (responsiveDevice != ResponsiveDevice.desktop && !kIsWeb) {
+              // ignore: use_build_context_synchronously
               context.openFloatingNavigationBar();
             }
             break;
@@ -306,15 +324,14 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
             }
             html.document.exitFullscreen();
-
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
+            // ignore: use_build_context_synchronously
+            Navigator.pop(context);
             ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
 
             break;
           case "Share Screen":
             try {
+              // ignore: use_build_context_synchronously
               final source = await showDialog(
                 context: context,
                 builder: (context) => ScreenSelectDialog(),
@@ -340,6 +357,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             break;
           case "Stop Sharing":
             try {
+              // ignore: use_build_context_synchronously
               showDialog(
                   barrierColor: Colors.black,
                   context: context,
@@ -397,6 +415,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             }
             break;
           case "Leave":
+            // ignore: use_build_context_synchronously
             showDialog(
                 barrierColor: Colors.black,
                 context: context,
