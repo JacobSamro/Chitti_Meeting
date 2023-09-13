@@ -1,4 +1,5 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:chitti_meet/common/widgets/control_button.dart';
 import 'package:chitti_meet/common/widgets/custom_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -202,16 +203,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       )),
                   actions: [
-                    MinimizeWindowButton(
-                      colors: WindowButtonColors(iconNormal: Colors.grey),
+                    ControlButtton(
+                      hoverColor: Colors.white.withOpacity(0.2),
+                      iconPath: 'assets/icons/minimize.png',
+                      onTap: () => appWindow.minimize(),
+                      tooltip: "Minimize",
                     ),
-                    MaximizeWindowButton(
-                      colors: WindowButtonColors(iconNormal: Colors.grey),
+                    ControlButtton(
+                        hoverColor: Colors.white.withOpacity(0.2),
+                        iconPath: 'assets/icons/resize.png',
+                        onTap: () => appWindow.isMaximized
+                            ? appWindow.restore()
+                            : appWindow.maximize(),
+                        tooltip: "Maximize"),
+                    ControlButtton(
+                      hoverColor: Colors.red[900]!,
+                      iconPath: 'assets/icons/close.png',
+                      onTap: () => appWindow.close(),
+                      tooltip: "Close",
                     ),
-                    CloseWindowButton(
-                      colors: WindowButtonColors(
-                          iconNormal: Colors.grey, mouseOver: Colors.red),
-                    )
+                    // const SizedBox(width: 10)
                   ],
                 )
               : null,
