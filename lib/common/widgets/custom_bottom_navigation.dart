@@ -45,7 +45,7 @@ class CustomBottomNavigation extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(
                                     top: 16.0, right: 15, left: 5),
-                                child: e.suffixIcon!,
+                                child: e.suffixIcon,
                               )
                             ],
                           );
