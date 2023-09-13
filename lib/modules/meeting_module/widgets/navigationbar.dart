@@ -1,3 +1,4 @@
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:chitti_meet/modules/meeting_module/widgets/custom_dropdown.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -96,6 +97,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                         maxWidth: width > 800 ? 300 : double.infinity),
                     builder: (context) {
                       return CustomDropDown(
+                        title: "Video Input",
                         value: room.selectedVideoInputDeviceId!,
                         items: videoDevices
                             .map((e) => CustomDropDownItem(
@@ -140,6 +142,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                         maxWidth: width > 800 ? 300 : double.infinity),
                     builder: (context) {
                       return CustomDropDown(
+                        title: "Audio Input",
                         value: room.selectedAudioInputDeviceId!,
                         items: audioDevice
                             .map((e) => CustomDropDownItem(
@@ -229,6 +232,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                     maxWidth: width > 800 ? 300 : double.infinity),
                 builder: (context) {
                   return CustomDropDown(
+                    title: "Views",
                     value: ref.read(viewProvider).viewType.name.toString(),
                     items: [
                       CustomDropDownItem(
@@ -261,6 +265,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                   DeviceOrientation.portraitUp,
                 ]);
               }
+              ref.read(viewProvider.notifier).openChatInDesktop(true);
               if (!context.mounted) return;
               Navigator.push(
                 context,
@@ -271,6 +276,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               return;
             }
             if (viewState.viewType == ViewType.fullScreen) {
+              if (kIsWeb) {
+                html.document.exitFullscreen();
+              }
               ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
               ref.read(viewProvider.notifier).openChatInDesktop(true);
               return;
@@ -294,6 +302,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               return;
             }
             if (viewState.viewType == ViewType.fullScreen) {
+              if (kIsWeb) {
+                html.document.exitFullscreen();
+              }
               ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
               ref.read(viewProvider.notifier).openParticipantsInDesktop(true);
               return;
@@ -303,6 +314,12 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                 .openParticipantsInDesktop(!viewState.participants);
             break;
           case "Full Screen":
+            if (kIsWeb) {
+              html.document.documentElement?.requestFullscreen();
+            }
+            if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+              appWindow.isMaximized ? null : appWindow.maximize();
+            }
             if (!kIsWeb) {
               SystemChrome.setPreferredOrientations([
                 DeviceOrientation.landscapeLeft,
@@ -310,7 +327,6 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
             }
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
-            html.document.documentElement?.requestFullscreen();
             if (responsiveDevice != ResponsiveDevice.desktop && !kIsWeb) {
               // ignore: use_build_context_synchronously
               context.openFloatingNavigationBar();
@@ -323,9 +339,11 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               ]);
               SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
             }
-            html.document.exitFullscreen();
+            if (kIsWeb) {
+              html.document.exitFullscreen();
+            }
             // ignore: use_build_context_synchronously
-            Navigator.pop(context);
+            // Navigator.pop(context);
             ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
 
             break;

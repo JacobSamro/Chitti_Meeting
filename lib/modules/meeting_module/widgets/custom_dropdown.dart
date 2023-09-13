@@ -6,9 +6,11 @@ class CustomDropDown extends StatelessWidget {
       {super.key,
       required this.items,
       required this.value,
-      required this.onChanged});
+      required this.onChanged,
+      required this.title});
   final String value;
   final List<CustomDropDownItem> items;
+  final String title;
   final Function(String) onChanged;
   @override
   Widget build(BuildContext context) {
@@ -29,19 +31,29 @@ class CustomDropDown extends StatelessWidget {
               ),
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: items.map(
-                (e) {
-                  e.selected = value == e.value;
-                  return GestureDetector(
-                    onTap: () {
-                      onChanged(e.value);
+              children: [
+                Text(title),
+                Divider(
+                  thickness: 1,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: items.map(
+                    (e) {
+                      e.selected = value == e.value;
+                      return GestureDetector(
+                        onTap: () {
+                          onChanged(e.value);
+                        },
+                        child: e,
+                      );
                     },
-                    child: e,
-                  );
-                },
-              ).toList(),
+                  ).toList(),
+                ),
+              ],
             ),
           ),
           GestureDetector(
