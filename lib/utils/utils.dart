@@ -1,18 +1,21 @@
 import 'dart:async';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../modules/meeting_module/widgets/navigationbar.dart';
 import '../services/locator.dart';
 import '../services/responsive.dart';
+import 'package:universal_html/html.dart' as html;
 
 extension Utils on BuildContext {
   static Timer? timer;
   static PersistentBottomSheetController? controller;
   void openFloatingNavigationBar() async {
     timer?.cancel();
-    timer = Timer(const Duration(seconds: 3), () async {
+    timer = Timer(const Duration(seconds: 5), () async {
       controller?.close();
-      debugPrint("ksjlj");
       controller = null;
       timer?.cancel();
     });
@@ -34,13 +37,9 @@ extension Utils on BuildContext {
         : null;
   }
 
-   void showCustomSnackBar(
-      {
-      required String content,
-      required String iconPath}) {
+  void showCustomSnackBar({required String content, required String iconPath}) {
     final width = MediaQuery.of(this).size.width;
-    final ResponsiveDevice responsiveDevice =
-        Responsive().getDeviceType(this);
+    final ResponsiveDevice responsiveDevice = Responsive().getDeviceType(this);
     final isDesktop = responsiveDevice == ResponsiveDevice.desktop;
     final textTheme = Theme.of(this).textTheme;
     OverlayEntry overlayEntry = OverlayEntry(
@@ -97,5 +96,46 @@ extension Utils on BuildContext {
       appWindow.alignment = Alignment.center;
       appWindow.show();
     });
+  }
+
+  Future<bool> requestCameraPermission() async {
+    try {
+      await html.window.navigator.mediaDevices!.getUserMedia({'video': true});
+    } catch (e) {
+      if (e is html.DomException && e.name == 'NotAllowedError') {
+        showCustomSnackBar(
+            content: 'Enable Camera Permission in Settings',
+            iconPath: 'assets/icons/info.png');
+      }
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> handleMediaError(Object error) async {
+    debugPrint(error.runtimeType.toString());
+    if (error is String) {
+      showCustomSnackBar(
+          content: 'Enable Camera Permission in Settings',
+          iconPath: 'assets/icons/info.png');
+      return false;
+    }
+    if (error is CameraException && error.code == 'cameraMissingMetadata') {
+      debugPrint("Camera Missing");
+      showCustomSnackBar(
+          content: 'Enable Camera Permission in Settings',
+          iconPath: 'assets/icons/info.png');
+      return false;
+    }
+    if (error is CameraException && error.code == 'CameraAccessDenied') {
+      if (!kIsWeb) {
+        await Permission.camera.request();
+        return true;
+      }
+      await requestCameraPermission();
+      return true;
+    }
+    // throw Exception(error);
+    return false;
   }
 }

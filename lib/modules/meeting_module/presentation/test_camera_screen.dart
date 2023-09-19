@@ -75,10 +75,21 @@ class _TestCameraState extends ConsumerState<TestCamera> {
       await ref.read(cameraProvider.notifier).addCameras();
       controller = ref.read(cameraProvider);
       await controller.initialize();
-      cameraPermission = true;
-      setState(() {});
+      setState(() {
+        cameraPermission = true;
+        isVideoOn = true;
+      });
     } catch (error) {
-      throw Exception(error);
+      // ignore: use_build_context_synchronously
+      context.handleMediaError(error).then((value) async {
+        if (value) {
+          await controller.initialize();
+          setState(() {
+            cameraPermission = true;
+            isVideoOn = true;
+          });
+        }
+      });
     }
   }
 
@@ -127,10 +138,9 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                           ? Center(
                               child: GestureDetector(
                                 onTap: () {
-                                  ref
-                                      .read(cameraProvider.notifier)
-                                      .addCameras();
-                                  isVideoOn = true;
+                                  // ref
+                                  //     .read(cameraProvider.notifier)
+                                  //     .addCameras();
                                   initCamera();
                                 },
                                 child: CustomButton(
@@ -311,14 +321,15 @@ class _TestCameraState extends ConsumerState<TestCamera> {
 
                         ref
                             .read(participantProvider.notifier)
-                            .setParticipantName(nameController.text);
+                            .setParticipantName(
+                                nameController.text.split('.').first);
                         FocusScope.of(context).unfocus();
                         setState(() {
                           isLoading = true;
                         });
                         final bool value = await locator<MeetingRepositories>()
                             .addParticipant(
-                                nameController.text.trim(),
+                                nameController.text.split('.').first.trim(),
                                 passcode.text.trim(),
                                 ref
                                     .read(workshopDetailsProvider)

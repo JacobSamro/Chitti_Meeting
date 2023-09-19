@@ -8,7 +8,9 @@ class CameraNotifier extends StateNotifier<CameraController> {
   Future<void> addCameras() async {
     try {
       final cameras = await availableCameras();
-      state = CameraController(cameras.length > 1 ? cameras[1] : cameras[0],
+      state = CameraController(
+          cameras.length > 1 ? cameras[1] : cameras[0],
+          enableAudio: false,
           ResolutionPreset.medium);
     } catch (e) {
       if (e is CameraException && e.code == 'CameraAccessDenied') {
@@ -30,6 +32,7 @@ final StateNotifierProvider<CameraNotifier, CameraController> cameraProvider =
             name: "name",
             lensDirection: CameraLensDirection.back,
             sensorOrientation: 0),
-        ResolutionPreset.medium),
+        ResolutionPreset.medium,
+        enableAudio: false),
   ),
 );

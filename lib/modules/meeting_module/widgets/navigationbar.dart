@@ -203,12 +203,19 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             await room.localParticipant?.setCameraEnabled(false);
             break;
           case "Video Off":
-            room.localParticipant!.isScreenShareEnabled()
-                // ignore: use_build_context_synchronously
-                ? context.showCustomSnackBar(
-                    content: "Screen Share is enabled",
-                    iconPath: 'assets/icons/info.png')
-                : room.localParticipant?.setCameraEnabled(true);
+            if (room.localParticipant!.isScreenShareEnabled()) {
+              // ignore: use_build_context_synchronously
+              context.showCustomSnackBar(
+                  content: "Screen Share is enabled",
+                  iconPath: 'assets/icons/info.png');
+              return;
+            }
+            try {
+              await room.localParticipant?.setCameraEnabled(true);
+            } catch (error) {
+              // ignore: use_build_context_synchronously
+              context.handleMediaError(error);
+            }
             break;
           case "Mic Off":
             workshop.isHost!
