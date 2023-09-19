@@ -26,7 +26,7 @@ import '../../../utils/utils.dart';
 void main() async {
   setup();
   WidgetsFlutterBinding.ensureInitialized();
-
+  AppEnvironment.singleton.initEnvironment(Environment.staging);
   if (kIsWeb) {
     usePathUrlStrategy();
     final String url = Uri.base.path;
@@ -74,7 +74,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ]);
     ref.read(meetingStateProvider.notifier).createListener();
     ref.read(meetingPageProvider.notifier).setMeetingId(widget.hashId);
-    ref.read(cameraProvider.notifier).addCameras();
+    // ref.read(cameraProvider.notifier).addCameras();
     ref.read(meetingStateProvider.notifier).listen(context);
   }
 
