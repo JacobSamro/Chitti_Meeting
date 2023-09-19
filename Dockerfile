@@ -1,4 +1,4 @@
-FROM instrumentisto/flutter:3.10.6 as build-env
+FROM instrumentisto/flutter:3.13.4 as build-env
 
 # Copy files to container and build
 RUN mkdir /app/
