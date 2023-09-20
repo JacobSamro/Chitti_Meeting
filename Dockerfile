@@ -7,7 +7,7 @@ WORKDIR /app/
 
 RUN flutter pub get
 
-RUN flutter build web --web-renderer html
+RUN flutter build web --web-renderer auto
 
 # Stage 2 - Create the run-time image
 FROM nginx:1.21.1-alpine
