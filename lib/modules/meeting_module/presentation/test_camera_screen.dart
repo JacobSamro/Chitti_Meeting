@@ -321,15 +321,14 @@ class _TestCameraState extends ConsumerState<TestCamera> {
 
                         ref
                             .read(participantProvider.notifier)
-                            .setParticipantName(
-                                nameController.text.split('.').first);
+                            .setParticipantName(nameController.text);
                         FocusScope.of(context).unfocus();
                         setState(() {
                           isLoading = true;
                         });
                         final bool value = await locator<MeetingRepositories>()
                             .addParticipant(
-                                nameController.text.split('.').first.trim(),
+                                nameController.text.trim(),
                                 passcode.text.trim(),
                                 ref
                                     .read(workshopDetailsProvider)

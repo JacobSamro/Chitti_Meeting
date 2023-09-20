@@ -332,8 +332,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                         });
                         ref
                             .read(participantProvider.notifier)
-                            .setParticipantName(
-                                nameController.text.split('.').first);
+                            .setParticipantName(nameController.text);
                         final bool canConnect = await ref
                             .read(workshopDetailsProvider.notifier)
                             .getWorkshopDetials(hashId.text);
@@ -341,10 +340,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                           final bool value =
                               await locator<MeetingRepositories>()
                                   .addParticipant(
-                                      nameController.text
-                                          .split('.')
-                                          .first
-                                          .trim(),
+                                      nameController.text.trim(),
                                       passcode.text.trim(),
                                       ref
                                           .read(workshopDetailsProvider)
