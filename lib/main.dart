@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 import 'common/constants/constants.dart';
 import 'common/widgets/custom_button.dart';
@@ -46,9 +45,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Posthog().screen(
-      screenName: 'Home Screen',
-    );
     return MaterialApp.router(
       title: 'Chitti Meet',
       debugShowCheckedModeBanner: false,
