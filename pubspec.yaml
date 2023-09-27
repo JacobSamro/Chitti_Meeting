@@ -40,7 +40,7 @@ dependencies:
   dio: ^5.1.1
   get_it: ^7.2.0
   flutter_gif: ^0.0.4
-  livekit_client: ^1.4.3
+  livekit_client: ^1.5.0
   flutter_riverpod: ^2.3.6
   video_player: ^2.6.1
   chewie: ^1.7.0
