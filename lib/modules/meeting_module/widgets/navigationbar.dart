@@ -132,7 +132,9 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               : "assets/icons/mic_off.png",
           suffixIcon: GestureDetector(
               onTap: () async {
-                final audioDevice = await Hardware.instance.audioInputs();
+                final audioInputDevice = await Hardware.instance.audioInputs();
+                final audioOutputDevices =
+                    await Hardware.instance.audioOutputs();
                 // ignore: use_build_context_synchronously
                 showModalBottomSheet(
                     context: context,
@@ -141,21 +143,99 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                     constraints: BoxConstraints(
                         maxWidth: width > 800 ? 300 : double.infinity),
                     builder: (context) {
-                      return CustomDropDown(
-                        title: "Audio Input",
-                        value: room.selectedAudioInputDeviceId!,
-                        items: audioDevice
-                            .map((e) => CustomDropDownItem(
-                                value: e.deviceId,
-                                label: e.label.isEmpty
-                                    ? "In build Microphone"
-                                    : e.label))
-                            .toList(),
-                        onChanged: (device) async {
-                          Navigator.pop(context);
-                          await room.setAudioInputDevice(audioDevice.firstWhere(
-                              (element) => element.deviceId == device));
-                        },
+                      return GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.black,
+                                border: Border.all(
+                                  width: 1,
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Audio Input'),
+                                  Divider(
+                                    thickness: 1,
+                                    color: Colors.white.withOpacity(0.1),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: audioInputDevice
+                                        .map((e) => GestureDetector(
+                                              onTap: () async {
+                                                Navigator.pop(context);
+                                                await room.setAudioInputDevice(
+                                                    audioInputDevice.firstWhere(
+                                                        (element) =>
+                                                            element.deviceId ==
+                                                            e.deviceId));
+                                              },
+                                              child: CustomDropDownItem(
+                                                  selected:
+                                                      room.selectedAudioInputDeviceId ==
+                                                          e.deviceId,
+                                                  value: e.deviceId,
+                                                  label: e.label.isEmpty
+                                                      ? "In build Microphone"
+                                                      : e.label),
+                                            ))
+                                        .toList(),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  const Text('Audio Output'),
+                                  Divider(
+                                    thickness: 1,
+                                    color: Colors.white.withOpacity(0.1),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: audioOutputDevices
+                                        .map((e) => GestureDetector(
+                                              onTap: () async {
+                                                Navigator.pop(context);
+                                                await room.setAudioOutputDevice(
+                                                    audioOutputDevices
+                                                        .firstWhere((element) =>
+                                                            element.deviceId ==
+                                                            e.deviceId));
+                                              },
+                                              child: CustomDropDownItem(
+                                                  selected:
+                                                      room.selectedAudioOutputDeviceId ==
+                                                          e.deviceId,
+                                                  value: e.deviceId,
+                                                  label: e.label.isEmpty
+                                                      ? "In build Speaker"
+                                                      : e.label),
+                                            ))
+                                        .toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                height: width > 800 ? 70 : 0,
+                                color: Colors.transparent,
+                              ),
+                            )
+                          ],
+                        ),
                       );
                     });
               },
