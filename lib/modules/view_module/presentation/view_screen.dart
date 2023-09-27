@@ -58,95 +58,104 @@ class _ViewScreenState extends ConsumerState<ViewScreen> {
     return participants.isNotEmpty
         ? responsiveDevice != ResponsiveDevice.desktop ||
                 viewType == ViewType.gallery
-            ? PageView.builder(
-                padEnds: false,
-                controller: _pageController,
-                itemCount: participants.length,
-                itemBuilder: (context, index) {
-                  final participantTracks = viewType != ViewType.speaker
-                      ? participants[index] as List<dynamic>
-                      : participants;
-                  return viewType == ViewType.standard
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: participantTracks.map((e) {
-                            return participantTracks.length <= 1 &&
-                                    responsiveDevice == ResponsiveDevice.mobile
-                                ? SizedBox(
-                                    height: 300,
-                                    width: MediaQuery.of(context).size.width,
-                                    child: ParticipantWidget(
-                                      participant: e,
+            ? viewType != ViewType.speaker
+                ? PageView.builder(
+                    padEnds: false,
+                    controller: _pageController,
+                    itemCount: participants.length,
+                    itemBuilder: (context, index) {
+                      final participantTracks = viewType != ViewType.speaker
+                          ? participants[index] as List<dynamic>
+                          : participants;
+                      return viewType == ViewType.standard
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: participantTracks.map((e) {
+                                return participantTracks.length <= 1 &&
+                                        responsiveDevice ==
+                                            ResponsiveDevice.mobile
+                                    ? SizedBox(
+                                        height: 300,
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: ParticipantWidget(
+                                          participant: e,
+                                        ),
+                                      )
+                                    : Expanded(
+                                        child: SizedBox(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: ParticipantWidget(
+                                            participant: e,
+                                          ),
+                                        ),
+                                      );
+                              }).toList(),
+                            )
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: GridView.builder(
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: responsiveDevice !=
+                                              ResponsiveDevice.mobile
+                                          ? participantTracks.length <= 4
+                                              ? 2
+                                              : 3
+                                          : 2,
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10,
+                                      mainAxisExtent: responsiveDevice !=
+                                              ResponsiveDevice.mobile
+                                          ? MediaQuery.of(context).size.height /
+                                              2.5
+                                          : null,
                                     ),
-                                  )
-                                : Expanded(
-                                    child: SizedBox(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: ParticipantWidget(
-                                        participant: e,
-                                      ),
-                                    ),
-                                  );
-                          }).toList(),
-                        )
-                      : Row(
-                          children: [
-                            Expanded(
-                              child: GridView.builder(
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: responsiveDevice !=
-                                          ResponsiveDevice.mobile
-                                      ? participantTracks.length <= 4
-                                          ? 2
-                                          : 3
-                                      : 2,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                  mainAxisExtent: responsiveDevice !=
-                                          ResponsiveDevice.mobile
-                                      ? MediaQuery.of(context).size.height / 2.5
-                                      : null,
+                                    itemCount: participantTracks.length,
+                                    itemBuilder: (context, index) {
+                                      return SizedBox(
+                                        height: 200,
+                                        child: ParticipantWidget(
+                                          participant: participantTracks[index],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                                itemCount: participantTracks.length,
-                                itemBuilder: (context, index) {
-                                  return SizedBox(
-                                    height: 200,
-                                    child: ParticipantWidget(
-                                      participant: participantTracks[index],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            responsiveDevice == ResponsiveDevice.desktop &&
-                                        viewState.chat ||
-                                    viewState.participants
-                                ? Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    child: Container(
-                                        width: 450,
+                                responsiveDevice == ResponsiveDevice.desktop &&
+                                            viewState.chat ||
+                                        viewState.participants
+                                    ? Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 16),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            border: Border.all(
-                                                color: Colors.white
-                                                    .withOpacity(0.1),
-                                                style: BorderStyle.solid,
-                                                width: 1)),
-                                        child: viewState.chat
-                                            ? const ChatScreen()
-                                            : viewState.participants
-                                                ? const ParticipantsScreen()
-                                                : const SizedBox()),
-                                  )
-                                : const SizedBox(),
-                          ],
-                        );
-                })
+                                        child: Container(
+                                            width: 450,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                    color: Colors.white
+                                                        .withOpacity(0.1),
+                                                    style: BorderStyle.solid,
+                                                    width: 1)),
+                                            child: viewState.chat
+                                                ? const ChatScreen()
+                                                : viewState.participants
+                                                    ? const ParticipantsScreen()
+                                                    : const SizedBox()),
+                                      )
+                                    : const SizedBox(),
+                              ],
+                            );
+                    })
+                : SizedBox(
+                    height: double.infinity,
+                    width: double.infinity,
+                    child: ParticipantWidget(participant: participants[0]))
             : Row(children: [
                 Expanded(
                     flex: 2,
