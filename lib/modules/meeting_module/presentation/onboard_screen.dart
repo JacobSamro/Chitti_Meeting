@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import '../../../utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,16 +81,18 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
         isVideoOn = true;
       });
     } catch (error) {
-      // ignore: use_build_context_synchronously
-      context.handleMediaError(error).then((value) async {
-        if (value) {
-          await controller.initialize();
-          setState(() {
-            cameraPermission = true;
-            isVideoOn = true;
-          });
-        }
-      });
+      if (kIsWeb) {
+        // ignore: use_build_context_synchronously
+        context.handleMediaError(error).then((value) async {
+          if (value) {
+            await controller.initialize();
+            setState(() {
+              cameraPermission = true;
+              isVideoOn = true;
+            });
+          }
+        });
+      }
     }
   }
 

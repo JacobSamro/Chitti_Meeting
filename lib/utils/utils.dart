@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:camera/camera.dart';
+import 'package:chitti_meet/common/widgets/permission_popup.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -115,16 +116,19 @@ extension Utils on BuildContext {
   Future<bool> handleMediaError(Object error) async {
     debugPrint(error.runtimeType.toString());
     if (error is String) {
-      showCustomSnackBar(
-          content: 'Enable Camera Permission in Settings',
-          iconPath: 'assets/icons/info.png');
+      showDialog(
+          context: this,
+          builder: (_) => AlertDialog(
+                content: Text(error),
+              ));
       return false;
     }
     if (error is CameraException && error.code == 'cameraMissingMetadata') {
       debugPrint("Camera Missing");
-      showCustomSnackBar(
-          content: 'Enable Camera Permission in Settings',
-          iconPath: 'assets/icons/info.png');
+      showDialog(
+        context: this,
+        builder: (_) => PermissionPopup(),
+      );
       return false;
     }
     if (error is CameraException && error.code == 'CameraAccessDenied') {
