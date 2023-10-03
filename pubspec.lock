@@ -380,10 +380,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_webrtc
-      sha256: "3a9af7db39ed5971b81ca1650b80521469584ae36739bb1f0ab4d1befb512ff9"
+      sha256: da6fb0f0f9515b2c64608011e3ad314e6a858bbf1c57477f418621996e7d22d2
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.43"
+    version: "0.9.45"
   flutter_window_close:
     dependency: transitive
     description:
@@ -476,10 +476,10 @@ packages:
     dependency: "direct main"
     description:
       name: livekit_client
-      sha256: "8b6342ae7adfb4430d5aa25be6160ecb29abcd8fc09b78fc12c77b31ce582de8"
+      sha256: "6529fc481edbab942581b044aeeb131b274b35f10d74fca5414dd808b7840db6"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.2"
   logging:
     dependency: transitive
     description:
