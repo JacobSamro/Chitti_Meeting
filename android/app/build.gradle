@@ -67,9 +67,9 @@ android {
                 keyPassword System.getenv()["CM_KEY_PASSWORD"]
             } else {
                 keyAlias 'key'
-                keyPassword 'chitti'
-                storeFile file('key.jks') 
-                storePassword 'chitti'
+                keyPassword '8OuOWy3WT1'
+                storeFile file('./keystore.jks')
+                storePassword '8OuOWy3WT1'
             }
         }
     }
