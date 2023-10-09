@@ -1040,9 +1040,11 @@ packages:
   video_js:
     dependency: "direct main"
     description:
-      path: "../video_js"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: fc0395b0f0843dc246e298254e0d5d1f0be4d802
+      url: "https://github.com/hiphopsakthi/video_js.git"
+    source: git
     version: "0.1.3"
   volume_controller:
     dependency: transitive
