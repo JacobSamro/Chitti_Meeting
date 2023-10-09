@@ -13,29 +13,37 @@ import 'package:universal_html/html.dart' as html;
 extension Utils on BuildContext {
   static Timer? timer;
   static PersistentBottomSheetController? controller;
-  void openFloatingNavigationBar() async {
-    timer?.cancel();
-    timer = Timer(const Duration(seconds: 5), () async {
-      controller?.close();
-      controller = null;
+  void openFloatingNavigationBar(bool value) async {
+    if (value) {
       timer?.cancel();
-    });
-    controller == null
-        ? controller =
-            locator<GlobalKey<ScaffoldState>>().currentState!.showBottomSheet(
-                backgroundColor: Colors.white.withOpacity(0),
-                (context) => Padding(
-                      padding: const EdgeInsets.only(bottom: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: const CustomNavigationBar()),
-                        ],
-                      ),
-                    ))
-        : null;
+      timer = Timer(const Duration(seconds: 5), () async {
+        controller?.close();
+        controller = null;
+        timer?.cancel();
+      });
+      controller == null
+          ? controller =
+              locator<GlobalKey<ScaffoldState>>().currentState!.showBottomSheet(
+                  backgroundColor: Colors.white.withOpacity(0),
+                  (context) => Padding(
+                        padding: const EdgeInsets.only(bottom: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: const CustomNavigationBar()),
+                          ],
+                        ),
+                      ))
+          : null;
+    } else {
+      if (controller != null) {
+        controller?.close();
+        controller = null;
+      }
+      timer != null ? timer!.cancel() : null;
+    }
   }
 
   void showCustomSnackBar({required String content, required String iconPath}) {

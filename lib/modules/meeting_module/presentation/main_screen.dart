@@ -42,7 +42,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void dispose() {
     super.dispose();
-    ref.invalidate(participantProvider);
+    // ref.invalidate(participantProvider);
   }
 
   @override
@@ -94,7 +94,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 child: responsiveDevice != ResponsiveDevice.desktop
                     ? GestureDetector(
                         onTap: () {
-                          context.openFloatingNavigationBar();
+                          context.openFloatingNavigationBar(true);
                         },
                         child: SizedBox(
                           width: double.infinity,

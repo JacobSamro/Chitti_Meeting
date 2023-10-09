@@ -25,8 +25,7 @@ import '../states/meeting_states.dart';
 import 'package:universal_html/html.dart' as html;
 
 class CustomNavigationBar extends ConsumerStatefulWidget {
-  const CustomNavigationBar({super.key, this.isFloating = false});
-  final bool isFloating;
+  const CustomNavigationBar({super.key});
   @override
   ConsumerState<CustomNavigationBar> createState() => _NavigationBarState();
 }
@@ -416,7 +415,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
             ref.read(viewProvider.notifier).changeViewType(ViewType.fullScreen);
             if (responsiveDevice != ResponsiveDevice.desktop && !kIsWeb) {
               // ignore: use_build_context_synchronously
-              context.openFloatingNavigationBar();
+              context.openFloatingNavigationBar(true);
             }
             break;
           case "Exit":
@@ -430,7 +429,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               html.document.exitFullscreen();
             }
             // ignore: use_build_context_synchronously
-            // Navigator.pop(context);
+              context.openFloatingNavigationBar(false);
             ref.read(viewProvider.notifier).changeViewType(ViewType.standard);
 
             break;
