@@ -42,10 +42,11 @@ dependencies:
   flutter_gif: ^0.0.4
   livekit_client: ^1.5.2
   flutter_riverpod: ^2.3.6
-  video_player: ^2.6.1
-  chewie: ^1.7.0
   socket_io_client: ^2.0.3+1
   permission_handler: ^10.4.5
+  media_kit: ^1.1.8+2                             
+  media_kit_video: ^1.2.1                        
+  media_kit_libs_video: ^1.0.3 
   
   # mobile
   camera: ^0.10.5+4
@@ -57,18 +58,15 @@ dependencies:
   uni_links: ^0.5.1
  
   # web
-  universal_html: ^2.2.3
-  video_player_web_hls:
+  universal_html: ^2.2.4
+  video_js: 
     git:
-      url: https://github.com/JacobSamro/video_player_web_hls.git
+      url: https://github.com/hiphopsakthi/video_js.git
+    # path: ../video_js
 
   # windows
   bitsdojo_window: ^0.1.5
   camera_windows: ^0.2.1+8
-  media_kit: ^1.1.1
-  media_kit_video: ^1.1.1
-  media_kit_native_event_loop: ^1.0.6
-  media_kit_libs_windows_video: ^1.0.5
   window_manager: ^0.3.6
   webview_windows: ^0.3.0
 
