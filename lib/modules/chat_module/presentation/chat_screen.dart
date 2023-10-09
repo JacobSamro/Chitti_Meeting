@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../common/widgets/payment_card.dart';
-import '../../../services/responsive.dart';
+// import '../../../services/responsive.dart';
 import '../../meeting_module/states/meeting_states.dart';
 import '../../view_module/providers/view_provider.dart';
 import '../models/message_model.dart';
@@ -63,8 +63,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       });
     });
     final textTheme = Theme.of(context).textTheme;
-    final ResponsiveDevice responsiveDevice =
-        Responsive().getDeviceType(context);
+    // final ResponsiveDevice responsiveDevice =
+    //     Responsive().getDeviceType(context);
     final viewType = ref.read(viewProvider).viewType;
     return WillPopScope(
       onWillPop: () async {
@@ -84,10 +84,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             actions: [
               GestureDetector(
                 onTap: () {
-                  if (responsiveDevice == ResponsiveDevice.desktop) {
-                    ref.read(viewProvider.notifier).openChatInDesktop(false);
-                    return;
-                  }
+                  // if (responsiveDevice == ResponsiveDevice.desktop) {
+                  ref.read(viewProvider.notifier).openChatInDesktop(false);
+                  //   return;
+                  // }
                   viewType == ViewType.fullScreen
                       ? SystemChrome.setPreferredOrientations([
                           DeviceOrientation.landscapeLeft,
