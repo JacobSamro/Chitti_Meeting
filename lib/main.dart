@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:video_js/video_js.dart';
 import 'package:window_manager/window_manager.dart';
 import 'common/constants/constants.dart';
 import 'common/widgets/custom_button.dart';
@@ -28,14 +29,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   AppEnvironment.singleton.initEnvironment(Environment.staging);
   if (kIsWeb) {
+    VideoJsResults().init();
     usePathUrlStrategy();
     final String url = Uri.base.path;
     router.go(url);
   }
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
-    await windowManager.ensureInitialized();
+  if (!kIsWeb) {
     MediaKit.ensureInitialized();
-    Utils.setWindowSize();
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      await windowManager.ensureInitialized();
+      Utils.setWindowSize();
+    }
   }
   runApp(const ProviderScope(child: MyApp()));
 }

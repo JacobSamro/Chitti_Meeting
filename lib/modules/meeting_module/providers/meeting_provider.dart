@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:video_player/video_player.dart';
+import 'package:video_js/video_js.dart';
 import '../../../services/locator.dart';
 import '../../../utils/utils.dart';
 import '../../chat_module/providers/chat_provider.dart';
@@ -49,13 +49,13 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
 
     _listener.on<RoomDisconnectedEvent>((event) async {
       // ref!.read(participantProvider.notifier).reset();
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+      if (!kIsWeb) {
         await locator<Player>().dispose();
         await locator.unregister<VideoController>();
         await locator.unregister<Player>();
       } else {
-        await locator<VideoPlayerController>().dispose();
-        await locator.unregister<VideoPlayerController>();
+        // await locator<VideoJsController>().dispose();
+        await locator.unregister<VideoJsController>();
       }
       ref!.invalidate(workshopDetailsProvider);
       ref!.invalidate(viewProvider);
@@ -77,13 +77,13 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
             iconPath: 'assets/icons/people.png');
         ref!.read(chatProvider.notifier).reset();
         // ref!.invalidate(chatProvider);
-        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+        if (!kIsWeb) {
           await locator<Player>().dispose();
           await locator.unregister<VideoController>();
           await locator.unregister<Player>();
         } else {
-          await locator<VideoPlayerController>().dispose();
-          await locator.unregister<VideoPlayerController>();
+          // await locator<VideoJsController>().dispose();
+          await locator.unregister<VideoJsController>();
         }
       } catch (e) {
         debugPrint(e.toString());

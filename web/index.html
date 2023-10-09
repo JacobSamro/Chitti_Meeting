@@ -36,11 +36,14 @@
     // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
   </script>
+  <link id="videojscss" rel="stylesheet" href="https://unpkg.com/video.js/dist/video-js.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.21.1/video.min.js" defer></script>
+  <script src="https://unpkg.com/browse/@videojs/http-streaming@2.6.0/dist/videojs-http-streaming.min.js"
+    defer></script>
   <script src="flutter.js" defer></script>
 </head>
 
 <body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js" type="application/javascript"></script>
   <script>
     window.addEventListener('load', function (ev) {
       // Download main.dart.js
