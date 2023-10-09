@@ -62,6 +62,7 @@ dependencies:
   video_js: 
     git:
       url: https://github.com/hiphopsakthi/video_js.git
+      ref: dev
     # path: ../video_js
 
   # windows
