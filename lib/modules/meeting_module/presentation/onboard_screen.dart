@@ -199,9 +199,11 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    isVideoOn
-                                        ? await controller.dispose()
-                                        : await initCamera();
+                                    if (!isVideoOn) {
+                                      await initCamera();
+                                      return;
+                                    }
+                                    await controller.dispose();
                                     isVideoOn = !isVideoOn;
                                     setState(() {});
                                   },

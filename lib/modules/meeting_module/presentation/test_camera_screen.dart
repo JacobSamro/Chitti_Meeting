@@ -207,9 +207,11 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                                       ),
                                       GestureDetector(
                                         onTap: () async {
-                                          isVideoOn
-                                              ? await controller.dispose()
-                                              : await initCamera();
+                                          if (!isVideoOn) {
+                                            await initCamera();
+                                            return;
+                                          }
+                                          await controller.dispose();
                                           isVideoOn = !isVideoOn;
                                           setState(() {});
                                         },
