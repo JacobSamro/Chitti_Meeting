@@ -11,7 +11,10 @@ import '../../../services/locator.dart';
 import 'package:video_js/src/video_js_widget.dart';
 
 class CustomVideoPlayer extends ConsumerStatefulWidget {
-  const CustomVideoPlayer({super.key, required this.src, this.height = 200});
+  final GlobalKey key;
+  const CustomVideoPlayer(
+      {required this.key, required this.src, this.height = 200})
+      : super(key: key);
   final String src;
   final double height;
   @override
@@ -41,17 +44,14 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
         controller = locator<VideoController>();
         controller?.player.stream.buffering.listen((event) {
           debugPrint(event.toString());
-          // if (!event) {
           if (mounted) {
             controller?.player.play();
             setState(() {});
           }
-          // }
         });
         controller?.player.stream.duration.listen((event) {
           if (mounted) {
             controller?.player.play();
-            // setState(() {});
           }
         });
         return;
@@ -65,7 +65,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
       final intValue = Random().nextInt(10);
       if (locator.isRegistered<VideoJsController>()) {
         controller = locator<VideoJsController>();
-        controller.setSRC(widget.src, type: 'application/x-mpegURL');
+        controller.init();
         controller.play();
       }
       if (!locator.isRegistered<VideoJsController>()) {
@@ -98,18 +98,17 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
         VideoJsResults().listenToValueFromJs('videoHost', 'onReady', (ready) {
           debugPrint('onReady: $ready');
           ready == 'true' ? locator<VideoJsController>().play() : null;
-          // final videoElement =
-          //     html.document.getElementById('video$intValue_html5_api');
-          // videoElement?.setAttribute('disablepictureinpicture', '');
-          // videoElement?.on['enterpictureinpicture'].listen((event) {
-          //   debugPrint('Attempting to enter PiP mode');
-          //   event.preventDefault();
-          // });
         });
       } catch (e) {
         throw Exception(e);
       }
     }
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 
   @override

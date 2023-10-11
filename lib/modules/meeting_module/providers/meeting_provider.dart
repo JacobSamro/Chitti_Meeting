@@ -49,6 +49,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
 
     _listener.on<RoomDisconnectedEvent>((event) async {
       // ref!.read(participantProvider.notifier).reset();
+      // (locator<GlobalKey>().currentState as dynamic).remove();
       if (!kIsWeb) {
         await locator<Player>().dispose();
         await locator.unregister<VideoController>();
@@ -56,6 +57,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       } else {
         // await locator<VideoJsController>().dispose();
         await locator.unregister<VideoJsController>();
+        await locator.unregister<GlobalKey>();
       }
       ref!.invalidate(workshopDetailsProvider);
       ref!.invalidate(viewProvider);
@@ -76,6 +78,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
             content: 'Reconnecting to room',
             iconPath: 'assets/icons/people.png');
         ref!.read(chatProvider.notifier).reset();
+        await locator.unregister<GlobalKey>();
         // ref!.invalidate(chatProvider);
         if (!kIsWeb) {
           await locator<Player>().dispose();

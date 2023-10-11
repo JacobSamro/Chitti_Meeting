@@ -1,3 +1,4 @@
+import 'package:chitti_meet/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as rtc;
@@ -15,14 +16,31 @@ class ParticipantWidget extends ConsumerStatefulWidget {
 }
 
 class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
+  GlobalKey? persistKey;
   @override
   void initState() {
     super.initState();
+    if (!locator.isRegistered<GlobalKey>()) {
+      locator.registerLazySingleton<GlobalKey>(() => GlobalKey()
+          );
+    }
+    persistKey = locator<GlobalKey>();
     ref.read(meetingStateProvider.notifier).listenTrack(() {
       if (mounted) {
         setState(() {});
       }
     });
+    ref
+        .read(meetingStateProvider.notifier)
+        .listener
+        .on<RoomDisconnectedEvent>((p0) async {
+      // locator<GlobalKey>().currentState?.dispose();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -31,9 +49,12 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: widget.participant is HostModel
-            ? CustomVideoPlayer(
-                src: widget.participant.src,
-              )
+            ? persistKey != null
+                ? CustomVideoPlayer(
+                    src: widget.participant.src,
+                    key: persistKey!,
+                  )
+                : const CircularProgressIndicator()
             : (widget.participant.isCameraEnabled() ||
                         widget.participant.isScreenShareEnabled()) &&
                     widget.participant.videoTracks.first.track != null
