@@ -1,6 +1,6 @@
-# chitti_meeting
+# Chitti Meet
 
-A new Flutter project.
+Introducing Chitti Meet, a cutting-edge real-time video chat platform designed specifically for students. Seamlessly bridging the gap between in-person and online learning, our platform offers a user-friendly interface and robust features reminiscent of popular apps like Zoom and Google Meet. Stay connected, collaborate on projects, and enhance your learning experience, all in one place.
 
 ## Getting Started
 

@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#FFFFFF",
     "theme_color": "#FFFFFF",
-    "description": "A new Flutter project.",
+    "description": "Introducing Chitti Meet, a cutting-edge real-time video chat platform designed specifically for students. Seamlessly bridging the gap between in-person and online learning, our platform offers a user-friendly interface and robust features reminiscent of popular apps like Zoom and Google Meet. Stay connected, collaborate on projects, and enhance your learning experience, all in one place.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
