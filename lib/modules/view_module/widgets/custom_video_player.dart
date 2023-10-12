@@ -7,7 +7,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:video_js/video_js.dart';
 import '../../../services/locator.dart';
-// import 'package:universal_html/html.dart' as html;
+import 'package:universal_html/html.dart' as html;
 import 'package:video_js/src/video_js_widget.dart';
 
 class CustomVideoPlayer extends ConsumerStatefulWidget {
@@ -90,6 +90,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
           ),
         );
         controller = locator<VideoJsController>();
+        html.document.onContextMenu.listen((event) => event.preventDefault());
         controller.init();
       }
       try {
@@ -107,7 +108,7 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller is VideoController ? null : controller?.dispose();
     super.dispose();
   }
 
