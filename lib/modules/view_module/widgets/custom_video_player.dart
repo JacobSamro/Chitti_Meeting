@@ -78,6 +78,9 @@ class _CustomVideoPlayerState extends ConsumerState<CustomVideoPlayer>
                 muted: false,
                 aspectRatio: '16:9',
                 fluid: false,
+                isLive: true,
+                disablePictureInPicture: true,
+                playsinline: true,
                 language: 'en',
                 liveui: false,
                 notSupportedMessage:
