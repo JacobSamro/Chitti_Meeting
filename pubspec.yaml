@@ -59,7 +59,7 @@ dependencies:
  
   # web
   universal_html: ^2.2.4
-  video_js: 
+  video_js:
     git:
       url: https://github.com/hiphopsakthi/video_js.git
       ref: dev
