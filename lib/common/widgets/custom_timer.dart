@@ -23,6 +23,12 @@ class _CustomTimerState extends ConsumerState<CustomTimer> {
     startTimer();
   }
 
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   void startTimer() async {
     final currentTime = await locator<MeetingRepositories>().getDateTime();
     final meetingTime = ref.read(workshopDetailsProvider).scheduledAt;

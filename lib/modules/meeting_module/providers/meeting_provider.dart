@@ -66,7 +66,7 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
       ref!.invalidate(unReadMessageProvider);
       ref!.read(meetingStateProvider.notifier).removeListener();
       await locator<Room>().dispose();
-      locator.unregister<Room>();
+      await locator.unregister<Room>();
       locator.registerLazySingleton(() => Room());
       state = MeetingRoomDisconnected();
     });
@@ -102,7 +102,6 @@ class MeetingStateNotifier extends StateNotifier<MeetingStates> {
           .listenMessage(ref!.read(workshopDetailsProvider.notifier).hashId);
       await ref!.read(participantProvider.notifier).addLocalParticipantTrack();
     });
-
     _listener.on<TrackPublishedEvent>((event) {
       state = MeetingRoomJoinCompleted();
     });
@@ -181,11 +180,11 @@ final StateNotifierProvider<MeetingPageNotifier, int> meetingPageProvider =
 class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   ParticipantNotifier(this.ref) : super([]);
   final Ref ref;
-  final Room room = locator<Room>();
   String _participantName = '';
   String get participantName => _participantName;
 
   Future<void> addLocalParticipantTrack() async {
+    final Room room = locator<Room>();
     List<dynamic> participants = [];
     final Workshop workshop = ref.read(workshopDetailsProvider);
     if (workshop.sourceUrl!.isNotEmpty) {
