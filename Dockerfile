@@ -5,7 +5,7 @@ RUN mkdir /app/
 ADD . /app/
 WORKDIR /app/
 
-RUN flutter clean && flutter pub get
+RUN flutter pub get
 
 RUN flutter build web --web-renderer auto
 
