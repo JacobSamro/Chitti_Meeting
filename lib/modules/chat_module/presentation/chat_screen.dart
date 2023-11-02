@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -19,11 +20,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   late final TextEditingController _controller;
   final FocusNode focusNode = FocusNode();
   late ScrollController scrollController;
+  bool enableAutoScroll = true;
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     scrollController = ScrollController();
+    scrollController.addListener(_scrollListener);
     focusTextField();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollToBottom();
@@ -33,11 +36,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void scrollToBottom() {
-    scrollController.animateTo(
-      scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.fastOutSlowIn,
-    );
+    if (scrollController.position.pixels !=
+            scrollController.position.maxScrollExtent &&
+        enableAutoScroll) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.fastOutSlowIn,
+      );
+    }
+  }
+
+  void _scrollListener() {
+    if (scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
+      enableAutoScroll = false;
+    }
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      enableAutoScroll = true;
+    }
   }
 
   void focusTextField() {
@@ -97,12 +115,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     Navigator.pop(context);
                   }
                 },
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Image.asset(
-                    'assets/icons/cancel.png',
-                    width: 12,
-                    height: 12,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Image.asset(
+                      'assets/icons/cancel.png',
+                      width: 12,
+                      height: 12,
+                    ),
                   ),
                 ),
               )
@@ -232,28 +253,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: RawKeyboardListener(
-                        focusNode: FocusNode(),
-                        onKey: (RawKeyEvent event) {
-                          debugPrint(event.toString());
-                          if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                            if (_controller.text.isNotEmpty) {
-                              ref
-                                  .read(chatProvider.notifier)
-                                  .addLocalMessage(_controller.text);
-                              _controller.clear();
-                            }
+                      child: TextField(
+                        controller: _controller,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                            hintText: "Type anything...",
+                            hintStyle: textTheme.labelSmall?.copyWith(
+                                color: Colors.white.withOpacity(0.4)),
+                            border: InputBorder.none),
+                        onSubmitted: (value) {
+                          if (value.isNotEmpty) {
+                            ref
+                                .read(chatProvider.notifier)
+                                .addLocalMessage(_controller.text);
+                            _controller.clear();
+                            focusTextField();
                           }
                         },
-                        child: TextField(
-                          controller: _controller,
-                          focusNode: focusNode,
-                          decoration: InputDecoration(
-                              hintText: "Type anything...",
-                              hintStyle: textTheme.labelSmall?.copyWith(
-                                  color: Colors.white.withOpacity(0.4)),
-                              border: InputBorder.none),
-                        ),
                       ),
                     ),
                     GestureDetector(
@@ -263,6 +279,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               .read(chatProvider.notifier)
                               .addLocalMessage(_controller.text);
                           _controller.clear();
+                          focusTextField();
                         }
                       },
                       child: Padding(
