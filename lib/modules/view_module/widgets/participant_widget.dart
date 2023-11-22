@@ -1,7 +1,9 @@
+import 'package:chitti_meet/modules/meeting_module/states/meeting_states.dart';
 import 'package:chitti_meet/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as rtc;
+import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../meeting_module/models/host_model.dart';
 import '../../meeting_module/providers/meeting_provider.dart';
@@ -17,6 +19,7 @@ class ParticipantWidget extends ConsumerStatefulWidget {
 
 class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
   GlobalKey? persistKey;
+  bool isAudioMute=true;
   @override
   void initState() {
     super.initState();
@@ -37,6 +40,13 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
       // locator<GlobalKey>().currentState?.dispose();
     });
   }
+    Future<void> checkTrackState() async {
+     if(ref.read(meetingSDKProvider)==MeetingSDK.hms && widget.participant is HMSPeer){
+      isAudioMute=await ref.read(meetingSDKProvider.notifier).isAudioMuted(peer:widget.participant);
+    // setState(() {
+    // });
+    }
+  }
 
   @override
   void dispose() {
@@ -46,6 +56,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    checkTrackState();
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: widget.participant is HostModel
@@ -55,7 +66,10 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                     key: persistKey!,
                   )
                 : const CircularProgressIndicator()
-            : (widget.participant.isCameraEnabled() ||
+            :widget.participant is HMSPeer? widget.participant.videoTrack!=null?
+            HMSVideoView(track: widget.participant.videoTrack,)
+             :ParticipantWithoutVideo(name: widget.participant.name,isMuted:isAudioMute,) :
+            (widget.participant.isCameraEnabled() ||
                         widget.participant.isScreenShareEnabled()) &&
                     widget.participant.videoTracks.first.track != null
                 ? Container(
@@ -109,17 +123,19 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                     ),
                   )
                 : ParticipantWithoutVideo(
-                    participant: widget.participant,
+                    name: widget.participant.name,
+                    isMuted: widget.participant.muted,
                   ));
   }
 }
 
 class ParticipantWithoutVideo extends StatelessWidget {
   const ParticipantWithoutVideo({
-    super.key,
-    required this.participant,
+    super.key, required this.name, required this.isMuted,
+    
   });
-  final Participant participant;
+  final String name;
+  final bool isMuted;
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -129,9 +145,10 @@ class ParticipantWithoutVideo extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             color: Colors.white.withOpacity(0.06),
-            border: participant.isSpeaking
-                ? Border.all(color: Colors.green)
-                : null),
+            // border: participant.isSpeaking
+            //     ? Border.all(color: Colors.green)
+            //     : null),
+        ),
         child: Stack(
           children: [
             Center(
@@ -153,14 +170,14 @@ class ParticipantWithoutVideo extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        participant.name,
+                       name,
                         style: textTheme.labelSmall?.copyWith(fontSize: 12),
                       ),
                       const SizedBox(
                         width: 8,
                       ),
                       Image.asset(
-                        participant.isMuted
+                        isMuted
                             ? 'assets/icons/mic_off.png'
                             : 'assets/icons/mic.png',
                         width: 16,

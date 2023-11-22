@@ -332,7 +332,7 @@ class _TestCameraState extends ConsumerState<TestCamera> {
                           isLoading = true;
                         });
                         final bool value = await locator<MeetingRepositories>()
-                            .addParticipant(
+                            .addParticipant(context,
                                 nameController.text.trim(),
                                 passcode.text.trim(),
                                 ref

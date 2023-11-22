@@ -2,6 +2,7 @@ class ApiConstants {
   static final String baseUrl =
       AppEnvironment.singleton.baseUrlProvider.baseUrl;
   static final String addParticipantUrl = "$baseUrl/workshops/participants";
+  static const String hmsTokenUrl = "https://100ms.lmes.app/api/token";
   static final String dateTimeUrl = "$baseUrl/workshops/datetime";
   static final String workshopUrl = "$baseUrl/workshops/workshops";
   static final String livekitUrl =

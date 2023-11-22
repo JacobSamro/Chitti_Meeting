@@ -46,30 +46,35 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
       if (elapsedTime == Duration.zero) {
         await ref.read(workshopDetailsProvider.notifier).getWorkshopDetials(
             ref.read(workshopDetailsProvider.notifier).hashId);
-        ref
-                    .read(participantProvider.notifier)
-                    .participantName
-                    .split('.')
-                    .last ==
-                'host'
-            ? ref.read(meetingPageProvider.notifier).changePageIndex(1)
-            : await locator<MeetingRepositories>()
-                .addParticipant(
-                    ref.read(participantProvider.notifier).participantName,
-                    '',
-                    workshop.meetingId!,
-                    false,
-                    ref)
-                .then((value) {
-                if (!value) {
-                  ref
-                      .read(meetingStateProvider.notifier)
-                      .changeState(RouterInitial());
-                  context.showCustomSnackBar(
-                      content: "Participant unable to join",
-                      iconPath: 'assets/icons/info.png');
-                }
-              });
+        if (ref
+                .read(participantProvider.notifier)
+                .participantName
+                .split('.')
+                .last ==
+            'host') {
+          ref.read(meetingPageProvider.notifier).changePageIndex(1);
+        } else {
+          if (!context.mounted) return;
+
+          await locator<MeetingRepositories>()
+              .addParticipant(
+                  context,
+                  ref.read(participantProvider.notifier).participantName,
+                  '',
+                  workshop.meetingId!,
+                  false,
+                  ref)
+              .then((value) {
+            if (!value) {
+              ref
+                  .read(meetingStateProvider.notifier)
+                  .changeState(RouterInitial());
+              context.showCustomSnackBar(
+                  content: "Participant unable to join",
+                  iconPath: 'assets/icons/info.png');
+            }
+          });
+        }
         _timer.cancel();
       }
     });

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,6 +73,23 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
       }
     });
   }
+  Future<bool> getPermissions() async {
+  if (Platform.isIOS) return true;
+  await Permission.camera.request();
+  await Permission.microphone.request();
+  // await Permission.bluetoothConnect.request();
+
+  while ((await Permission.camera.isDenied)) {
+    await Permission.camera.request();
+  }
+  while ((await Permission.microphone.isDenied)) {
+    await Permission.microphone.request();
+  }
+  // while ((await Permission.bluetoothConnect.isDenied)) {
+  //   await Permission.bluetoothConnect.request();
+  // }
+  return true;
+}
 
   initCamera() async {
     try {
@@ -111,6 +131,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
     final textTheme = theme.textTheme;
     final ResponsiveDevice responsiveDevice =
         Responsive().getDeviceType(context);
+
     return SafeArea(
       child: SizedBox(
         width: double.infinity,
@@ -248,6 +269,8 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
               !isLoading
                   ? GestureDetector(
                       onTap: () async {
+                        bool res = await getPermissions();
+                        if(res){
                         if (nameController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text("Enter User Name")));
@@ -331,7 +354,32 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                           return;
                         }
 
+                        // ignore: use_build_context_synchronously
                         FocusScope.of(context).unfocus();
+                        // ignore: use_build_context_synchronously
+                        await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: const Text("Select Meeting SDK"),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          ref
+                                              .read(meetingSDKProvider.notifier)
+                                              .changeSDK(MeetingSDK.livekit);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('LiveKit')),
+                                    TextButton(
+                                        onPressed: () {
+                                          ref
+                                              .read(meetingSDKProvider.notifier)
+                                              .changeSDK(MeetingSDK.hms);
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('HMS'))
+                                  ],
+                                ));
                         setState(() {
                           isLoading = true;
                         });
@@ -342,9 +390,10 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                             .read(workshopDetailsProvider.notifier)
                             .getWorkshopDetials(hashId.text);
                         if (canConnect) {
+                          if (!context.mounted) return;
                           final bool value =
                               await locator<MeetingRepositories>()
-                                  .addParticipant(
+                                  .addParticipant(context,
                                       nameController.text.trim(),
                                       passcode.text.trim(),
                                       ref
@@ -364,7 +413,7 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                                 .read(meetingStateProvider.notifier)
                                 .changeState(RouterInitial());
                           }
-                        }
+                        }}
                       },
                       child: CustomButton(
                         height: 52,

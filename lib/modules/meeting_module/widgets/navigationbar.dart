@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../common/widgets/custom_button.dart';
@@ -31,23 +32,43 @@ class CustomNavigationBar extends ConsumerStatefulWidget {
 }
 
 class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
-  late final Room room;
+  late final MeetingSDK sdk;
+  late final dynamic room;
+  bool isAudioMute=false;
+  bool isVideoMuted =false;
+
   @override
   void initState() {
     super.initState();
-    room = locator<Room>();
-    ref.read(meetingStateProvider.notifier).listenTrack(() {
+     sdk =ref.read(meetingSDKProvider);
+     room = sdk==MeetingSDK.livekit?locator<Room>():locator<HMSSDK>();
+    if(sdk==MeetingSDK.livekit){ref.read(meetingStateProvider.notifier).listenTrack(() {
       if (mounted) {
         setState(() {});
       }
-    });
+    });}
+    else{
+      // locator<HMSMeetingListeners>().callback=(){
+      //   setState(() {
+          
+      //   });
+      // };
+    }
+  }
+
+  Future<void> checkTrackState() async {
+     isAudioMute=await ref.read(meetingSDKProvider.notifier).isAudioMuted();
+   isVideoMuted=await ref.read(meetingSDKProvider.notifier).isVideoMuted();
+    // setState(() {
+      
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final double width = MediaQuery.of(context).size.width;
-
+    checkTrackState();
     final ViewState viewState = ref.watch(viewProvider);
     final Workshop workshop = ref.watch(workshopDetailsProvider);
     final ViewType type = viewState.viewType;
@@ -78,10 +99,10 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
           iconPath: "assets/icons/full_screen.png",
         ),
         CustomBottomNavigationItem(
-          label: room.localParticipant!.isCameraEnabled()
+          label:!isVideoMuted
               ? "Video On"
               : "Video Off",
-          iconPath: room.localParticipant!.isCameraEnabled()
+          iconPath:!isVideoMuted
               ? 'assets/icons/video.png'
               : "assets/icons/video_off.png",
           suffixIcon: GestureDetector(
@@ -123,10 +144,10 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               )),
         ),
         CustomBottomNavigationItem(
-          label: room.localParticipant!.isMicrophoneEnabled()
+          label: !isAudioMute
               ? "Mic On"
               : "Mic Off",
-          iconPath: room.localParticipant!.isMicrophoneEnabled()
+          iconPath: !isAudioMute
               ? "assets/icons/mic.png"
               : "assets/icons/mic_off.png",
           suffixIcon: GestureDetector(
@@ -279,10 +300,11 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
         switch (value) {
           case "Video On":
             await ref.read(cameraProvider).dispose();
-            await room.localParticipant?.setCameraEnabled(false);
+            await ref.read(meetingSDKProvider.notifier).disableVideo();
             break;
           case "Video Off":
-            if (room.localParticipant!.isScreenShareEnabled()) {
+            if(sdk==MeetingSDK.livekit){
+              if (room.localParticipant!.isScreenShareEnabled()) {
               // ignore: use_build_context_synchronously
               context.showCustomSnackBar(
                   content: "Screen Share is enabled",
@@ -290,15 +312,19 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
               return;
             }
             try {
-              await room.localParticipant?.setCameraEnabled(true);
+              await ref.read(meetingSDKProvider.notifier).enableVideo();
             } catch (error) {
               // ignore: use_build_context_synchronously
               context.handleMediaError(error);
             }
+            }
+            else{
+              await ref.read(meetingSDKProvider.notifier).enableVideo();
+            }
             break;
           case "Mic Off":
             workshop.isHost!
-                ? await room.localParticipant?.setMicrophoneEnabled(true)
+                ?await ref.read(meetingSDKProvider.notifier).enableAudio()
 
                 // ignore: use_build_context_synchronously
                 : context.showCustomSnackBar(
@@ -306,7 +332,7 @@ class _NavigationBarState extends ConsumerState<CustomNavigationBar> {
                     iconPath: 'assets/icons/mic_off.png');
             break;
           case "Mic On":
-            await room.localParticipant?.setMicrophoneEnabled(false);
+            await ref.read(meetingSDKProvider.notifier).disableAudio();
             break;
           case "Switch View":
             // ignore: use_build_context_synchronously

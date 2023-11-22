@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../../common/constants/constants.dart';
 import '../../../services/locator.dart';
@@ -16,17 +17,53 @@ class MeetingRepositories {
     return response.data['dateTime'];
   }
 
-  Future<bool> addParticipant(String participantName, String passcode,
+  Future<bool> addParticipant(BuildContext context,String participantName, String passcode,
       String meetingId, bool isVideo, WidgetRef ref) async {
-    final Response response =
-        await dio.post(ApiConstants.addParticipantUrl, data: {
-      "roomId": meetingId,
-      "participantName": participantName,
-      "passcode": passcode,
-      "isVideo": isVideo
-    });
-    ref.read(workshopDetailsProvider.notifier).setHost(response.data['isHost']);
-    return await connectMeeting(isVideo, ref, response.data['token']);
+    final MeetingSDK sdk = ref.read(meetingSDKProvider);
+    if (sdk == MeetingSDK.livekit) {
+      final Response response =
+          await dio.post(ApiConstants.addParticipantUrl, data: {
+        "roomId": meetingId,
+        "participantName": participantName,
+        "passcode": passcode,
+        "isVideo": isVideo
+      });
+      ref
+          .read(workshopDetailsProvider.notifier)
+          .setHost(response.data['isHost']);
+      return await connectMeeting(isVideo, ref, response.data['token']);
+    }
+
+    HMSAudioTrackSetting audioTrackSetting =
+        HMSAudioTrackSetting(trackInitialState: HMSTrackInitState.MUTED);
+
+    HMSVideoTrackSetting videoTrackSetting = HMSVideoTrackSetting(
+        trackInitialState:
+            isVideo ? HMSTrackInitState.UNMUTED : HMSTrackInitState.MUTED);
+
+    HMSTrackSetting trackSetting = HMSTrackSetting(
+        audioTrackSetting: audioTrackSetting,
+        videoTrackSetting: videoTrackSetting);
+
+    if(!locator.isRegistered<HMSSDK>()){
+      locator.registerLazySingleton(() => HMSSDK(hmsTrackSetting: trackSetting));
+    }
+
+    final hmsSDK = locator<HMSSDK>();
+    await hmsSDK.build();
+    if(!locator.isRegistered<HMSMeetingListeners>()){
+      locator.registerLazySingleton(() => HMSMeetingListeners(ref: ref,context:context));
+    }
+    // ignore: use_build_context_synchronously
+    hmsSDK.addUpdateListener(listener:locator<HMSMeetingListeners>().listener);
+
+    final Response<dynamic> response = await dio.get(ApiConstants.hmsTokenUrl);
+    if (!response.data['success']) return false;
+    ref.read(workshopDetailsProvider.notifier).setHost(true);
+    await hmsSDK.join(
+        config: HMSConfig(
+            authToken: response.data['token'], userName: participantName));
+    return true;
   }
 
   Future<bool> connectMeeting(bool isVideo, WidgetRef ref, String token) async {
@@ -62,7 +99,7 @@ class MeetingRepositories {
     if (view == ViewType.standard) return standardViewSort(ref);
     if (view == ViewType.gallery) return galleryViewSort(ref);
     final List<dynamic> participantList = ref.read(participantProvider);
-    final List<Participant> screenShare = [];
+    final List<dynamic> screenShare = [];
     final List<dynamic> otherParticipants = [];
     for (var e in participantList) {
       e is Participant && e.isScreenShareEnabled()
@@ -75,7 +112,7 @@ class MeetingRepositories {
 
   List<List<dynamic>> standardViewSort(WidgetRef ref) {
     final List<dynamic> participantList = ref.read(participantProvider);
-    final List<Participant> screenShare = [];
+    final List<dynamic> screenShare = [];
     final List<dynamic> otherParticipants = [];
     for (var e in participantList) {
       e is Participant && e.isScreenShareEnabled()
@@ -93,7 +130,7 @@ class MeetingRepositories {
 
   List<List<dynamic>> galleryViewSort(WidgetRef ref) {
     final List<dynamic> participantList = ref.read(participantProvider);
-    final List<Participant> screenShare = [];
+    final List<dynamic> screenShare = [];
     final List<dynamic> otherParticipants = [];
     for (var e in participantList) {
       e is Participant && e.isScreenShareEnabled()
