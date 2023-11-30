@@ -17,9 +17,9 @@ class MeetingRepositories {
     return response.data['dateTime'];
   }
 
-  Future<bool> addParticipant(BuildContext context,String participantName, String passcode,
-      String meetingId, bool isVideo, WidgetRef ref) async {
-    final MeetingSDK sdk = ref.read(meetingSDKProvider);
+  Future<bool> addParticipant(BuildContext context, String participantName,
+      String passcode, String meetingId, bool isVideo, WidgetRef ref) async {
+    final MeetingSDK sdk = ref.read(meetingSDKProvider).meetingSDK;
     if (sdk == MeetingSDK.livekit) {
       final Response response =
           await dio.post(ApiConstants.addParticipantUrl, data: {
@@ -45,17 +45,19 @@ class MeetingRepositories {
         audioTrackSetting: audioTrackSetting,
         videoTrackSetting: videoTrackSetting);
 
-    if(!locator.isRegistered<HMSSDK>()){
-      locator.registerLazySingleton(() => HMSSDK(hmsTrackSetting: trackSetting));
+    if (!locator.isRegistered<HMSSDK>()) {
+      locator
+          .registerLazySingleton(() => HMSSDK(hmsTrackSetting: trackSetting));
     }
 
     final hmsSDK = locator<HMSSDK>();
     await hmsSDK.build();
-    if(!locator.isRegistered<HMSMeetingListeners>()){
-      locator.registerLazySingleton(() => HMSMeetingListeners(ref: ref,context:context));
+    if (!locator.isRegistered<HMSMeetingListeners>()) {
+      locator
+          .registerLazySingleton(() => HMSMeetingListeners(context: context));
     }
     // ignore: use_build_context_synchronously
-    hmsSDK.addUpdateListener(listener:locator<HMSMeetingListeners>().listener);
+    hmsSDK.addUpdateListener(listener: locator<HMSMeetingListeners>().listener);
 
     final Response<dynamic> response = await dio.get(ApiConstants.hmsTokenUrl);
     if (!response.data['success']) return false;

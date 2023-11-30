@@ -26,6 +26,7 @@ import '../../../utils/utils.dart';
 
 void main() async {
   setup();
+  // final ProviderContainer providerContainer = ;
   WidgetsFlutterBinding.ensureInitialized();
   AppEnvironment.singleton.initEnvironment(Environment.staging);
   if (kIsWeb) {
@@ -41,7 +42,8 @@ void main() async {
       Utils.setWindowSize();
     }
   }
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(UncontrolledProviderScope(
+      container: locator<ProviderContainer>(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

@@ -32,9 +32,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final MeetingSDK sdk = ref.read(meetingSDKProvider);
-     if(sdk==MeetingSDK.livekit) {
-      await ref.read(participantProvider.notifier).addLocalParticipantTrack();
+      final MeetingSDK sdk = ref.read(meetingSDKProvider).meetingSDK;
+      if (sdk == MeetingSDK.livekit) {
+        await ref.read(participantProvider.notifier).addLocalParticipantTrack();
       }
       ref
           .read(chatProvider.notifier)

@@ -1,3 +1,4 @@
+import 'package:chitti_meet/modules/meeting_module/models/sdk_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -182,7 +183,10 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   ParticipantNotifier(this.ref) : super([]);
   final Ref ref;
   String _participantName = '';
+  dynamic _localParticipant;
+
   String get participantName => _participantName;
+  dynamic get localParticipant => _localParticipant;
 
   Future<void> addLocalParticipantTrack() async {
     List<dynamic> participants = [];
@@ -192,7 +196,7 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
       final HostModel host = HostModel(name: "Host", src: workshop.sourceUrl!);
       participants.add(host);
     }
-    final MeetingSDK sdk = ref.read(meetingSDKProvider);
+    final MeetingSDK sdk = ref.read(meetingSDKProvider).meetingSDK;
 
     if (sdk == MeetingSDK.livekit) {
       final Room room = locator<Room>();
@@ -204,7 +208,7 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
       final HMSSDK sdk = locator<HMSSDK>();
       final HMSLocalPeer? localPeer = await sdk.getLocalPeer();
       participants.add(localPeer);
-      final List<HMSPeer>? remotePeers= await sdk.getRemotePeers();
+      final List<HMSPeer>? remotePeers = await sdk.getRemotePeers();
       if (remotePeers != null && remotePeers.isNotEmpty) {
         participants = [...participants, ...remotePeers];
       }
@@ -221,10 +225,32 @@ class ParticipantNotifier extends StateNotifier<List<dynamic>> {
   }
 
   void removeRemoteParticipantTrack(dynamic participant) {
+    final MeetingSDKModel meetingSDKModel = ref.read(meetingSDKProvider);
+    if (meetingSDKModel.meetingSDK == MeetingSDK.livekit) {
+      final List<dynamic> newState = state
+          .where((element) =>
+              element is HostModel ? true : element.sid != participant.sid)
+          .toList();
+      state = newState;
+      return;
+    }
     final List<dynamic> newState = state
         .where((element) =>
-            element is HostModel ? true : element.sid != participant.sid)
+            element is HostModel ? true : element.peerId != participant.peerId)
         .toList();
+    state = newState;
+  }
+
+  void updateParticipant(HMSPeer peer) {
+    final List<dynamic> newState = List<dynamic>.from(state);
+
+    for (int i = 0; i < newState.length; i++) {
+      if (newState[i] is HMSPeer && newState[i].peerId == peer.peerId) {
+        newState[i] = peer;
+        break;
+      }
+    }
+
     state = newState;
   }
 
@@ -274,83 +300,115 @@ final workshopDetailsProvider =
     StateNotifierProvider<WorkshopDetialsNotifier, Workshop>(
         (ref) => WorkshopDetialsNotifier(ref));
 
-class MeetingSDKNotifier extends StateNotifier<MeetingSDK>
-    {
-  MeetingSDKNotifier({required this.ref}):super(MeetingSDK.livekit);
+class MeetingSDKNotifier extends StateNotifier<MeetingSDKModel> {
+  MeetingSDKNotifier({required this.ref})
+      : super(MeetingSDKModel(
+            meetingSDK: MeetingSDK.livekit,
+            isAudioMute: false,
+            isVideoMute: false,
+            isScreenShare: false));
 
   final Ref ref;
-  
+
   bool _isLivekit = true;
   bool _isHMS = false;
 
   bool get isLivekit => _isLivekit;
   bool get isHMS => _isHMS;
 
-  Future<bool> isAudioMuted({HMSPeer? peer}) async {
-    if (state == MeetingSDK.livekit) {
-      final Room room = locator<Room>();
-      return room.localParticipant!.isMicrophoneEnabled();
-    } else {
-      final HMSSDK sdk = locator<HMSSDK>();
-      final HMSPeer? localPeer = await sdk.getLocalPeer();
-      return  peer==null?localPeer!.audioTrack==null:peer.audioTrack==null;
-    }
-  }
-
-  Future<bool> isVideoMuted() async {
-    if (state == MeetingSDK.livekit) {
-      final Room room = locator<Room>();
-      return room.localParticipant!.isCameraEnabled();
-    } else {
-      final HMSSDK sdk = locator<HMSSDK>();
-      final HMSPeer? localPeer = await sdk.getLocalPeer();
-      return  localPeer!.audioTrack==null;
-    }
-  }
-
   Future<void> enableAudio() async {
-    if (state == MeetingSDK.livekit) {
+    if (state.meetingSDK == MeetingSDK.livekit) {
       final Room room = locator<Room>();
-        await room.localParticipant?.setMicrophoneEnabled(true);
+      await room.localParticipant?.setMicrophoneEnabled(true);
     } else {
       final HMSSDK sdk = locator<HMSSDK>();
       await sdk.toggleMicMuteState();
     }
+    state = MeetingSDKModel(
+        meetingSDK: state.meetingSDK,
+        isAudioMute: false,
+        isVideoMute: state.isVideoMute,
+        isScreenShare: state.isScreenShare);
   }
 
   Future<void> disableAudio() async {
-    if (state == MeetingSDK.livekit) {
+    if (state.meetingSDK == MeetingSDK.livekit) {
       final Room room = locator<Room>();
-        await room.localParticipant?.setMicrophoneEnabled(false);
+      await room.localParticipant?.setMicrophoneEnabled(false);
     } else {
       final HMSSDK sdk = locator<HMSSDK>();
       await sdk.toggleMicMuteState();
     }
+    state = MeetingSDKModel(
+        meetingSDK: state.meetingSDK,
+        isAudioMute: true,
+        isVideoMute: state.isVideoMute,
+        isScreenShare: state.isScreenShare);
   }
 
   Future<void> enableVideo() async {
-    if (state == MeetingSDK.livekit) {
+    if (state.meetingSDK == MeetingSDK.livekit) {
       final Room room = locator<Room>();
-        await room.localParticipant?.setMicrophoneEnabled(true);
-    } else {
-      final HMSSDK sdk = locator<HMSSDK>();
-      final data=await sdk.toggleCameraMuteState();
-      print(data.toString());
-    }
-  }
-
-  Future<void> disableVideo() async {
-    if (state == MeetingSDK.livekit) {
-      final Room room = locator<Room>();
-        await room.localParticipant?.setMicrophoneEnabled(false);
+      await room.localParticipant?.setMicrophoneEnabled(true);
     } else {
       final HMSSDK sdk = locator<HMSSDK>();
       await sdk.toggleCameraMuteState();
     }
+    state = MeetingSDKModel(
+        meetingSDK: state.meetingSDK,
+        isAudioMute: state.isAudioMute,
+        isVideoMute: false,
+        isScreenShare: state.isScreenShare);
   }
 
-  void addCallback(){
-    
+  Future<void> disableVideo() async {
+    if (state.meetingSDK == MeetingSDK.livekit) {
+      final Room room = locator<Room>();
+      await room.localParticipant?.setMicrophoneEnabled(false);
+    } else {
+      final HMSSDK sdk = locator<HMSSDK>();
+      await sdk.toggleCameraMuteState();
+    }
+    state = MeetingSDKModel(
+        meetingSDK: state.meetingSDK,
+        isAudioMute: state.isAudioMute,
+        isVideoMute: true,
+        isScreenShare: state.isScreenShare);
+  }
+
+  Future<void> leave() async {
+    if (state.meetingSDK == MeetingSDK.livekit) {
+      final Room room = locator<Room>();
+      await room.disconnect();
+    } else {
+      final HMSSDK sdk = locator<HMSSDK>();
+      await sdk.leave();
+      if (!kIsWeb) {
+        await locator<Player>().dispose();
+        await locator.unregister<VideoController>();
+        await locator.unregister<Player>();
+      } else {
+        // await locator<VideoJsController>().dispose();
+        await locator.unregister<VideoJsController>();
+        await locator.unregister<GlobalKey>();
+      }
+      locator<ProviderContainer>().invalidate(workshopDetailsProvider);
+      locator<ProviderContainer>().invalidate(viewProvider);
+      locator<ProviderContainer>().read(chatProvider.notifier).reset();
+      //  locator<ProviderContainer>().refresh(chatProvider);
+      locator<ProviderContainer>().invalidate(unReadMessageProvider);
+      locator<HMSSDK>().destroy();
+      await locator.unregister<HMSSDK>();
+      locator.registerLazySingleton(() => HMSSDK());
+      locator<ProviderContainer>()
+          .read(meetingStateProvider.notifier)
+          .changeState(MeetingRoomDisconnected());
+    }
+    state = MeetingSDKModel(
+        meetingSDK: MeetingSDK.livekit,
+        isAudioMute: false,
+        isVideoMute: false,
+        isScreenShare: false);
   }
 
   void changeSDK(MeetingSDK sdk) {
@@ -358,19 +416,24 @@ class MeetingSDKNotifier extends StateNotifier<MeetingSDK>
       _isLivekit = false;
       _isHMS = true;
     }
-    state = sdk;
+    state = MeetingSDKModel(
+        meetingSDK: sdk,
+        isAudioMute: state.isAudioMute,
+        isVideoMute: state.isVideoMute,
+        isScreenShare: state.isScreenShare);
   }
 }
 
 final meetingSDKProvider =
-    StateNotifierProvider<MeetingSDKNotifier, MeetingSDK>(
+    StateNotifierProvider<MeetingSDKNotifier, MeetingSDKModel>(
         (ref) => MeetingSDKNotifier(ref: ref));
 
 class HMSMeetingListeners implements HMSUpdateListener {
-  HMSMeetingListeners({ this.context,  this.ref});
+  HMSMeetingListeners({this.context});
 
-  final WidgetRef? ref;
   final BuildContext? context;
+  final ProviderContainer container = locator<ProviderContainer>();
+
   get listener => this;
 
   @override
@@ -387,9 +450,10 @@ class HMSMeetingListeners implements HMSUpdateListener {
 
   @override
   Future<void> onJoin({required HMSRoom room}) async {
-       
-    await ref!.read(participantProvider.notifier).addLocalParticipantTrack();
-    ref!
+    await locator<ProviderContainer>()
+        .read(participantProvider.notifier)
+        .addLocalParticipantTrack();
+    locator<ProviderContainer>()
         .read(meetingStateProvider.notifier)
         .changeState(MeetingRoomJoinCompleted());
   }
@@ -406,16 +470,18 @@ class HMSMeetingListeners implements HMSUpdateListener {
   void onPeerUpdate({required HMSPeer peer, required HMSPeerUpdate update}) {
     switch (update) {
       case HMSPeerUpdate.peerJoined:
-        ref!.read(participantProvider.notifier).addRemoteParticipantTrack(peer);
-        context!.showCustomSnackBar(
+        locator<ProviderContainer>()
+            .read(participantProvider.notifier)
+            .addRemoteParticipantTrack(peer);
+        context?.showCustomSnackBar(
             content: '${peer.name} connected',
             iconPath: 'assets/icons/user_rounded.png');
         break;
       case HMSPeerUpdate.peerLeft:
-        ref!
+        locator<ProviderContainer>()
             .read(participantProvider.notifier)
             .removeRemoteParticipantTrack(peer);
-        context!.showCustomSnackBar(
+        context?.showCustomSnackBar(
             content: '${peer.name} disconnected',
             iconPath: 'assets/icons/user_rounded.png');
         break;
@@ -442,8 +508,29 @@ class HMSMeetingListeners implements HMSUpdateListener {
   void onReconnecting() {}
 
   @override
-  void onRemovedFromRoom(
-      {required HMSPeerRemovedFromPeer hmsPeerRemovedFromPeer}) {}
+  Future<void> onRemovedFromRoom(
+      {required HMSPeerRemovedFromPeer hmsPeerRemovedFromPeer}) async {
+    if (!kIsWeb) {
+      await locator<Player>().dispose();
+      await locator.unregister<VideoController>();
+      await locator.unregister<Player>();
+    } else {
+      // await locator<VideoJsController>().dispose();
+      await locator.unregister<VideoJsController>();
+      await locator.unregister<GlobalKey>();
+    }
+    locator<ProviderContainer>().invalidate(workshopDetailsProvider);
+    locator<ProviderContainer>().invalidate(viewProvider);
+    locator<ProviderContainer>().read(chatProvider.notifier).reset();
+    //  locator<ProviderContainer>().refresh(chatProvider);
+    locator<ProviderContainer>().invalidate(unReadMessageProvider);
+    locator<HMSSDK>().destroy();
+    await locator.unregister<HMSSDK>();
+    locator.registerLazySingleton(() => HMSSDK());
+    locator<ProviderContainer>()
+        .read(meetingStateProvider.notifier)
+        .changeState(MeetingRoomDisconnected());
+  }
 
   @override
   void onRoleChangeRequest({required HMSRoleChangeRequest roleChangeRequest}) {}
@@ -459,36 +546,37 @@ class HMSMeetingListeners implements HMSUpdateListener {
       {required HMSTrack track,
       required HMSTrackUpdate trackUpdate,
       required HMSPeer peer}) {
+    // peer.audioTrack.
+    switch (trackUpdate) {
+      case HMSTrackUpdate.trackAdded:
+        debugPrint('track added');
+        break;
+      case HMSTrackUpdate.trackRemoved:
+        break;
+      case HMSTrackUpdate.trackMuted:
+        locator<ProviderContainer>()
+            .read(participantProvider.notifier)
+            .updateParticipant(peer);
+        debugPrint('track added');
 
-        switch (trackUpdate) {
-          case HMSTrackUpdate.trackAdded:
-            // TODO: Handle this case.
-            break;
-          case HMSTrackUpdate.trackRemoved:
-            // TODO: Handle this case.
-            break;
-          case HMSTrackUpdate.trackMuted:
-            // peer.videoTrack=null;
-            break;
-          case HMSTrackUpdate.trackUnMuted:
-            break;
-          case HMSTrackUpdate.trackDescriptionChanged:
-            // TODO: Handle this case.
-            break;
-          case HMSTrackUpdate.trackDegraded:
-            // TODO: Handle this case.
-            break;
-          case HMSTrackUpdate.trackRestored:
-            // TODO: Handle this case.
-            break;
-          case HMSTrackUpdate.defaultUpdate:
-            // TODO: Handle this case.
-            break;
-        } 
-         
+        break;
+      case HMSTrackUpdate.trackUnMuted:
+        locator<ProviderContainer>()
+            .read(participantProvider.notifier)
+            .updateParticipant(peer);
+        debugPrint('track added');
 
-          debugPrint(peer.toString());
-      }
+        break;
+      case HMSTrackUpdate.trackDescriptionChanged:
+        break;
+      case HMSTrackUpdate.trackDegraded:
+        break;
+      case HMSTrackUpdate.trackRestored:
+        break;
+      case HMSTrackUpdate.defaultUpdate:
+        break;
+    }
+  }
 
   @override
   void onUpdateSpeakers({required List<HMSSpeaker> updateSpeakers}) {}

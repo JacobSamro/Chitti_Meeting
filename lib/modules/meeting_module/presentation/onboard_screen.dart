@@ -73,23 +73,24 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
       }
     });
   }
-  Future<bool> getPermissions() async {
-  if (Platform.isIOS) return true;
-  await Permission.camera.request();
-  await Permission.microphone.request();
-  // await Permission.bluetoothConnect.request();
 
-  while ((await Permission.camera.isDenied)) {
+  Future<bool> getPermissions() async {
+    if (Platform.isIOS) return true;
     await Permission.camera.request();
-  }
-  while ((await Permission.microphone.isDenied)) {
     await Permission.microphone.request();
+    // await Permission.bluetoothConnect.request();
+
+    while ((await Permission.camera.isDenied)) {
+      await Permission.camera.request();
+    }
+    while ((await Permission.microphone.isDenied)) {
+      await Permission.microphone.request();
+    }
+    // while ((await Permission.bluetoothConnect.isDenied)) {
+    //   await Permission.bluetoothConnect.request();
+    // }
+    return true;
   }
-  // while ((await Permission.bluetoothConnect.isDenied)) {
-  //   await Permission.bluetoothConnect.request();
-  // }
-  return true;
-}
 
   initCamera() async {
     try {
@@ -270,150 +271,156 @@ class _OnBoardScreenState extends ConsumerState<OnBoradScreen> {
                   ? GestureDetector(
                       onTap: () async {
                         bool res = await getPermissions();
-                        if(res){
-                        if (nameController.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Enter User Name")));
-                          return;
-                        }
-                        if (hashId.text.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Enter meeting ID")));
-                          return;
-                        }
-                        if (nameController.text.split('.').last == 'host' &&
-                            passcode.text.isEmpty) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            barrierColor: Colors.black,
-                            builder: (dialogContext) => AlertDialog(
-                              backgroundColor: Colors.black,
-                              contentPadding: const EdgeInsets.all(0),
-                              insetPadding: const EdgeInsets.all(0),
-                              content: CustomCard(
-                                  iconPath: "assets/icons/passcode.png",
-                                  content: Column(
-                                    children: [
-                                      const Text(
-                                          "Confirm Passcode to join as Host"),
-                                      const SizedBox(
-                                        height: 16,
-                                      ),
-                                      CustomInputField(
-                                          controller: passcode,
-                                          obscureText: true,
-                                          label: "Passcode"),
-                                    ],
-                                  ),
-                                  actions: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        if (passcode.text.isEmpty) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                                  content:
-                                                      Text("Enter Passcode")));
+                        if (res) {
+                          if (nameController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Enter User Name")));
+                            return;
+                          }
+                          if (hashId.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Enter meeting ID")));
+                            return;
+                          }
+                          if (nameController.text.split('.').last == 'host' &&
+                              passcode.text.isEmpty) {
+                            // ignore: use_build_context_synchronously
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              barrierColor: Colors.black,
+                              builder: (dialogContext) => AlertDialog(
+                                backgroundColor: Colors.black,
+                                contentPadding: const EdgeInsets.all(0),
+                                insetPadding: const EdgeInsets.all(0),
+                                content: CustomCard(
+                                    iconPath: "assets/icons/passcode.png",
+                                    content: Column(
+                                      children: [
+                                        const Text(
+                                            "Confirm Passcode to join as Host"),
+                                        const SizedBox(
+                                          height: 16,
+                                        ),
+                                        CustomInputField(
+                                            controller: passcode,
+                                            obscureText: true,
+                                            label: "Passcode"),
+                                      ],
+                                    ),
+                                    actions: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (passcode.text.isEmpty) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                                    content: Text(
+                                                        "Enter Passcode")));
+                                            Navigator.pop(context);
+                                            setState(() {
+                                              buttonText = 'Join Meeting';
+                                            });
+                                            return;
+                                          }
                                           Navigator.pop(context);
-                                          setState(() {
-                                            buttonText = 'Join Meeting';
-                                          });
-                                          return;
-                                        }
-                                        Navigator.pop(context);
-                                      },
-                                      child: CustomButton(
-                                        child: Center(
-                                          child: Text(
-                                            "Continue",
-                                            style:
-                                                textTheme.titleSmall?.copyWith(
-                                              color: Colors.black,
+                                        },
+                                        child: CustomButton(
+                                          child: Center(
+                                            child: Text(
+                                              "Continue",
+                                              style: textTheme.titleSmall
+                                                  ?.copyWith(
+                                                color: Colors.black,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        passcode.clear();
-                                      },
-                                      child: CustomButton(
-                                        color: Colors.white.withOpacity(0.2),
-                                        child: Center(
-                                          child: Text("Cancel",
-                                              style: textTheme.titleSmall),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          passcode.clear();
+                                        },
+                                        child: CustomButton(
+                                          color: Colors.white.withOpacity(0.2),
+                                          child: Center(
+                                            child: Text("Cancel",
+                                                style: textTheme.titleSmall),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ]),
-                            ),
-                          );
-                          return;
-                        }
-
-                        // ignore: use_build_context_synchronously
-                        FocusScope.of(context).unfocus();
-                        // ignore: use_build_context_synchronously
-                        await showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  title: const Text("Select Meeting SDK"),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(meetingSDKProvider.notifier)
-                                              .changeSDK(MeetingSDK.livekit);
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('LiveKit')),
-                                    TextButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(meetingSDKProvider.notifier)
-                                              .changeSDK(MeetingSDK.hms);
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('HMS'))
-                                  ],
-                                ));
-                        setState(() {
-                          isLoading = true;
-                        });
-                        ref
-                            .read(participantProvider.notifier)
-                            .setParticipantName(nameController.text);
-                        final bool canConnect = await ref
-                            .read(workshopDetailsProvider.notifier)
-                            .getWorkshopDetials(hashId.text);
-                        if (canConnect) {
-                          if (!context.mounted) return;
-                          final bool value =
-                              await locator<MeetingRepositories>()
-                                  .addParticipant(context,
-                                      nameController.text.trim(),
-                                      passcode.text.trim(),
-                                      ref
-                                          .read(workshopDetailsProvider)
-                                          .meetingId
-                                          .toString(),
-                                      isVideoOn,
-                                      ref);
-                          if (!value) {
-                            // ignore: use_build_context_synchronously
-                            context.showCustomSnackBar(
-                                content: "Participant unable to join",
-                                iconPath: 'assets/icons/info.png');
-                            isLoading = false;
-                            isVideoOn = false;
-                            ref
-                                .read(meetingStateProvider.notifier)
-                                .changeState(RouterInitial());
+                                    ]),
+                              ),
+                            );
+                            return;
                           }
-                        }}
+
+                          // ignore: use_build_context_synchronously
+                          FocusScope.of(context).unfocus();
+                          // ignore: use_build_context_synchronously
+                          await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: const Text("Select Meeting SDK"),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () {
+                                            ref
+                                                .read(
+                                                    meetingSDKProvider.notifier)
+                                                .changeSDK(MeetingSDK.livekit);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('LiveKit')),
+                                      TextButton(
+                                          onPressed: () {
+                                            ref
+                                                .read(
+                                                    meetingSDKProvider.notifier)
+                                                .changeSDK(MeetingSDK.hms);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('HMS'))
+                                    ],
+                                  ));
+                          setState(() {
+                            isLoading = true;
+                          });
+                          ref
+                              .read(participantProvider.notifier)
+                              .setParticipantName(nameController.text);
+                          final bool canConnect = await ref
+                              .read(workshopDetailsProvider.notifier)
+                              .getWorkshopDetials(hashId.text);
+                          if (canConnect) {
+                            if (!context.mounted) return;
+                            final bool value =
+                                await locator<MeetingRepositories>()
+                                    .addParticipant(
+                                        context,
+                                        nameController.text.trim(),
+                                        passcode.text.trim(),
+                                        ref
+                                            .read(workshopDetailsProvider)
+                                            .meetingId
+                                            .toString(),
+                                        isVideoOn,
+                                        ref);
+                            if (!value) {
+                              // ignore: use_build_context_synchronously
+                              context.showCustomSnackBar(
+                                  content: "Participant unable to join",
+                                  iconPath: 'assets/icons/info.png');
+                              isLoading = false;
+                              isVideoOn = false;
+                              ref
+                                  .read(meetingStateProvider.notifier)
+                                  .changeState(RouterInitial());
+                            }
+                          }
+                        }
                       },
                       child: CustomButton(
                         height: 52,

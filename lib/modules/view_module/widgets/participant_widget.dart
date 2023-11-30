@@ -1,4 +1,4 @@
-import 'package:chitti_meet/modules/meeting_module/states/meeting_states.dart';
+import 'package:chitti_meet/modules/meeting_module/models/sdk_model.dart';
 import 'package:chitti_meet/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,13 +19,12 @@ class ParticipantWidget extends ConsumerStatefulWidget {
 
 class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
   GlobalKey? persistKey;
-  bool isAudioMute=true;
+  bool isAudioMute = true;
   @override
   void initState() {
     super.initState();
     if (!locator.isRegistered<GlobalKey>()) {
-      locator.registerLazySingleton<GlobalKey>(() => GlobalKey()
-          );
+      locator.registerLazySingleton<GlobalKey>(() => GlobalKey());
     }
     persistKey = locator<GlobalKey>();
     ref.read(meetingStateProvider.notifier).listenTrack(() {
@@ -36,16 +35,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
     ref
         .read(meetingStateProvider.notifier)
         .listener
-        .on<RoomDisconnectedEvent>((p0) async {
-      // locator<GlobalKey>().currentState?.dispose();
-    });
-  }
-    Future<void> checkTrackState() async {
-     if(ref.read(meetingSDKProvider)==MeetingSDK.hms && widget.participant is HMSPeer){
-      isAudioMute=await ref.read(meetingSDKProvider.notifier).isAudioMuted(peer:widget.participant);
-    // setState(() {
-    // });
-    }
+        .on<RoomDisconnectedEvent>((p0) async {});
   }
 
   @override
@@ -56,7 +46,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    checkTrackState();
+    ref.watch(participantProvider);
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: widget.participant is HostModel
@@ -66,73 +56,99 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                     key: persistKey!,
                   )
                 : const CircularProgressIndicator()
-            :widget.participant is HMSPeer? widget.participant.videoTrack!=null?
-            HMSVideoView(track: widget.participant.videoTrack,)
-             :ParticipantWithoutVideo(name: widget.participant.name,isMuted:isAudioMute,) :
-            (widget.participant.isCameraEnabled() ||
-                        widget.participant.isScreenShareEnabled()) &&
-                    widget.participant.videoTracks.first.track != null
-                ? Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: widget.participant.isSpeaking
-                            ? Border.all(color: Colors.green)
-                            : null),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Stack(
-                        children: [
-                          VideoTrackRenderer(
-                            widget.participant.videoTracks.first.track
-                                as VideoTrack,
-                            fit: rtc.RTCVideoViewObjectFit
-                                .RTCVideoViewObjectFitCover,
+            : widget.participant is HMSPeer
+                ? widget.participant.isLocal
+                    ? widget.participant.videoTrack != null &&
+                            widget.participant.videoTrack.isMute == false
+                        ? HMSVideoView(
+                            track: widget.participant.videoTrack,
+                            setMirror: true,
+                            scaleType: ScaleType.SCALE_ASPECT_BALANCED,
+                          )
+                        : ParticipantWithoutVideo(
+                            name: widget.participant.name,
+                            isMuted: widget.participant.audioTrack != null
+                                ? widget.participant.audioTrack.isMute
+                                : false,
+                          )
+                    : widget.participant.videoRemoteTrack != null &&
+                            widget.participant.videoRemoteTrack.isMute == false
+                        ? HMSVideoView(
+                            track: widget.participant.videoRemoteTrack,
+                            setMirror: true,
+                            scaleType: ScaleType.SCALE_ASPECT_BALANCED,
+                          )
+                        : ParticipantWithoutVideo(
+                            name: widget.participant.name,
+                            isMuted: widget.participant.audioRemoteTrack != null
+                                ? widget.participant.audioRemoteTrack.isMute
+                                : false,
+                          )
+                : (widget.participant.isCameraEnabled() ||
+                            widget.participant.isScreenShareEnabled()) &&
+                        widget.participant.videoTracks.first.track != null
+                    ? Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: widget.participant.isSpeaking
+                                ? Border.all(color: Colors.green)
+                                : null),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Stack(
+                            children: [
+                              VideoTrackRenderer(
+                                widget.participant.videoTracks.first.track
+                                    as VideoTrack,
+                                fit: rtc.RTCVideoViewObjectFit
+                                    .RTCVideoViewObjectFitCover,
+                              ),
+                              Positioned(
+                                  bottom: 10,
+                                  right: 10,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: Colors.black.withOpacity(0.6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          widget.participant.name,
+                                          style: textTheme.labelSmall
+                                              ?.copyWith(fontSize: 12),
+                                        ),
+                                        const SizedBox(
+                                          width: 8,
+                                        ),
+                                        Image.asset(
+                                          widget.participant.isMuted
+                                              ? 'assets/icons/mic_off.png'
+                                              : 'assets/icons/mic.png',
+                                          width: 16,
+                                          height: 16,
+                                        )
+                                      ],
+                                    ),
+                                  ))
+                            ],
                           ),
-                          Positioned(
-                              bottom: 10,
-                              right: 10,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.black.withOpacity(0.6),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      widget.participant.name,
-                                      style: textTheme.labelSmall
-                                          ?.copyWith(fontSize: 12),
-                                    ),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    Image.asset(
-                                      widget.participant.isMuted
-                                          ? 'assets/icons/mic_off.png'
-                                          : 'assets/icons/mic.png',
-                                      width: 16,
-                                      height: 16,
-                                    )
-                                  ],
-                                ),
-                              ))
-                        ],
-                      ),
-                    ),
-                  )
-                : ParticipantWithoutVideo(
-                    name: widget.participant.name,
-                    isMuted: widget.participant.muted,
-                  ));
+                        ),
+                      )
+                    : ParticipantWithoutVideo(
+                        name: widget.participant.name,
+                        isMuted: widget.participant.muted,
+                      ));
   }
 }
 
 class ParticipantWithoutVideo extends StatelessWidget {
   const ParticipantWithoutVideo({
-    super.key, required this.name, required this.isMuted,
-    
+    super.key,
+    required this.name,
+    required this.isMuted,
   });
   final String name;
   final bool isMuted;
@@ -143,11 +159,11 @@ class ParticipantWithoutVideo extends StatelessWidget {
         width: double.infinity,
         height: 200,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white.withOpacity(0.06),
-            // border: participant.isSpeaking
-            //     ? Border.all(color: Colors.green)
-            //     : null),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white.withOpacity(0.06),
+          // border: participant.isSpeaking
+          //     ? Border.all(color: Colors.green)
+          //     : null),
         ),
         child: Stack(
           children: [
@@ -170,7 +186,7 @@ class ParticipantWithoutVideo extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                       name,
+                        name,
                         style: textTheme.labelSmall?.copyWith(fontSize: 12),
                       ),
                       const SizedBox(
