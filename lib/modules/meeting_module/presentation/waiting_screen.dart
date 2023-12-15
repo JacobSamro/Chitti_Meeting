@@ -1,10 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
 import '../../../utils/utils.dart';
-import '../../../services/locator.dart';
 import '../models/workshop_model.dart';
 import '../providers/meeting_provider.dart';
 import '../repositories/meeting_respositories.dart';
@@ -16,9 +17,7 @@ class WaitingScreen extends ConsumerStatefulWidget {
   ConsumerState<WaitingScreen> createState() => _WaitingScreenState();
 }
 
-class _WaitingScreenState extends ConsumerState<WaitingScreen>
-    with SingleTickerProviderStateMixin {
-  late final FlutterGifController controller;
+class _WaitingScreenState extends ConsumerState<WaitingScreen> with SingleTickerProviderStateMixin {
   Duration elapsedTime = const Duration();
   Timer _timer = Timer(const Duration(), () {});
   late final AssetImage image;
@@ -27,16 +26,13 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
     super.initState();
     image = const AssetImage('assets/images/waiting_animation.gif');
     startTimer();
-    controller = FlutterGifController(vsync: this);
-    controller.repeat(min: 0, max: 106, period: const Duration(seconds: 6));
   }
 
   Future<void> startTimer() async {
     final Workshop workshop = ref.read(workshopDetailsProvider);
     final loalTime = await locator<MeetingRepositories>().getDateTime();
     DateTime currentTime = DateTime.parse(loalTime);
-    final DateTime meetingTime = DateTime.parse(workshop.scheduledAt!)
-        .subtract(const Duration(minutes: 10));
+    final DateTime meetingTime = DateTime.parse(workshop.scheduledAt!).subtract(const Duration(minutes: 10));
     elapsedTime = currentTime.toUtc().difference(meetingTime);
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
       currentTime = currentTime.add(const Duration(seconds: 1));
@@ -44,34 +40,16 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
         elapsedTime = currentTime.toUtc().difference(meetingTime);
       });
       if (elapsedTime == Duration.zero) {
-        await ref.read(workshopDetailsProvider.notifier).getWorkshopDetials(
-            ref.read(workshopDetailsProvider.notifier).hashId);
-        if (ref
-                .read(participantProvider.notifier)
-                .participantName
-                .split('.')
-                .last ==
-            'host') {
+        await ref.read(workshopDetailsProvider.notifier).getWorkshopDetials(ref.read(workshopDetailsProvider.notifier).hashId);
+        if (ref.read(participantProvider.notifier).participantName.split('.').last == 'host') {
           ref.read(meetingPageProvider.notifier).changePageIndex(1);
         } else {
           if (!context.mounted) return;
 
-          await locator<MeetingRepositories>()
-              .addParticipant(
-                  context,
-                  ref.read(participantProvider.notifier).participantName,
-                  '',
-                  workshop.meetingId!,
-                  false,
-                  ref)
-              .then((value) {
+          await locator<MeetingRepositories>().addParticipant(context, ref.read(participantProvider.notifier).participantName, '', workshop.meetingId!, false, ref).then((value) {
             if (!value) {
-              ref
-                  .read(meetingStateProvider.notifier)
-                  .changeState(RouterInitial());
-              context.showCustomSnackBar(
-                  content: "Participant unable to join",
-                  iconPath: 'assets/icons/info.png');
+              ref.read(meetingStateProvider.notifier).changeState(RouterInitial());
+              context.showCustomSnackBar(content: "Participant unable to join", iconPath: 'assets/icons/info.png');
             }
           });
         }
@@ -82,7 +60,7 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
 
   @override
   void dispose() {
-    controller.dispose();
+    // controller.dispose();
     _timer.cancel();
     super.dispose();
   }
@@ -92,8 +70,7 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final Map<String, dynamic> formattedTime = timeFormat(elapsedTime);
-    final ResponsiveDevice responsiveDevice =
-        Responsive().getDeviceType(context);
+    final ResponsiveDevice responsiveDevice = Responsive().getDeviceType(context);
     final bool isDesktop = responsiveDevice == ResponsiveDevice.desktop;
     return Scaffold(
       body: _timer.isActive
@@ -114,14 +91,13 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                      height: 250,
-                      width: 250,
-                      child: GifImage(image: image, controller: controller)),
+                    height: 250,
+                    width: 250,
+                    child: Image.asset('assets/images/waiting_animation.gif'),
+                  ),
                   Text(
                     "Workshop will be live in",
-                    style: isDesktop
-                        ? textTheme.titleLarge?.copyWith(fontSize: 24)
-                        : textTheme.titleLarge,
+                    style: isDesktop ? textTheme.titleLarge?.copyWith(fontSize: 24) : textTheme.titleLarge,
                   ),
                   const SizedBox(
                     height: 14,
@@ -142,24 +118,13 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(e.value.toString(),
-                                        style: isDesktop
-                                            ? textTheme.titleLarge?.copyWith(
-                                                fontSize: 34,
-                                                fontWeight: FontWeight.w900)
-                                            : textTheme.titleLarge?.copyWith(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w900)),
+                                    Text(e.value.toString(), style: isDesktop ? textTheme.titleLarge?.copyWith(fontSize: 34, fontWeight: FontWeight.w900) : textTheme.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w900)),
                                     const SizedBox(
                                       height: 3,
                                     ),
                                     Text(
                                       e.key,
-                                      style: isDesktop
-                                          ? textTheme.displayLarge
-                                              ?.copyWith(fontSize: 18)
-                                          : textTheme.displaySmall
-                                              ?.copyWith(fontSize: 12),
+                                      style: isDesktop ? textTheme.displayLarge?.copyWith(fontSize: 18) : textTheme.displaySmall?.copyWith(fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -182,11 +147,6 @@ class _WaitingScreenState extends ConsumerState<WaitingScreen>
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60).abs());
     String days = twoDigits(duration.inDays.abs());
     String hours = twoDigits(duration.inHours.remainder(24).abs());
-    return {
-      'Days': days,
-      'Hours': hours,
-      'Minutes': twoDigitMinutes,
-      'seconds': twoDigitSeconds
-    };
+    return {'Days': days, 'Hours': hours, 'Minutes': twoDigitMinutes, 'seconds': twoDigitSeconds};
   }
 }
