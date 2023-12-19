@@ -42,7 +42,7 @@ extension Utils on BuildContext {
         controller?.close();
         controller = null;
       }
-      timer != null ? timer!.cancel() : null;
+      timer?.cancel();
     }
   }
 

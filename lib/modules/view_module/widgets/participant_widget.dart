@@ -1,13 +1,12 @@
-import 'package:chitti_meet/modules/meeting_module/models/sdk_model.dart';
 import 'package:chitti_meet/services/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' as rtc;
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 import 'package:livekit_client/livekit_client.dart';
+
 import '../../meeting_module/models/host_model.dart';
 import '../../meeting_module/providers/meeting_provider.dart';
-import 'custom_video_player.dart';
 
 class ParticipantWidget extends ConsumerStatefulWidget {
   const ParticipantWidget({super.key, required this.participant});
@@ -32,10 +31,7 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
         setState(() {});
       }
     });
-    ref
-        .read(meetingStateProvider.notifier)
-        .listener
-        .on<RoomDisconnectedEvent>((p0) async {});
+    ref.read(meetingStateProvider.notifier).listener.on<RoomDisconnectedEvent>((p0) async {});
   }
 
   @override
@@ -51,15 +47,14 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: widget.participant is HostModel
             ? persistKey != null
-                ? CustomVideoPlayer(
-                    src: widget.participant.src,
+                ? HMSHLSPlayer(
+                    hlsUrl: widget.participant.src,
                     key: persistKey!,
                   )
                 : const CircularProgressIndicator()
             : widget.participant is HMSPeer
                 ? widget.participant.isLocal
-                    ? widget.participant.videoTrack != null &&
-                            widget.participant.videoTrack.isMute == false
+                    ? widget.participant.videoTrack != null && widget.participant.videoTrack.isMute == false
                         ? HMSVideoView(
                             track: widget.participant.videoTrack,
                             setMirror: true,
@@ -67,12 +62,9 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                           )
                         : ParticipantWithoutVideo(
                             name: widget.participant.name,
-                            isMuted: widget.participant.audioTrack != null
-                                ? widget.participant.audioTrack.isMute
-                                : false,
+                            isMuted: widget.participant.audioTrack != null ? widget.participant.audioTrack.isMute : false,
                           )
-                    : widget.participant.videoRemoteTrack != null &&
-                            widget.participant.videoRemoteTrack.isMute == false
+                    : widget.participant.videoRemoteTrack != null && widget.participant.videoRemoteTrack.isMute == false
                         ? HMSVideoView(
                             track: widget.participant.videoRemoteTrack,
                             setMirror: true,
@@ -80,35 +72,24 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                           )
                         : ParticipantWithoutVideo(
                             name: widget.participant.name,
-                            isMuted: widget.participant.audioRemoteTrack != null
-                                ? widget.participant.audioRemoteTrack.isMute
-                                : false,
+                            isMuted: widget.participant.audioRemoteTrack != null ? widget.participant.audioRemoteTrack.isMute : false,
                           )
-                : (widget.participant.isCameraEnabled() ||
-                            widget.participant.isScreenShareEnabled()) &&
-                        widget.participant.videoTracks.first.track != null
+                : (widget.participant.isCameraEnabled() || widget.participant.isScreenShareEnabled()) && widget.participant.videoTracks.first.track != null
                     ? Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: widget.participant.isSpeaking
-                                ? Border.all(color: Colors.green)
-                                : null),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: widget.participant.isSpeaking ? Border.all(color: Colors.green) : null),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Stack(
                             children: [
                               VideoTrackRenderer(
-                                widget.participant.videoTracks.first.track
-                                    as VideoTrack,
-                                fit: rtc.RTCVideoViewObjectFit
-                                    .RTCVideoViewObjectFitCover,
+                                widget.participant.videoTracks.first.track as VideoTrack,
+                                fit: rtc.RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                               ),
                               Positioned(
                                   bottom: 10,
                                   right: 10,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
                                       color: Colors.black.withOpacity(0.6),
@@ -117,16 +98,13 @@ class _ParticipantWidgetState extends ConsumerState<ParticipantWidget> {
                                       children: [
                                         Text(
                                           widget.participant.name,
-                                          style: textTheme.labelSmall
-                                              ?.copyWith(fontSize: 12),
+                                          style: textTheme.labelSmall?.copyWith(fontSize: 12),
                                         ),
                                         const SizedBox(
                                           width: 8,
                                         ),
                                         Image.asset(
-                                          widget.participant.isMuted
-                                              ? 'assets/icons/mic_off.png'
-                                              : 'assets/icons/mic.png',
+                                          widget.participant.isMuted ? 'assets/icons/mic_off.png' : 'assets/icons/mic.png',
                                           width: 16,
                                           height: 16,
                                         )
@@ -177,8 +155,7 @@ class ParticipantWithoutVideo extends StatelessWidget {
                 bottom: 10,
                 right: 10,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     color: Colors.black.withOpacity(0.6),
@@ -193,9 +170,7 @@ class ParticipantWithoutVideo extends StatelessWidget {
                         width: 8,
                       ),
                       Image.asset(
-                        isMuted
-                            ? 'assets/icons/mic_off.png'
-                            : 'assets/icons/mic.png',
+                        isMuted ? 'assets/icons/mic_off.png' : 'assets/icons/mic.png',
                         width: 16,
                         height: 16,
                       )

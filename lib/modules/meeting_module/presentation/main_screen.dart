@@ -1,10 +1,11 @@
-import '../../../utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart';
+
 import '../../../common/widgets/custom_timer.dart';
 import '../../../services/locator.dart';
 import '../../../services/responsive.dart';
+import '../../../utils/utils.dart';
 import '../../chat_module/providers/chat_provider.dart';
 import '../../view_module/models/view_state.dart';
 import '../../view_module/presentation/view_screen.dart';
@@ -25,20 +26,16 @@ class MainScreen extends ConsumerStatefulWidget {
 
 class _MainScreenState extends ConsumerState<MainScreen> {
   final Room room = locator<Room>();
-  final MeetingRepositories meetingRepositories =
-      locator<MeetingRepositories>();
+  final MeetingRepositories meetingRepositories = locator<MeetingRepositories>();
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final MeetingSDK sdk = ref.read(meetingSDKProvider).meetingSDK;
       if (sdk == MeetingSDK.livekit) {
         await ref.read(participantProvider.notifier).addLocalParticipantTrack();
       }
-      ref
-          .read(chatProvider.notifier)
-          .listenMessage(ref.read(workshopDetailsProvider.notifier).hashId);
+      ref.read(chatProvider.notifier).listenMessage(ref.read(workshopDetailsProvider.notifier).hashId);
     });
   }
 
@@ -53,13 +50,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final textTheme = Theme.of(context).textTheme;
     final ViewState viewState = ref.watch(viewProvider);
     final ViewType viewType = viewState.viewType;
-    final ResponsiveDevice responsiveDevice =
-        Responsive().getDeviceType(context);
+    final ResponsiveDevice responsiveDevice = Responsive().getDeviceType(context);
     final Workshop workshop = ref.read(workshopDetailsProvider);
     return SafeArea(
       child: Scaffold(
-        appBar: viewType != ViewType.fullScreen &&
-                responsiveDevice != ResponsiveDevice.desktop
+        appBar: viewType != ViewType.fullScreen && responsiveDevice != ResponsiveDevice.desktop
             ? AppBar(
                 title: Padding(
                   padding: const EdgeInsets.all(16),
@@ -70,8 +65,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       Flexible(
                         child: Text(
                           workshop.workshopName.toString(),
-                          style: textTheme.bodySmall
-                              ?.copyWith(color: Colors.white),
+                          style: textTheme.bodySmall?.copyWith(color: Colors.white),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -86,10 +80,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             : null,
         body: viewType != ViewType.fullScreen
             ? const Column(
-                children: [
-                  Flexible(flex: 1, child: ViewScreen()),
-                  CustomNavigationBar()
-                ],
+                children: [Flexible(flex: 1, child: ViewScreen()), CustomNavigationBar()],
               )
             : SizedBox(
                 height: double.infinity,
@@ -102,10 +93,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         child: SizedBox(
                           width: double.infinity,
                           height: double.infinity,
-                          child: ParticipantWidget(
-                              participant: meetingRepositories
-                                  .sortParticipant(viewType, ref)
-                                  .first),
+                          child: ParticipantWidget(participant: meetingRepositories.sortParticipant(viewType, ref).first),
                         ),
                       )
                     : Column(
@@ -113,10 +101,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                           Expanded(
                             child: SizedBox(
                               width: double.infinity,
-                              child: ParticipantWidget(
-                                  participant: meetingRepositories
-                                      .sortParticipant(viewType, ref)
-                                      .first),
+                              child: ParticipantWidget(participant: meetingRepositories.sortParticipant(viewType, ref).first),
                             ),
                           ),
                           const CustomNavigationBar()
