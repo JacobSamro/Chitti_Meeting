@@ -303,7 +303,7 @@ final workshopDetailsProvider =
 class MeetingSDKNotifier extends StateNotifier<MeetingSDKModel> {
   MeetingSDKNotifier({required this.ref})
       : super(MeetingSDKModel(
-            meetingSDK: MeetingSDK.livekit,
+            meetingSDK: MeetingSDK.hms,
             isAudioMute: false,
             isVideoMute: false,
             isScreenShare: false));
@@ -405,7 +405,7 @@ class MeetingSDKNotifier extends StateNotifier<MeetingSDKModel> {
           .changeState(MeetingRoomDisconnected());
     }
     state = MeetingSDKModel(
-        meetingSDK: MeetingSDK.livekit,
+        meetingSDK: MeetingSDK.hms,
         isAudioMute: false,
         isVideoMute: false,
         isScreenShare: false);
